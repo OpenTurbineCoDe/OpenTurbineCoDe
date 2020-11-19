@@ -13,3 +13,14 @@ This repository does *not* contain the main pieces of software for the coupled o
 
 ## TODO
  - [ ] license
+
+## Aerodynamics
+
+The draft wrapper currently available iteratively runs ADflow and AeroDyn (in progress) scripts over a set of tsr for a fixed inflow velocity, and returns a plot of Cp over tsr.
+To check the available input options type:
+
+    `python aero_wrapper.py --help`
+
+To run the aero wrapper use the following command:
+
+    `mpirun -np <number of procs> python aero_wrapper.py`
