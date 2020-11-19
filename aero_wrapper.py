@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--procs", help="number of processors", type=int, default=4)
-parser.add_argument("--output", help="Output directory", type=str, default="./Outputs")
+parser.add_argument("--output", help="Output directory", type=str, default="Outputs")
 parser.add_argument("--configuration", help="WT Configuration", type=str, default="DTU_10MW")
 parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
 parser.add_argument("--V", help="Inflow wind speed", type=float, default=8.0)
@@ -85,5 +85,5 @@ if MPI.COMM_WORLD.rank == 0:
     # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     # plt.xticks(N, N_list)
     f.tight_layout()
-    plt.savefig("Multifidelity_comparison.pdf")
+    plt.savefig(f"{outputDirectory}/Multifidelity_comparison.pdf")
     # plt.show()

@@ -13,7 +13,7 @@ from multipoint import multiPointSparse
 # ======================================================================
 # Coming from higher level
 
-outputDirectory = os.path.join(path_to_case, args.output)
+outputDirectory = os.path.join(path_to_case, "ADflow", args.output)
 
 # =================== Thermodynamic conditions ==========================
 
