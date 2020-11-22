@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 # ================================================
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--procs", help="number of processors", type=int, default=4)
 parser.add_argument("--output", help="Output directory", type=str, default="Outputs")
 parser.add_argument("--configuration", help="WT Configuration", type=str, default="DTU_10MW")
 parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
