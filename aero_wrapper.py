@@ -20,12 +20,11 @@ parser.add_argument("--restart", help="Name of the restart file", type=str, defa
 args = parser.parse_args()
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
-path_to_case = os.path.join(baseDir, args.configuration, "original/")
+path_to_case = os.path.join(baseDir, args.configuration, "original")
 
 # =============================================================
 # Performance function to postproduce High-Fidelity results
 # =============================================================
-
 
 def WT_performance(V, span, A, rho, tsr, torque):
     tip_speed = tsr * V
@@ -45,6 +44,7 @@ hifi_torque = []
 hifi_cp = []
 hifi_file = os.path.join(path_to_case, "ADflow/Wrapped_hifi_Analysis.py")
 for tsr in args.tsrlist:  # Looping over a range of input tip speed ratios
+    print(f"Starting Hi-fi analysis at tsr={tsr}")
     args.tsr = tsr
     exec(compile(open(hifi_file, "rb").read(), hifi_file, "exec"))  # Running the ADflow runscript
 
@@ -59,8 +59,20 @@ for tsr in args.tsrlist:  # Looping over a range of input tip speed ratios
 # ================================================
 # Low-Fidelity runs with AeroDyn / CCBlade
 # ================================================
-for tsr in args.tsrlist:
-    print(f"Low-fi output for tsr={tsr}")
+lofi_torque = []
+lofi_cp = []
+lofi_file = os.path.join(path_to_case, "OpenFAST", "Wrapped_lofi_Analysis.py")
+
+if MPI.COMM_WORLD.rank == 0:
+    for tsr in args.tsrlist:
+        print(f"Starting Lo-fi analysis at tsr={tsr}")
+        args.tsr = tsr
+        exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the ADflow runscript
+        
+        cp, pwr, rpm, om, tip_speed = WT_performance(args.V, R, np.pi*R**2, 1.225, tsr, torque)
+
+        lofi_torque.append(torque)
+        lofi_cp.append(cp)
 
 
 # ================================================
@@ -69,11 +81,13 @@ for tsr in args.tsrlist:
 
 if MPI.COMM_WORLD.rank == 0:
     print(hifi_torque)
+    print(lofi_torque)
     print(hifi_cp)
+    print(lofi_cp)
 
     f, ax = plt.subplots(figsize=(10, 7.5))
     plt.plot(args.tsrlist, hifi_cp, label="High Fidelity", marker="o")
-    # plt.plot(args.tsr, lofi_cp, label='Low Fidelity', marker="o")
+    plt.plot(args.tsrlist, lofi_cp, label='Low Fidelity', marker="o")
     # ax.set_xlim(0, -40)
     plt.title("Multifidelity study", fontsize=18)
     plt.xlabel(r"TSR", fontsize=16)
@@ -85,4 +99,4 @@ if MPI.COMM_WORLD.rank == 0:
     # plt.xticks(N, N_list)
     f.tight_layout()
     plt.savefig(f"{outputDirectory}/Multifidelity_comparison.pdf")
-    # plt.show()
+    plt.show()
