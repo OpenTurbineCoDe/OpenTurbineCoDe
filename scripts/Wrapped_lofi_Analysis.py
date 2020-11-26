@@ -1,15 +1,3 @@
-# ================================================
-# External python imports
-# ================================================
-import argparse
-import numpy as np
-import os
-parser = argparse.ArgumentParser()
-parser.add_argument("--V", help="Inflow wind speed", type=float, default=8.0)
-args = parser.parse_args()
-tsr = 5.
-path_to_case = '/Users/DeeGee/OneDrive - UCL/BYU_ATLANTIS/Github/OpenTurbineTestCases/NREL_PhaseVI_UAE/original/'
-
 # ======================================================================
 #         Import modules
 # ======================================================================
@@ -23,12 +11,6 @@ import csv
 # Coming from higher level
 
 # HARDCODED VALUES FOR NOW:
-R = 5.029
-R0 = 0.508
-om = tsr * args.V / R
-rpm = om / (2 * np.pi) * 60
-
-nodeidxs = np.array([1, 9, 29, 35, 48, 68, 75, 85, 92])
 
 fstFile = "20kWturbine.fst"
 outFile = "20kWturbine.out"
@@ -50,20 +32,23 @@ fileList = ["20kWturbine.out",
 dirList =["AeroData",
     "Airfoils"]
 
+
+
+
 # ======================================================================
 #         Copying the working files
 # ======================================================================
 
 fileDirectory = os.path.join(path_to_case, "OpenFAST") #, args.output
-outputDirectory = os.path.join(fileDirectory, "results")
+workingDirectory = os.path.join(path_to_case, "OpenFAST", "workdir")
 
-shutil.rmtree(outputDirectory,True)
-os.mkdir(outputDirectory)
+shutil.rmtree(workingDirectory,True)
+os.mkdir(workingDirectory)
 
 for file in fileList:
-    shutil.copy(os.path.join(fileDirectory,file), os.path.join(outputDirectory,file))
+    shutil.copy(os.path.join(fileDirectory,file), os.path.join(workingDirectory,file))
 for dir in dirList:
-    shutil.copytree(os.path.join(fileDirectory,dir), os.path.join(outputDirectory,dir))    
+    shutil.copytree(os.path.join(fileDirectory,dir), os.path.join(workingDirectory,dir))    
 
 # ======================================================================
 #         Filling in the data where we need them in the input files
@@ -95,71 +80,26 @@ def replaceInFile(filename, inputDir, outputDir, iline, value):
     ifh.close()
 
 # elastodyn: rpm, line 35
-replaceInFile(EDfile, fileDirectory, outputDirectory, [35], [rpm])
+replaceInFile(EDfile, fileDirectory, workingDirectory, [35], [rpm])
 
 # inflow wind: Uinf, line 12
-replaceInFile(IWfile, fileDirectory, outputDirectory, [12], [args.V])
+replaceInFile(IWfile, fileDirectory, workingDirectory, [12], [args.V])
 
 
 # ======================================================================
 #         Run OpenFAST
 # ======================================================================
 
-os.chdir(outputDirectory)
+os.chdir(workingDirectory)
 
 flag = os.system(path_to_openfast + "openfast "+ fstFile)
-
-# os.path.join(path_to_case
 
 if flag!=0:
     print("Execution failed during call to OpenFAST")
     #exit(1)
 
-# ======================================================================
-#         PostProcessing of OpenFAST
-# ======================================================================
+#Copy the results into the ouput file
+fromdir = os.path.join(workingDirectory, outFile)
+shutil.copy(fromdir, outputFile)
 
-nodeR = nodeidxs/100.*(R-R0) + R0
-
-fN = np.zeros(len(nodeR))
-fT = np.zeros(len(nodeR))
-
-data = np.array([])
-
-try:
-    # Reading the csv output
-    ofh = open(outFile)
-
-    for row in csv.reader(ofh, delimiter='\t' ):
-        if len(row)<=1:
-            continue
-        Ncol = len(row)
-        data = np.append(data,row)
-    ofh.close()
-
-    data = np.resize(data,[int(len(data)/Ncol),Ncol])
-
-    # Identifying the rows of interest
-    i = 0
-    ifN0 = np.nan
-    ifT0 = np.nan
-    for str in data[0,:]:
-        if "B1N1Fn" in str:
-            ifN0 = i
-        elif "B1N1Ft" in str:
-            ifT0 = i
-        i+=1
-
-    # Time averaging the results for each spanwise station
-    for i in range(len(nodeR)):
-        fN[i] = np.mean(data[2:-1,ifN0+i].astype(np.float))
-        fT[i] = np.mean(data[2:-1,ifT0+i].astype(np.float))
-
-    thrust = np.trapz(fN,nodeR)
-    torque = np.trapz(fT*np.array(nodeR),nodeR)
-
-except Exception:
-    print("Error while hanlding openfast result for TSR=%f and V=%f"%(tsr,args.V))
-    torque = np.nan
-    cp = np.nan
 

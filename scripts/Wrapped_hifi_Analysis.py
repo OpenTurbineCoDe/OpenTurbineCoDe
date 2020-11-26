@@ -1,8 +1,7 @@
 # ======================================================================
 #         Import modules
 # ======================================================================
-import numpy as np
-from mpi4py import MPI
+#import numpy as np
 from baseclasses import AeroProblem
 from adflow import ADFLOW
 from multipoint import multiPointSparse
@@ -13,37 +12,23 @@ from multipoint import multiPointSparse
 # ======================================================================
 # Coming from higher level
 
-outputDirectory = os.path.join(path_to_case, "ADflow", args.output)
-
-# =================== Thermodynamic conditions ==========================
-
-# Below, we will specify wind speed, rho and temperature:
-#                'V' + 'rho' + 'T'
-
-V = [args.V]
-rho = [1.225]  # density to calc: 'P', 'mu' and 'q'
-T = [284.15]  # [Kelvin].Eqv to 11C.
-# fixed settings
-areaRef = 24977.46975854018  # expl: ref. area to normalize lift and drag
-
-# chordRef is used for moment normalisation
-spanRef = 89.166  # 89.166 [m] with the hub extension, see chordRef
-
-tip_speed_ratio = args.tsr
-rotRate_z = tip_speed_ratio * V[0] / spanRef
+tip_speed_ratio = tsr
+rotRate_z = tip_speed_ratio * Vel / spanRef
 rpm = rotRate_z / (2 * np.pi) * 60
+
+
 
 if MPI.COMM_WORLD.rank == 0:
     print("Rotation Rate:", rotRate_z)
     print("RPM:", rpm)
 
 aeroProblems = []
-nFlowCases = len(V)
+nFlowCases = len(Vel)
 for i in range(nFlowCases):
-    name = f"Hifi_L{args.hifimesh}_V{args.V:.0f}_TSR{args.tsr * 100:.0f}"
+    name = f"Hifi_L{args.hifimesh}_V{Vel:.0f}_TSR{tsr * 100:.0f}"
     if args.restart is not None:
         name = name + "_restart"
-    ap = AeroProblem(name=name, V=V[i], T=T[i], rho=rho[i], areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx"])
+    ap = AeroProblem(name=name, V=Vel, T=T, rho=rho, areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx"])
     aeroProblems.append(ap)
 
 AEROSOLVER = ADFLOW
@@ -134,8 +119,8 @@ CFDSolver = AEROSOLVER(options=aeroOptions, comm=comm)
 CFDSolver.setRotationRate([0, 0, 0], [rotRate_z, 0, 0])
 
 pos = np.array([0.1, 0.25, 0.5, 0.75, 0.9]) * spanRef
-CFDSolver.addSlices("y", pos, sliceType="absolute")
-CFDSolver.addLiftDistribution(150, "y")
+CFDSolver.addSlices(spanDir, pos, sliceType="absolute")
+CFDSolver.addLiftDistribution(150, spanDir)
 
 # ======================================================================
 #         Functions:
