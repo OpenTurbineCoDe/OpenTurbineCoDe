@@ -81,6 +81,11 @@ False          SumPrint           - Generate a summary file listing input option
           1,          2,          6    TwOutNd             - Tower nodes whose values will be output  (-)
                    OutList             - The next line(s) contains a list of output parameters.  See s for a listing of available output channels, (-)
 RtAeroPwr
+RtAeroFxh
+RtAeroMxh
+RtAeroCp
+RtAeroCq
+RtAeroCt
 B1N1Fn
 B1N2Fn
 B1N3Fn
