@@ -11,12 +11,13 @@ import matplotlib.pyplot as plt
 # ================================================
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--output", help="Output directory", type=str, default="Outputs")
-parser.add_argument("--configuration", help="WT Configuration", type=str, default="DTU_10MW")
+parser.add_argument("--output", help="Output directory (relative to case files)", type=str, default="outputs")
+parser.add_argument("--configuration", help="WT Configuration", type=str, default="NREL_PhaseVI_UAE")
 parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
 parser.add_argument("--V", help="Inflow wind speed", type=float, default=8.0)
 parser.add_argument("--tsrlist", help="Prescribed tip speed ratio", type=float, default=[7.8], nargs="+")
 parser.add_argument("--restart", help="Name of the restart file", type=str, default=None)
+parser.add_argument("--plot-only", help="Skip the computations (outputs must be present in folders)", type=str, default=False)
 args = parser.parse_args()
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
@@ -42,7 +43,7 @@ def WT_performance(V, span, A, rho, tsr, torque):
 
 hifi_torque = []
 hifi_cp = []
-hifi_file = os.path.join(path_to_case, "ADflow/Wrapped_hifi_Analysis.py")
+hifi_file = os.path.join(baseDir, "scripts", "Wrapped_hifi_Analysis.py")
 for tsr in args.tsrlist:  # Looping over a range of input tip speed ratios
     print(f"Starting Hi-fi analysis at tsr={tsr}")
     args.tsr = tsr
@@ -61,8 +62,7 @@ for tsr in args.tsrlist:  # Looping over a range of input tip speed ratios
 # ================================================
 lofi_torque = []
 lofi_cp = []
-lofi_file = os.path.join(path_to_case, "OpenFAST", "Wrapped_lofi_Analysis.py")
-
+lofi_file = os.path.join(baseDir, "scripts", "Wrapped_lofi_Analysis.py")
 if MPI.COMM_WORLD.rank == 0:
     for tsr in args.tsrlist:
         print(f"Starting Lo-fi analysis at tsr={tsr}")
@@ -78,6 +78,8 @@ if MPI.COMM_WORLD.rank == 0:
 # ================================================
 # Plotting the results
 # ================================================
+
+globaloutputs = os.path.join(baseDir, args.output)
 
 if MPI.COMM_WORLD.rank == 0:
     print(hifi_torque)
@@ -98,5 +100,5 @@ if MPI.COMM_WORLD.rank == 0:
     # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     # plt.xticks(N, N_list)
     f.tight_layout()
-    plt.savefig(f"{outputDirectory}/Multifidelity_comparison.pdf")
+    plt.savefig(f"{globaloutputs}/Multifidelity_comparison.pdf")
     plt.show()
