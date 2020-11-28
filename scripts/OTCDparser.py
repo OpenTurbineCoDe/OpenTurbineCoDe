@@ -75,18 +75,24 @@ def UAEHparse(outfile):
       thrust = np.nan
       torque = np.nan
       pwr = np.nan
+      thr_std = np.nan
+      trq_std = np.nan
+      pwr_std = np.nan
       for row in csv.reader(ofh, delimiter=',' ):
          if len(row)<=1:
             continue
          if row[0] == '815':
             thrust = float(row[10])
+            thr_std = float(row[13])
          if row[0] == '816':
             torque = float(row[10])
+            trq_std = float(row[13])
          if row[0] == '822':
-            pwr = float(row[10])*1e3            
+            pwr = float(row[10])*1e3
+            pwr_std = float(row[13])            
       ofh.close()
 
-      return thrust,torque, pwr
+      return thrust,torque, pwr, thr_std, trq_std, pwr_std
 
 def getLiftDistribution(testcase):
     dicty = {}

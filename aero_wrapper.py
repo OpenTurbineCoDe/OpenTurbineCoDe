@@ -173,20 +173,25 @@ if MPI.COMM_WORLD.rank == 0:
     Eq = np.zeros(np.shape(tsrlist))*np.nan
     Et = np.zeros(np.shape(tsrlist))*np.nan
     Ecp = np.zeros(np.shape(tsrlist))*np.nan
+    Eqs = np.zeros(np.shape(tsrlist))*np.nan
+    Ets = np.zeros(np.shape(tsrlist))*np.nan
+    Ecps = np.zeros(np.shape(tsrlist))*np.nan
     if os.path.exists(exp_folder):
         for i in range(len(V)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i]
             Vel = V[i]
-            Et[i], Eq[i], Pwr = UAEHparse(os.path.join(exp_folder,"uae6.z07.00.h%02.0f00000.hd1"%Vel))
+            Et[i], Eq[i], Pwr, Ets[i], Eqs[i], Pwrs = UAEHparse(os.path.join(exp_folder,"uae6.z07.00.h%02.0f00000.hd1"%Vel))
             Ecp[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eq[i])
+            Ecps[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eqs[i])
 
 
     f, ax = plt.subplots(figsize=(10, 7.5))
-    plt.plot(tsrlist, hifi_cp, label="High Fidelity", marker="o")
+    plt.plot(tsrlist, hifi_cp, label="High Fidelity", marker="x", color=(0.5, 0, 0))
     plt.plot(tsrlist, lofi_cp, label='Low Fidelity', marker="o")
-    plt.plot(tsrlist, Ecp, label='Expe', marker="x")
+    #plt.plot(tsrlist, Ecp, label='Expe', marker="D", color='k')
+    plt.errorbar(tsrlist, Ecp, yerr=Ecps, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)
-    plt.title("Multifidelity study", fontsize=18)
+    plt.title("Power coefficient", fontsize=18)
     plt.xlabel(r"TSR", fontsize=16)
     plt.ylabel(r"$C_p$", fontsize=16)
     plt.grid()
@@ -198,16 +203,17 @@ if MPI.COMM_WORLD.rank == 0:
     plt.savefig(f"{globaloutputs}/Cp.pdf")
 
     f, ax = plt.subplots(figsize=(10, 7.5))
-    plt.plot(tsrlist, hifi_torque, label="High Fidelity", marker="o")
+    plt.plot(tsrlist, hifi_torque, label="High Fidelity", marker="x", color=(0.5, 0, 0))
     plt.plot(tsrlist, lofi_torque, label='Low Fidelity', marker="o")
-    plt.plot(tsrlist, Eq, label='Expe', marker="x")
+    #plt.plot(tsrlist, Eq, label='Expe', marker="D", color='k')
+    plt.errorbar(tsrlist, Eq, yerr=Eqs, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)
-    plt.title("Multifidelity study", fontsize=18)
+    plt.title("Torque", fontsize=18)
     plt.xlabel(r"TSR", fontsize=16)
-    plt.ylabel(r"$Q [Nm]$", fontsize=16)
+    plt.ylabel(r"$Q \: [Nm]$", fontsize=16)
     plt.grid()
     plt.tick_params(axis="both", labelsize=16)
-    plt.legend(loc="upper left", fontsize=16)
+    plt.legend(loc="upper right", fontsize=16)
     # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     # plt.xticks(N, N_list)
     f.tight_layout()
