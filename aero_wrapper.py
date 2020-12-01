@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--output", help="Output directory (relative to case files)", type=str, default="outputs")
 parser.add_argument("--configuration", help="WT Configuration", type=str, default="NREL_PhaseVI_UAE")
 parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
-parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0])
+parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0], nargs="+")
 parser.add_argument("--tsrlist", help="Prescribed tip speed ratio", type=float, default=[5.42], nargs="+")
 parser.add_argument("--restart", help="Name of the restart file", type=str, default=None)
 parser.add_argument("--plotonly", action='store_true', help="Skip the computations (outputs must be present in folders)")
@@ -45,8 +45,8 @@ else:
     V = np.array(args.V)
     tsrlist = np.array(args.tsrlist)
 
-V = np.array([5.,7.,10.,15.])
-tsrlist = np.array([7.58,5.42,3.78,2.53])
+V = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
+tsrlist = np.array([7.58,6.32,5.42,4.74,4.21,3.78,3.16,2.53,1.90])
 
 # =============================================================
 # Turbine data
