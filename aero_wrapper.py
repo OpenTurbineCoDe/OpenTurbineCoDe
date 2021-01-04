@@ -23,6 +23,7 @@ parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0], 
 parser.add_argument("--tsrlist", help="Prescribed tip speed ratio", type=float, default=[5.42], nargs="+")
 parser.add_argument("--restart", help="Name of the restart file", type=str, default=None)
 parser.add_argument("--plotonly", action='store_true', help="Skip the computations (outputs must be present in folders)")
+parser.add_argument("--withADres", action='store_true', help="Look for AeroDyn-only results and plot them")
 args = parser.parse_args()
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
@@ -172,6 +173,27 @@ if MPI.COMM_WORLD.rank == 0:
         lofi_cp.append(cp)
 
 
+AD_torque = []
+AD_thrust = []
+AD_cp = []
+outputDirectory = os.path.join(path_to_case, "AeroDyn", args.output)
+if MPI.COMM_WORLD.rank == 0 and args.withADres:
+    for i in range(len(V)):  # Looping over a range of input tip speed ratios
+        tsr = tsrlist[i]
+        Vel = V[i]
+        # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide as an argument to the wrapper
+        outputFile = os.path.join(outputDirectory, f"20kWturbine.{i+1:d}.out")
+
+        #postprocessing output files
+        thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
+
+        cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
+
+        AD_torque.append(torque)
+        AD_thrust.append(thrust)
+        AD_cp.append(cp)
+
+
 # ================================================
 # Plotting the results
 # ================================================
@@ -207,6 +229,8 @@ if MPI.COMM_WORLD.rank == 0:
     f, ax = plt.subplots(figsize=(10, 7.5))
     plt.plot(tsrlist, hifi_cp, label="High Fidelity", marker="x", color=(0.5, 0, 0))
     plt.plot(tsrlist, lofi_cp, label='Low Fidelity', marker="o")
+    if args.withADres:
+        plt.plot(tsrlist, AD_cp, label='AaerDyn only', marker="s")
     #plt.plot(tsrlist, Ecp, label='Expe', marker="D", color='k')
     plt.errorbar(tsrlist, Ecp, yerr=Ecps, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)
@@ -224,6 +248,8 @@ if MPI.COMM_WORLD.rank == 0:
     f, ax = plt.subplots(figsize=(10, 7.5))
     plt.plot(tsrlist, hifi_torque, label="High Fidelity", marker="x", color=(0.5, 0, 0))
     plt.plot(tsrlist, lofi_torque, label='Low Fidelity', marker="o")
+    if args.withADres:
+        plt.plot(tsrlist, AD_torque, label='AeroDyn only', marker="s")
     #plt.plot(tsrlist, Eq, label='Expe', marker="D", color='k')
     plt.errorbar(tsrlist, Eq, yerr=Eqs, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)
