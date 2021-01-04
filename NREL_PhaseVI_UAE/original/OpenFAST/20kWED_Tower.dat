@@ -1,5 +1,5 @@
 ------- ELASTODYN V1.00.* TOWER INPUT FILE -------------------------------------
-20 kW UAE tower input properties.
+NREL 5.0 MW offshore baseline tower input properties.
 ---------------------- TOWER PARAMETERS ----------------------------------------
          21   NTwInpSt    - Number of input stations to specify tower geometry
           1   TwrFADmp(1) - Tower 1st fore-aft mode structural damping ratio (%)

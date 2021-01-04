@@ -44,7 +44,7 @@ False         PtfmYDOF    - Platform yaw rotation DOF (flag)
           0   PtfmYaw     - Initial or fixed yaw rotational displacement of platform (degrees)
 ---------------------- TURBINE CONFIGURATION -----------------------------------
           2   NumBl       - Number of blades (-) X
-      5.029   TipRad      - The distance from the rotor apex to the blade tip (meters) X
+      5.030   TipRad      - The distance from the rotor apex to the blade tip (meters) X
       0.508   HubRad      - The distance from the rotor apex to the blade root (meters) X
         0.0   PreCone(1)  - Blade 1 cone angle (degrees) X
         0.0   PreCone(2)  - Blade 2 cone angle (degrees) X
@@ -85,9 +85,9 @@ False         PtfmYDOF    - Platform yaw rotation DOF (flag)
           0   PtfmYIner   - Platform inertia for yaw rotation about the platform CM (kg m^2)
 ---------------------- BLADE ---------------------------------------------------
          33   BldNodes    - Number of blade nodes (per blade) used for analysis (-)
-"20kWEDBlade.dat"             BldFile(1)  - Name of file containing properties for blade 1 (quoted string)
-"20kWEDBlade.dat"              BldFile(2)  - Name of file containing properties for blade 2 (quoted string)
-"20kWEDBlade.dat"              BldFile(3)  - Name of file containing properties for blade 3 (quoted string) [unused for 2 blades]
+"20kWEDBlade_experiment.dat"             BldFile(1)  - Name of file containing properties for blade 1 (quoted string)
+"20kWEDBlade_experiment.dat"              BldFile(2)  - Name of file containing properties for blade 2 (quoted string)
+"20kWEDBlade_experiment.dat"              BldFile(3)  - Name of file containing properties for blade 3 (quoted string) [unused for 2 blades]
 ---------------------- ROTOR-TEETER --------------------------------------------
           0   TeetMod     - Rotor-teeter spring/damper model {0: none, 1: standard, 2: user-defined from routine UserTeet} (switch) [unused for 3 blades]
           0   TeetDmpP    - Rotor-teeter damper position (degrees) [used only for 2 blades and when TeetMod=1]
@@ -120,5 +120,86 @@ True          TabDelim    - Use tab delimiters in text tabular output file? (fla
           9   NBlGages    - Number of blade nodes that have strain gages for output [0 to 9] (-)
           1, 3, 4, 8, 12, 16, 21, 26, 32    BldGagNd    - List of blade nodes that have strain gages [1 to BldNodes] (-) [unused if NBlGages=0]
               OutList     - The next line(s) contains a list of output parameters.  See OutListParameters.xlsx for a listing of available output channels, (-)
-
+"RootMxb1"    - In plane bending moment?
+"RootMyb1"     - Out of plane bending moment?
+"RootMzb1"     - Pitching moment
+"Spn1MLxb1"   - local edgewise and flapwise bending moments
+"Spn1MLyb1"
+"Spn2MLxb1"   - local edgewise and flapwise bending moments
+"Spn2MLyb1"
+"Spn3MLxb1"   - local edgewise and flapwise bending moments
+"Spn3MLyb1"
+"Spn4MLxb1"   - local edgewise and flapwise bending moments
+"Spn4MLyb1"
+"Spn5MLxb1"   - local edgewise and flapwise bending moments
+"Spn5MLyb1"
+"Spn6MLxb1"   - local edgewise and flapwise bending moments
+"Spn6MLyb1"
+"Spn7MLxb1"   - local edgewise and flapwise bending moments
+"Spn7MLyb1"
+"Spn8MLxb1"   - local edgewise and flapwise bending moments
+"Spn8MLyb1"
+"Spn9MLxb1"   - local edgewise and flapwise bending moments
+"Spn9MLyb1"
 END
+---------------------- NODE OUTPUTS --------------------------------------------
+          2   BldNd_BladesOut  - Blades to output
+         99   - Blade nodes on each blade (currently unused)
+                   OutList             - The next line(s) contains a list of output parameters.  See s for a listing of available output channels, (-)
+"ALx"
+"ALy"
+"ALz"
+END
+
+
+
+
+
+
+
+
+
+
+"RotSpeed"                - Low-speed shaft and high-speed shaft speeds
+"GenSpeed"                - Low-speed shaft and high-speed shaft speeds
+"TTDspFA"                 - Tower fore-aft and side-to-side displacements and top twist
+"TTDspSS"                 - Tower fore-aft and side-to-side displacements and top twist
+"TTDspTwst"               - Tower fore-aft and side-to-side displacements and top twist
+"YawBrFxp"                - Fore-aft shear, side-to-side shear, and vertical forces at the top of the tower (not rotating with nacelle yaw)
+"YawBrFyp"                - Fore-aft shear, side-to-side shear, and vertical forces at the top of the tower (not rotating with nacelle yaw)
+"YawBrFzp"                - Fore-aft shear, side-to-side shear, and vertical forces at the top of the tower (not rotating with nacelle yaw)
+"YawBrMxp"                - Side-to-side bending, fore-aft bending, and yaw moments at the top of the tower (not rotating with nacelle yaw)
+"YawBrMyp"                - Side-to-side bending, fore-aft bending, and yaw moments at the top of the tower (not rotating with nacelle yaw)
+"YawBrMzp"                - Side-to-side bending, fore-aft bending, and yaw moments at the top of the tower (not rotating with nacelle yaw)
+"TwrBsFxt"                - Fore-aft shear, side-to-side shear, and vertical forces at the base of the tower (mudline)
+"TwrBsFyt"                - Fore-aft shear, side-to-side shear, and vertical forces at the base of the tower (mudline)
+"TwrBsFzt"                - Fore-aft shear, side-to-side shear, and vertical forces at the base of the tower (mudline)
+"TwrBsMxt"                - Side-to-side bending, fore-aft bending, and yaw moments at the base of the tower (mudline)
+"TwrBsMyt"                - Side-to-side bending, fore-aft bending, and yaw moments at the base of the tower (mudline)
+"TwrBsMzt"                - Side-to-side bending, fore-aft bending, and yaw moments at the base of the tower (mudline)
+END of input file (the word "END" must appear in the first 3 columns of this last OutList line)
+---------------------------------------------------------------------------------------
+
+"BldPitch1"               - Blade 1 pitch angle
+"Azimuth"                 - Blade 1 azimuth angle
+"RotTorq"                 - Rotor torque and low-speed shaft 0- and 90-bending moments at the main bearing
+"LSSGagMya"               - Rotor torque and low-speed shaft 0- and 90-bending moments at the main bearing
+"LSSGagMza"               - Rotor torque and low-speed shaft 0- and 90-bending moments at the main bearing
+
+"RootFxb1 RootFxb2 RootFxb3"                - Out-of-plane shear, in-plane shear, and axial forces at the root of blade 1
+"RootFyb1 RootFyb2 RootFyb3"                - Out-of-plane shear, in-plane shear, and axial forces at the root of blade 1
+"RootFzb1 RootFzb2 RootFzb3"                - Out-of-plane shear, in-plane shear, and axial forces at the root of blade 1
+"RootMxb1 RootMxb2 RootMxb3"                - In-plane bending, out-of-plane bending, and pitching moments at the root of blade 1
+"RootMyb1 RootMyb2 RootMyb3"                - In-plane bending, out-of-plane bending, and pitching moments at the root of blade 1
+"RootMzb1 RootMzb2 RootMzb3"                - In-plane bending, out-of-plane bending, and pitching moments at the root of blade 1
+
+"TipDxb1 TipDxb2 TipDxb3"
+"TipDyb1 TipDyb2 TipDyb3"
+"TipDzb1 TipDzb2 TipDzb3"
+"TipALxb1 TipALxb2 TipALxb3"
+"TipALyb1 TipALyb2 TipALyb3"
+"TipALzb1 TipALzb2 TipALzb3"
+
+"OoPDefl1"                - Blade 1 out-of-plane and in-plane deflections and tip twist
+"IPDefl1"                 - Blade 1 out-of-plane and in-plane deflections and tip twist
+"TwstDefl1"               - Blade 1 out-of-plane and in-plane deflections and tip twist

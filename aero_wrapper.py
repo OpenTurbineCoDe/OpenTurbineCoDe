@@ -77,20 +77,20 @@ nodeR = nodeidxs/100.*(R-R0) + R0
 
 fstFile = "20kWturbine.fst"
 outFile = "20kWturbine.out"
-EDfile = "20kWElastoDyn.dat"
+EDfile = "20kWEDexp.dat"
 IWfile = "20kW_InflowWind.dat"
-path_to_openfast = "/Users/DeeGee/Documents/BYU/devel/openfast_v2.3/build/glue-codes/openfast/"
+path_to_openfast = "/Users/DeeGee/Documents/BYU/devel/openfast_v2.4/build/glue-codes/openfast/"
 
 #TODO: define standard names and look for the proper file instead of hardcoding it
-fileList = ["20kWturbine.out",
-    "20kW_InflowWind.dat",
+fileList = [outFile,
+    IWfile,
     "20kWADBlade.dat",
-    "20kWAeroDyn.dat",
+    "20kWAD15.dat",
     "20kWED_Tower.dat",
-    "20kWEDBlade.dat",
-    "20kWElastoDyn.dat",
+    "20kWEDBlade_experiment.dat",
+    EDfile,
     "20kWturbine.ech",
-    "20kWturbine.fst"]
+    fstFile]
 
 
 # =============================================================

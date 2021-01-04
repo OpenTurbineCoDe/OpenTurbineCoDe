@@ -16,7 +16,7 @@ This repository does *not* contain the main pieces of software for the coupled o
 
 ## Aerodynamics wrapper
 
-The draft wrapper currently available iteratively runs ADflow and OpenFAST (v2.3) scripts over a set of tsr for a fixed inflow velocity, and returns a plot of Cp over tsr.
+The draft wrapper currently available iteratively runs ADflow and OpenFAST (v2.4) scripts over a set of tsr for a fixed inflow velocity, and returns a plot of Cp over tsr.
 To check the available input options type:
 
     `python aero_wrapper.py --help`
