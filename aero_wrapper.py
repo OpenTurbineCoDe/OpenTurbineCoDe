@@ -45,15 +45,12 @@ else:
     V = np.array(args.V)
     tsrlist = np.array(args.tsrlist)
 
-V = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
-tsrlist = np.array([7.58,6.32,5.42,4.74,4.21,3.78,3.16,2.53,1.90])
+# V = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
+# tsrlist = np.array([7.58,6.32,5.42,4.74,4.21,3.78,3.16,2.53,1.90])
 
 # =============================================================
 # Turbine data
 # =============================================================
-# Below, we will specify wind speed, rho and temperature:
-#                'V' + 'rho' + 'T'
-
 
 T = 284.15  # [Kelvin].Eqv to 11C.
 rho = 1.225
@@ -72,6 +69,28 @@ areaRef = np.pi*R**2
 
 nodeidxs = np.array([1, 9, 29, 35, 48, 68, 75, 85, 92])
 nodeR = nodeidxs/100.*(R-R0) + R0
+
+
+# =============================================================
+# File names for the lofi analysis
+# =============================================================
+
+fstFile = "20kWturbine.fst"
+outFile = "20kWturbine.out"
+EDfile = "20kWElastoDyn.dat"
+IWfile = "20kW_InflowWind.dat"
+path_to_openfast = "/Users/DeeGee/Documents/BYU/devel/openfast_v2.3/build/glue-codes/openfast/"
+
+#TODO: define standard names and look for the proper file instead of hardcoding it
+fileList = ["20kWturbine.out",
+    "20kW_InflowWind.dat",
+    "20kWADBlade.dat",
+    "20kWAeroDyn.dat",
+    "20kWED_Tower.dat",
+    "20kWEDBlade.dat",
+    "20kWElastoDyn.dat",
+    "20kWturbine.ech",
+    "20kWturbine.fst"]
 
 
 # =============================================================
@@ -144,7 +163,7 @@ if MPI.COMM_WORLD.rank == 0:
             exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
         
         #postprocessing output files
-        thrust, torque, power = OFparse(outputFile,nodeR)
+        thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
 
         cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
 

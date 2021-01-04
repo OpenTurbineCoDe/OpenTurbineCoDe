@@ -24,9 +24,13 @@ def OFparse(outfile,nodeR):
    iThr = np.nan
    iTrq = np.nan
    for str in data[0,:]:
-      if "B1N1Fn" in str:
+      # if "B1N1Fn" in str:  #in the frame of the root chord
+      # if "AB1N001Fn" in str:  #in the frame of the root chord
+      if "AB1N001Fx" in str: #in the frame of the rotor plane
          ifN0 = i
-      elif "B1N1Ft" in str:
+      # elif "B1N1Ft" in str:
+      # if "AB1N001Ft" in str:
+      if "AB1N001Fy" in str:
          ifT0 = i
       elif "RtAeroPwr" in str:
          iPwr = i
@@ -35,37 +39,38 @@ def OFparse(outfile,nodeR):
       elif "RtAeroMxh" in str:
          iTrq = i   
       i+=1
-      
-   nodeRht = np.zeros(len(nodeR)+2)
-   nodeRht[1:-1] = nodeR
-   nodeRht[-1] = 5.03 
    
-   fN = np.zeros(len(nodeR)+2)
-   fT = np.zeros(len(nodeR)+2)
+   fN = np.zeros(len(nodeR))
+   fT = np.zeros(len(nodeR))
    pwr = np.nan
 
    # Time averaging the results for each spanwise station
-   for i in range(len(nodeR)):
-      fN[i+1] = np.mean(data[2:-1,ifN0+i].astype(np.float))
-      fT[i+1] = np.mean(data[2:-1,ifT0+i].astype(np.float))
+   if np.isnan(ifN0) or np.isnan(ifT0):
+      fN = np.nan*fN
+      fT = np.nan*fT
+      print('WARNING: did not find fN or fT in OF outputs. Output will be NaN.')
+   else:
+      for i in range(len(nodeR)):
+         fN[i] = np.mean(data[2:,ifN0+i].astype(np.float))
+         fT[i] = np.mean(data[2:,ifT0+i].astype(np.float))
 
    if not np.isnan(iPwr):
       pwr = np.mean(data[2:-1,iPwr].astype(np.float))
 
    # Rough estimates of the torque/thrust using
    if np.isnan(iThr):
-      thrust = np.trapz(fN,nodeRht)
+      thrust = np.trapz(fN,nodeR)
       print('WARNING: did not find thrust in OF outputs. Integrating the loads as an estimate.')
    else:
       thrust = np.mean(data[2:-1,iThr].astype(np.float))
       
    if np.isnan(iTrq):
-      torque = np.trapz(fT*np.array(nodeRht),nodeRht)
+      torque = np.trapz(fT*np.array(nodeR),nodeR)
       print('WARNING: did not find torque in OF outputs. Integrating the loads as an estimate.')
    else:
       torque = np.mean(data[2:-1,iTrq].astype(np.float))
 
-   return thrust, torque, pwr
+   return thrust, torque, pwr, fN, fT #could do better with the finer exports
 
 
 def UAEHparse(outfile):

@@ -8,31 +8,11 @@ import csv
 # ======================================================================
 #         Input Information + HARDCODED VALUES
 # ======================================================================
-# Coming from higher level
+# Several file names come from higher level
 
 # HARDCODED VALUES FOR NOW:
-
-fstFile = "20kWturbine.fst"
-outFile = "20kWturbine.out"
-EDfile = "20kWElastoDyn.dat"
-IWfile = "20kW_InflowWind.dat"
-path_to_openfast = "/Users/DeeGee/Documents/BYU/devel/openfast_v2.3/build/glue-codes/openfast/"
-
-
-#TODO: look for the proper file instead of hardcoding it
-fileList = ["20kWturbine.out",
-    "20kW_InflowWind.dat",
-    "20kWADBlade.dat",
-    "20kWAeroDyn.dat",
-    "20kWED_Tower.dat",
-    "20kWEDBlade.dat",
-    "20kWElastoDyn.dat",
-    "20kWturbine.ech",
-    "20kWturbine.fst"]
 dirList =["AeroData",
     "Airfoils"]
-
-
 
 
 # ======================================================================
