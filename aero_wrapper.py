@@ -17,7 +17,7 @@ from OTCDparser import OFparse, UAEHparse, getLiftDistribution
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--output", help="Output directory (relative to case files)", type=str, default="outputs")
-parser.add_argument("--configuration", help="WT Configuration", type=str, default="NREL_PhaseVI_UAE")
+parser.add_argument("--configuration", help="WT Configuration", type=str, default="NREL_PhaseVI_UAE", choices=["NREL_PhaseVI_UAE","DTU_10MW"])
 parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
 parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0], nargs="+")
 parser.add_argument("--tsrlist", help="Prescribed tip speed ratio", type=float, default=[5.42], nargs="+")
@@ -57,18 +57,22 @@ else:
 T = 284.15  # [Kelvin].Eqv to 11C.
 rho = 1.225
 
-spanDir = "y"
-#spanDir = "z" #DTU
+# Setting the correct reference system and blade span for the selected configuration
+if args.configuration == "NREL_PhaseVI_UAE":
+    spanDir = "y"
+    R = 5.029
+elif args.configuration == "DTU_10MW":
+    spanDir = "z" #DTU
+    R = 89.166  # DTU
 
-R = 5.029
-#R = 89.166  # DTU
-R0 = 0.508
+R0 = 0.508  # TODO: what is this parameter? The spanwise location of the root?
 om = tsrlist * V / R
 rpm = om / (2 * np.pi) * 60
 
 Nblade = 2
 areaRef = np.pi*R**2
 
+# TODO: Are these the spanwise stations used for OpenFast computations?
 nodeidxs = np.array([1, 9, 29, 35, 48, 68, 75, 85, 92])
 nodeR = nodeidxs/100.*(R-R0) + R0
 
@@ -77,23 +81,26 @@ nodeR = nodeidxs/100.*(R-R0) + R0
 # File names for the lofi analysis
 # =============================================================
 
-fstFile = "20kWturbine.fst"
-outFile = "20kWturbine.out"
-EDfile = "20kWEDexp.dat"
-IWfile = "20kW_InflowWind.dat"
+if args.configuration == "NREL_PhaseVI_UAE":
+
+    fstFile = "20kWturbine.fst"
+    outFile = "20kWturbine.out"
+    EDfile = "20kWEDexp.dat"
+    IWfile = "20kW_InflowWind.dat"
+
+    #TODO: define standard names and look for the proper file instead of hardcoding it
+    fileList = [outFile,
+        IWfile,
+        "20kWADBlade.dat",
+        "20kWAD15.dat",
+        "20kWED_Tower.dat",
+        "20kWEDBlade_experiment.dat",
+        EDfile,
+        "20kWturbine.ech",
+        fstFile]
+
+# TODO: This should not be hardcoded here. We should just tell the user to add their openfast path to their .bashrc file, so then in the lofi runscript we just os.system("openfast", fstfile)
 path_to_openfast = "/Users/DeeGee/Documents/BYU/devel/openfast_v2.4/build/glue-codes/openfast/"
-
-#TODO: define standard names and look for the proper file instead of hardcoding it
-fileList = [outFile,
-    IWfile,
-    "20kWADBlade.dat",
-    "20kWAD15.dat",
-    "20kWED_Tower.dat",
-    "20kWEDBlade_experiment.dat",
-    EDfile,
-    "20kWturbine.ech",
-    fstFile]
-
 
 # =============================================================
 # Extra CFD data from EllipSys3D
