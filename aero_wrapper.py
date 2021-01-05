@@ -24,6 +24,7 @@ parser.add_argument("--tsrlist", help="Prescribed tip speed ratio", type=float, 
 parser.add_argument("--restart", help="Name of the restart file", type=str, default=None)
 parser.add_argument("--plotonly", action='store_true', help="Skip the computations (outputs must be present in folders)")
 parser.add_argument("--withADres", action='store_true', help="Look for AeroDyn-only results and plot them")
+parser.add_argument("--withEllipsys", action='store_true', help="Look for EllipSys3D results and plot them")
 args = parser.parse_args()
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
@@ -95,6 +96,18 @@ fileList = [outFile,
 
 
 # =============================================================
+# Extra CFD data from EllipSys3D
+# =============================================================
+
+extraFolder = "EllipSys3D"
+extraFile = "LSStorque.csv" #low speed shaft torque. This file contains inflow vel in the first column, and torques in the second one.
+if extraFolder and args.withEllipsys:
+    extraData = np.genfromtxt(os.path.join(path_to_case, extraFolder, extraFile), delimiter=';')
+    extraTSR = om[0] * R / extraData[:,0]
+    
+
+
+# =============================================================
 # Performance function to postproduce High-Fidelity results
 # =============================================================
 
@@ -139,7 +152,7 @@ for i in range(len(V)):  # Looping over a range of input tip speed ratios
 
     cp, pwr, rpm, om, tip_speed = WT_performance(Vel, spanRef, areaRef, rho, tsr, torque)
 
-    hifi_thrust.append(torque)
+    hifi_thrust.append(thrust)
     hifi_torque.append(torque)
     hifi_cp.append(cp)
 
@@ -245,11 +258,14 @@ if MPI.COMM_WORLD.rank == 0:
     f.tight_layout()
     plt.savefig(f"{globaloutputs}/Cp.pdf")
 
+
     f, ax = plt.subplots(figsize=(10, 7.5))
     plt.plot(tsrlist, hifi_torque, label="High Fidelity", marker="x", color=(0.5, 0, 0))
     plt.plot(tsrlist, lofi_torque, label='Low Fidelity', marker="o")
     if args.withADres:
         plt.plot(tsrlist, AD_torque, label='AeroDyn only', marker="s")
+    if extraFolder and args.withEllipsys:
+        plt.plot(extraTSR, extraData[:,1], label=extraFolder, marker="^")
     #plt.plot(tsrlist, Eq, label='Expe', marker="D", color='k')
     plt.errorbar(tsrlist, Eq, yerr=Eqs, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)

@@ -19,10 +19,14 @@ This repository does *not* contain the main pieces of software for the coupled o
 The draft wrapper currently available iteratively runs ADflow and OpenFAST (v2.4) scripts over a set of tsr for a fixed inflow velocity, and returns a plot of Cp over tsr.
 To check the available input options type:
 
-    `python aero_wrapper.py --help`
+    python aero_wrapper.py --help
 
 To run the aero wrapper use e.g. the following command:
 
-    `mpirun -np <number of procs> python aero_wrapper.py --V <V1 V2 V3> --tsrlist <TSR1 TSR2 TSR3>`
+    mpirun -np <number of procs> python aero_wrapper.py --V <V1 V2 V3> --tsrlist <TSR1 TSR2 TSR3>
+
+To produce the plot comparing data from all the available sources on the UAE turbine, run:
+
+    python3 aero_wrapper.py --V 5. 6. 7. 8. 9. 10. 12. 15. 20. --tsrlist 7.58 6.32 5.42 4.74 4.21 3.78 3.16 2.53 1.90 --plotonly --withADres --withEllipsys
 
 :warning: some parameters (turbine data, file names, etc.) are currently hardcoded, see the first sections in `aero_wrapper.py`.
