@@ -154,6 +154,7 @@ for i in range(len(V)):  # Looping over a range of input tip speed ratios
     tsr = tsrlist[i]
     Vel = V[i]
     
+    name = f"{args.configuration}_L{args.hifimesh}_V{Vel:.0f}_TSR{tsr * 100:.0f}"
     if not args.plotonly:
         print(f"Starting Hi-fi analysis at tsr={tsr}")
         exec(compile(open(hifi_file, "rb").read(), hifi_file, "exec"))  # Running the ADflow runscript
@@ -162,9 +163,10 @@ for i in range(len(V)):  # Looping over a range of input tip speed ratios
         torque = funcs[f"{ap.name}_mx"]
         thrust = funcs[f"{ap.name}_fx"]
     else:
-        #CAUTION: WE SHOULD SET THIS NAME BEFORE THIS IF AND USE IF IN hifi_file
-        name = f"Analysis_UAE_V{Vel:.0f}_TSR{tsr * 100:.0f}_000_lift.dat"
-        res = getLiftDistribution(os.path.join(outputDirectory,name))
+        #Name used for plotting purposes only
+        # TODO: we should probably rerun the cases with the new name and generate new output files, then we can remove outsname and use name directly for --plotonly
+        outsname = f"Analysis_UAE_V{Vel:.0f}_TSR{tsr * 100:.0f}_000_lift.dat"
+        res = getLiftDistribution(os.path.join(outputDirectory,outsname))
            
         torque = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res['CoordinateZ'][:]),np.array(res['CoordinateZ'][:]))
         thrust = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res['CoordinateZ'][:]))

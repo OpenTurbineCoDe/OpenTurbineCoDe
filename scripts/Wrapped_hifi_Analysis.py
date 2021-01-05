@@ -25,7 +25,6 @@ if MPI.COMM_WORLD.rank == 0:
 aeroProblems = []
 nFlowCases = len(Vel)
 for i in range(nFlowCases):
-    name = f"Hifi_L{args.hifimesh}_V{Vel:.0f}_TSR{tsr * 100:.0f}"
     if args.restart is not None:
         name = name + "_restart"
     ap = AeroProblem(name=name, V=Vel, T=T, rho=rho, areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx", "fx"])
