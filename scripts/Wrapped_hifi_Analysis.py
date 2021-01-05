@@ -23,7 +23,7 @@ if MPI.COMM_WORLD.rank == 0:
     print("RPM:", rpm)
 
 aeroProblems = []
-nFlowCases = len(Vel)
+nFlowCases = 1 #len(Vel) TODO: we need to clarify if / how we loop over V and tsr
 for i in range(nFlowCases):
     if args.restart is not None:
         name = name + "_restart"

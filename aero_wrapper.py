@@ -156,7 +156,8 @@ for i in range(len(V)):  # Looping over a range of input tip speed ratios
     
     name = f"{args.configuration}_L{args.hifimesh}_V{Vel:.0f}_TSR{tsr * 100:.0f}"
     if not args.plotonly:
-        print(f"Starting Hi-fi analysis at tsr={tsr}")
+        if MPI.COMM_WORLD.rank == 0:
+            print(f"Starting Hi-fi analysis at tsr={tsr}")
         exec(compile(open(hifi_file, "rb").read(), hifi_file, "exec"))  # Running the ADflow runscript
 
         # Extracting performance information
