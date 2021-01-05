@@ -160,7 +160,7 @@ for i in range(len(V)):  # Looping over a range of input tip speed ratios
 
         # Extracting performance information
         torque = funcs[f"{ap.name}_mx"]
-        thrust = np.nan #TO BE SET
+        thrust = funcs[f"{ap.name}_fx"]
     else:
         #CAUTION: WE SHOULD SET THIS NAME BEFORE THIS IF AND USE IF IN hifi_file
         name = f"Analysis_UAE_V{Vel:.0f}_TSR{tsr * 100:.0f}_000_lift.dat"
