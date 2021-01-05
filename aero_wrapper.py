@@ -99,6 +99,18 @@ if args.configuration == "NREL_PhaseVI_UAE":
         "20kWturbine.ech",
         fstFile]
 
+elif args.configuration == "DTU_10MW":
+
+    # Temporarily assigning None values
+    fstFile = None
+    outFile = None
+    EDfile = None
+    IWfile = None
+
+    #TODO: define standard names and look for the proper file instead of hardcoding it
+    fileList = None
+
+
 # TODO: This should not be hardcoded here. We should just tell the user to add their openfast path to their .bashrc file, so then in the lofi runscript we just os.system("openfast", fstfile)
 path_to_openfast = "/Users/DeeGee/Documents/BYU/devel/openfast_v2.4/build/glue-codes/openfast/"
 
@@ -179,7 +191,7 @@ if MPI.COMM_WORLD.rank == 0:
         outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
 
         #computing results
-        if not args.plotonly:
+        if not args.plotonly and args.configuration == "NREL_PhaseVI_UAE":  # TODO: temporary fix because we do not have the DTU model for openFast yet
             print(f"Starting Lo-fi analysis at tsr={tsr}")
             exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
         
