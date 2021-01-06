@@ -61,18 +61,23 @@ rho = 1.225
 if args.configuration == "NREL_PhaseVI_UAE":
     spanDir = "y"
     R = 5.029
+    R0 = 0.508  # spanwise location of the root [m]
+    Nblade = 2
+    rotsign = -1 #trigonometric sign of the rotor revolution along axis x
 elif args.configuration == "DTU_10MW":
-    spanDir = "z" #DTU
-    R = 89.166  # DTU
+    spanDir = "z"
+    R = 89.166
+    R0 = 2.8
+    Nblade = 3
+    rotsign = 1
 
-R0 = 0.508  # TODO: what is this parameter? The spanwise location of the root?
-om = tsrlist * V / R
+om = tsrlist * V / R #absolute value of the rotation rate
 rpm = om / (2 * np.pi) * 60
 
-Nblade = 2
 areaRef = np.pi*R**2
 
 # TODO: Are these the spanwise stations used for OpenFast computations?
+# DG: yes, and all this should be factored out and passed in a cfg or json file
 nodeidxs = np.array([1, 9, 29, 35, 48, 68, 75, 85, 92])
 nodeR = nodeidxs/100.*(R-R0) + R0
 
@@ -112,6 +117,7 @@ elif args.configuration == "DTU_10MW":
 
 
 # TODO: This should not be hardcoded here. We should just tell the user to add their openfast path to their .bashrc file, so then in the lofi runscript we just os.system("openfast", fstfile)
+# DG: I'd rather recommend to use a cfg/json file where the user specifies the path. It might be a bit more flexible and explicit, and allows you to maintain several versions of openfast.
 path_to_openfast = "/Users/DeeGee/Documents/BYU/devel/openfast_v2.4/build/glue-codes/openfast/"
 
 # =============================================================
@@ -151,7 +157,7 @@ hifi_cp = []
 hifi_file = os.path.join(baseDir, "scripts", "Wrapped_hifi_Analysis.py")
 outputDirectory = os.path.join(path_to_case, "ADflow", args.output)
 for i in range(len(V)):  # Looping over a range of input tip speed ratios
-    tsr = tsrlist[i]
+    tsr = tsrlist[i] * rotsign
     Vel = V[i]
     
     name = f"{args.configuration}_L{args.hifimesh}_V{Vel:.0f}_TSR{tsr * 100:.0f}"

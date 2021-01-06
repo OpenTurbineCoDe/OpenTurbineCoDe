@@ -13,7 +13,7 @@ This repository does *not* contain the main pieces of software for the coupled o
 
 ## TODO
  - [ ] license
-
+ - [ ] consider using git lfs for managing cgns files
 ## Aerodynamics wrapper
 
 The draft wrapper currently available iteratively runs ADflow and OpenFAST (v2.4) scripts over a set of tsr for a fixed inflow velocity, and returns a plot of Cp over tsr.
