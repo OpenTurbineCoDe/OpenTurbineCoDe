@@ -63,7 +63,7 @@ def replaceInFile(filename, inputDir, outputDir, iline, value):
 replaceInFile(EDfile, fileDirectory, workingDirectory, [35], [rpm])
 
 # inflow wind: Uinf, line 12
-replaceInFile(IWfile, fileDirectory, workingDirectory, [12], [args.V])
+replaceInFile(IWfile, fileDirectory, workingDirectory, [12], [Vel])
 
 
 # ======================================================================

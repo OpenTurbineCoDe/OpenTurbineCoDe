@@ -36,18 +36,20 @@ path_to_case = os.path.join(baseDir, args.configuration, "original")
 
 if isinstance(args.V,list): #sweeping tsr with constant vel
     tsrlist = np.array(args.tsrlist)
-    V = np.ones(np.shape(tsrlist))*args.V
+    Vlist = np.ones(np.shape(tsrlist))*args.V
 elif isinstance(args.tsrlist,list): #sweeping vel with constant tsr
-    V = np.array(args.V)
-    tsrlist = np.ones(np.shape(V)) *args.tsrlist
+    Vlist = np.array(args.V)
+    tsrlist = np.ones(np.shape(Vlist)) *args.tsrlist
 else:
     if len(args.V) != len(args.tsrlist):
         printf("ERROR: V and tsrlist must have the same size")
         exit(1)
-    V = np.array(args.V)
+    Vlist = np.array(args.V)
     tsrlist = np.array(args.tsrlist)
 
-# V = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
+# TODO: add the ability to specify blade pitch
+
+# Vlist = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
 # tsrlist = np.array([7.58,6.32,5.42,4.74,4.21,3.78,3.16,2.53,1.90])
 
 # =============================================================
@@ -71,8 +73,8 @@ elif args.configuration == "DTU_10MW":
     Nblade = 3
     rotsign = 1
 
-om = tsrlist * V / R #absolute value of the rotation rate
-rpm = om / (2 * np.pi) * 60
+omlist = tsrlist * Vlist / R #absolute value of the rotation rate
+rpmlist = omlist / (2 * np.pi) * 60
 
 areaRef = np.pi*R**2
 
@@ -94,26 +96,29 @@ if args.configuration == "NREL_PhaseVI_UAE":
     IWfile = "20kW_InflowWind.dat"
 
     #TODO: define standard names and look for the proper file instead of hardcoding it
-    fileList = [outFile,
-        IWfile,
+    fileList = [IWfile,
         "20kWADBlade.dat",
         "20kWAD15.dat",
         "20kWED_Tower.dat",
         "20kWEDBlade_experiment.dat",
         EDfile,
-        "20kWturbine.ech",
         fstFile]
 
 elif args.configuration == "DTU_10MW":
 
-    # Temporarily assigning None values
-    fstFile = None
-    outFile = None
-    EDfile = None
-    IWfile = None
+    fstFile = "DTU10MW.fst"
+    outFile = "DTU10MW.out"
+    EDfile = "DTU10MWED.dat"
+    IWfile = "DTU10MWInflowWind.dat"
 
     #TODO: define standard names and look for the proper file instead of hardcoding it
-    fileList = None
+    fileList = [IWfile,
+        "DTU10MWAD_Blade.dat",
+        "DTU10MWAD15.dat",
+        "DTU10MWED_Tower.dat",
+        "DTU10MWED_Blade.dat",
+        EDfile,
+        fstFile]
 
 
 # TODO: This should not be hardcoded here. We should just tell the user to add their openfast path to their .bashrc file, so then in the lofi runscript we just os.system("openfast", fstfile)
@@ -128,7 +133,7 @@ extraFolder = "EllipSys3D"
 extraFile = "LSStorque.csv" #low speed shaft torque. This file contains inflow vel in the first column, and torques in the second one.
 if extraFolder and args.withEllipsys:
     extraData = np.genfromtxt(os.path.join(path_to_case, extraFolder, extraFile), delimiter=';')
-    extraTSR = om[0] * R / extraData[:,0]
+    extraTSR = omlist[0] * R / extraData[:,0]
     
 
 
@@ -156,9 +161,11 @@ hifi_thrust = []
 hifi_cp = []
 hifi_file = os.path.join(baseDir, "scripts", "Wrapped_hifi_Analysis.py")
 outputDirectory = os.path.join(path_to_case, "ADflow", args.output)
-for i in range(len(V)):  # Looping over a range of input tip speed ratios
+if not os.path.exists(outputDirectory):
+    os.mkdir(outputDirectory)
+for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
     tsr = tsrlist[i] * rotsign
-    Vel = V[i]
+    Vel = Vlist[i]
     
     name = f"{args.configuration}_L{args.hifimesh}_V{Vel:.0f}_TSR{tsr * 100:.0f}"
     if not args.plotonly:
@@ -193,14 +200,17 @@ lofi_thrust = []
 lofi_cp = []
 lofi_file = os.path.join(baseDir, "scripts", "Wrapped_lofi_Analysis.py")
 outputDirectory = os.path.join(path_to_case, "OpenFAST", args.output)
+if not os.path.exists(outputDirectory):
+    os.mkdir(outputDirectory)
 if MPI.COMM_WORLD.rank == 0:
-    for i in range(len(V)):  # Looping over a range of input tip speed ratios
+    for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
         tsr = tsrlist[i]
-        Vel = V[i]
+        Vel = Vlist[i]
+        rpm = rpmlist[i]
         outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
 
         #computing results
-        if not args.plotonly and args.configuration == "NREL_PhaseVI_UAE":  # TODO: temporary fix because we do not have the DTU model for openFast yet
+        if not args.plotonly:
             print(f"Starting Lo-fi analysis at tsr={tsr}")
             exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
         
@@ -219,9 +229,9 @@ AD_thrust = []
 AD_cp = []
 outputDirectory = os.path.join(path_to_case, "AeroDyn", args.output)
 if MPI.COMM_WORLD.rank == 0 and args.withADres:
-    for i in range(len(V)):  # Looping over a range of input tip speed ratios
+    for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
         tsr = tsrlist[i]
-        Vel = V[i]
+        Vel = Vlist[i]
         # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide as an argument to the wrapper
         outputFile = os.path.join(outputDirectory, f"20kWturbine.{i+1:d}.out")
 
@@ -259,9 +269,9 @@ if MPI.COMM_WORLD.rank == 0:
     Ets = np.zeros(np.shape(tsrlist))*np.nan
     Ecps = np.zeros(np.shape(tsrlist))*np.nan
     if os.path.exists(exp_folder):
-        for i in range(len(V)):  # Looping over a range of input tip speed ratios
+        for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i]
-            Vel = V[i]
+            Vel = Vlist[i]
             Et[i], Eq[i], Pwr, Ets[i], Eqs[i], Pwrs = UAEHparse(os.path.join(exp_folder,"uae6.z07.00.h%02.0f00000.hd1"%Vel))
             Ecp[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eq[i])
             Ecps[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eqs[i])
