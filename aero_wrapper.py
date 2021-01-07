@@ -61,13 +61,15 @@ rho = 1.225
 
 # Setting the correct reference system and blade span for the selected configuration
 if args.configuration == "NREL_PhaseVI_UAE":
-    spanDir = "y"
+    Tag = "UAE"
+    spanDir = "z"
     R = 5.029
     R0 = 0.508  # spanwise location of the root [m]
     Nblade = 2
     rotsign = -1 #trigonometric sign of the rotor revolution along axis x
 elif args.configuration == "DTU_10MW":
-    spanDir = "z"
+    Tag = "DTU10MW"
+    spanDir = "y"
     R = 89.166
     R0 = 2.8
     Nblade = 3
@@ -179,11 +181,12 @@ for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
     else:
         #Name used for plotting purposes only
         # TODO: we should probably rerun the cases with the new name and generate new output files, then we can remove outsname and use name directly for --plotonly
-        outsname = f"Analysis_UAE_V{Vel:.0f}_TSR{tsr * 100:.0f}_000_lift.dat"
+        outsname = f"Analysis_{Tag:s}_V{Vel:.0f}_TSR{tsr * 100:.0f}_000_lift.dat"
         res = getLiftDistribution(os.path.join(outputDirectory,outsname))
            
-        torque = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res['CoordinateZ'][:]),np.array(res['CoordinateZ'][:]))
-        thrust = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res['CoordinateZ'][:]))
+        Ico = 'Coordinate' + str.capitalize(spanDir)
+        torque = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
+        thrust = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
 
     cp, pwr, rpm, om, tip_speed = WT_performance(Vel, spanRef, areaRef, rho, tsr, torque)
 
