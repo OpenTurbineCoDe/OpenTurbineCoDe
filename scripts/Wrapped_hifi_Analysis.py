@@ -22,13 +22,12 @@ if MPI.COMM_WORLD.rank == 0:
     print("Rotation Rate:", rotRate_z)
     print("RPM:", rpm)
 
-aeroProblems = []
-nFlowCases = 1 #len(Vel) TODO: we need to clarify if / how we loop over V and tsr
-for i in range(nFlowCases):
-    if args.restart is not None:
-        name = name + "_restart"
-    ap = AeroProblem(name=name, V=Vel, T=T, rho=rho, areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx", "fx"])
-    aeroProblems.append(ap)
+
+# TODO: we need to clarify if / how we loop over V and tsr
+
+if args.restart is not None:
+    name = name + "_restart"
+ap = AeroProblem(name=name, V=Vel, T=T, rho=rho, areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx", "fx"])
 
 AEROSOLVER = ADFLOW
 gridFile = f"{path_to_case}/ADflow/INPUT/{args.configuration}_L{args.hifimesh}.cgns"
@@ -127,9 +126,8 @@ CFDSolver.addLiftDistribution(150, spanDir)
 
 funcs = {}
 
-for i in range(nFlowCases):
-    CFDSolver(aeroProblems[i])
-    CFDSolver.evalFunctions(aeroProblems[i], funcs)
+CFDSolver(ap)
+CFDSolver.evalFunctions(ap, funcs)
 
 if MPI.COMM_WORLD.rank == 0:
     print(funcs)
