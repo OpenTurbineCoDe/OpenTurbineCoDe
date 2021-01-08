@@ -178,7 +178,7 @@ for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
     Vel = Vlist[i]
     
     #TODO: use Tag instead of the long name of the configuration
-    name = f"{args.configuration}_L{args.hifimesh}_V{Vel:.0f}_TSR{tsr * 100:.0f}"
+    name = f"{args.configuration}_L{args.hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
     if not args.plotonly:
         if MPI.COMM_WORLD.rank == 0:
             print(f"Starting Hi-fi analysis at tsr={tsr}")
@@ -190,7 +190,7 @@ for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
     else:
         #Name used for plotting purposes only
         # TODO: we should probably rerun the cases with the new name and generate new output files, then we can remove outsname and use name directly for --plotonly
-        outsname = f"Analysis_{Tag:s}_V{Vel:.0f}_TSR{tsr * 100:.0f}_000_lift.dat"
+        outsname = f"Analysis_{Tag:s}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}_000_lift.dat"
         res = getLiftDistribution(os.path.join(outputDirectory,outsname))
            
         Ico = 'Coordinate' + str.capitalize(spanDir)
@@ -201,7 +201,7 @@ for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
 
     hifi_thrust.append(thrust)
     hifi_torque.append(torque)
-    hifi_cp.append(cp)
+    hifi_cp.append(abs(cp))
 
 
 # ================================================
@@ -276,15 +276,17 @@ if MPI.COMM_WORLD.rank == 0:
     exp_folder = os.path.join(path_to_case, "experiment")
     Eq = np.zeros(np.shape(tsrlist))*np.nan
     Et = np.zeros(np.shape(tsrlist))*np.nan
+    Ep = np.zeros(np.shape(tsrlist))*np.nan
     Ecp = np.zeros(np.shape(tsrlist))*np.nan
     Eqs = np.zeros(np.shape(tsrlist))*np.nan
     Ets = np.zeros(np.shape(tsrlist))*np.nan
+    Eps = np.zeros(np.shape(tsrlist))*np.nan
     Ecps = np.zeros(np.shape(tsrlist))*np.nan
     if os.path.exists(exp_folder):
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i]
             Vel = Vlist[i]
-            Et[i], Eq[i], Pwr, Ets[i], Eqs[i], Pwrs = UAEHparse(os.path.join(exp_folder,"uae6.z07.00.h%02.0f00000.hd1"%Vel))
+            Et[i], Eq[i], Ep[i], Ets[i], Eqs[i], Eps[i] = UAEHparse(os.path.join(exp_folder,"uae6.z07.00.h%02.0f00000.hd1"%Vel))
             Ecp[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eq[i])
             Ecps[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eqs[i])
 

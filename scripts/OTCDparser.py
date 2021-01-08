@@ -86,15 +86,16 @@ def UAEHparse(outfile):
       for row in csv.reader(ofh, delimiter=',' ):
          if len(row)<=1:
             continue
-         if row[0] == '815':
+         if row[0] == '815': #estimated with a gross integration of the pressure
             thrust = float(row[10])
             thr_std = float(row[13])
-         if row[0] == '816':
+         #if row[0] == '816': #estimated with a gross integration of the pressure
+         if row[0] == '819': #LSSTQCOR: low speed shaft torque strain gauge - more accurate than the estimated aero torque
             torque = float(row[10])
             trq_std = float(row[13])
-         if row[0] == '822':
+         if row[0] == '822': #power based on LSSTQCOR
             pwr = float(row[10])*1e3
-            pwr_std = float(row[13])            
+            pwr_std = float(row[13])*1e3            
       ofh.close()
 
       return thrust,torque, pwr, thr_std, trq_std, pwr_std
