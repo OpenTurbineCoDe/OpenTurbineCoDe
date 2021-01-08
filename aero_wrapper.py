@@ -5,6 +5,7 @@ import argparse
 import numpy as np
 import os
 import sys
+import json
 from mpi4py import MPI
 import matplotlib.pyplot as plt
 
@@ -53,8 +54,17 @@ else:
 # tsrlist = np.array([7.58,6.32,5.42,4.74,4.21,3.78,3.16,2.53,1.90])
 
 # =============================================================
+# Parse additional config input file(s)
+# =============================================================
+
+with open('config.json') as file:
+  config = json.load(file)
+
+# =============================================================
 # Turbine data
 # =============================================================
+
+# TODO: mode all these hardcoded values to a json file, consider using WindIO onthology.
 
 T = 284.15  # [Kelvin].Eqv to 11C.
 rho = 1.225
@@ -123,9 +133,7 @@ elif args.configuration == "DTU_10MW":
         fstFile]
 
 
-# TODO: This should not be hardcoded here. We should just tell the user to add their openfast path to their .bashrc file, so then in the lofi runscript we just os.system("openfast", fstfile)
-# DG: I'd rather recommend to use a cfg/json file where the user specifies the path. It might be a bit more flexible and explicit, and allows you to maintain several versions of openfast.
-path_to_openfast = "/Users/DeeGee/Documents/BYU/devel/openfast_v2.4/build/glue-codes/openfast/"
+path_to_openfast = config["lofi"]["path_2_openfast"]
 
 # =============================================================
 # Extra CFD data from EllipSys3D
@@ -169,6 +177,7 @@ for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
     tsr = tsrlist[i] * rotsign
     Vel = Vlist[i]
     
+    #TODO: use Tag instead of the long name of the configuration
     name = f"{args.configuration}_L{args.hifimesh}_V{Vel:.0f}_TSR{tsr * 100:.0f}"
     if not args.plotonly:
         if MPI.COMM_WORLD.rank == 0:

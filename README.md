@@ -21,6 +21,12 @@ To check the available input options type:
 
     python aero_wrapper.py --help
 
+### Configuration
+
+Adapt `config.json` to specify the path to your OpenFAST executable.
+
+### Usage
+
 To run the aero wrapper use e.g. the following command:
 
     mpirun -np <number of procs> python aero_wrapper.py --V <V1 V2 V3> --tsrlist <TSR1 TSR2 TSR3>
