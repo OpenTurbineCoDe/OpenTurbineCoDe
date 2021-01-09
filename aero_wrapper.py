@@ -147,18 +147,6 @@ elif args.configuration == "DTU_10MW":
 path_to_openfast = config["lofi"]["path_2_openfast"]
 
 # =============================================================
-# Extra CFD data from EllipSys3D
-# =============================================================
-
-extraFolder = "EllipSys3D"
-extraFile = "LSStorque.csv" #low speed shaft torque. This file contains inflow vel in the first column, and torques in the second one.
-if extraFolder and args.withEllipsys:
-    extraData = np.genfromtxt(os.path.join(path_to_case, extraFolder, extraFile), delimiter=';')
-    extraTSR = omlist[0] * R / extraData[:,0]
-    
-
-
-# =============================================================
 # Performance function to postproduce High-Fidelity results
 # =============================================================
 
@@ -171,6 +159,38 @@ def WT_performance(V, span, A, rho, tsr, torque):
     cp = pwr / (0.5 * rho * V ** 3 * A)
     return cp, pwr, rpm, om, tip_speed
 
+# =============================================================
+# Extra CFD data from EllipSys3D
+# =============================================================
+
+extraFolder = "EllipSys3D"
+
+if extraFolder and args.withEllipsys:
+    if args.configuration == "NREL_PhaseVI_UAE":
+        extraFile = "LSStorque.csv" #low speed shaft torque. This file contains inflow vel in the first column, and torques in the second one.
+
+        extraData = np.genfromtxt(os.path.join(path_to_case, extraFolder, extraFile), delimiter=';')
+        extraV = extraData[:,0] #np.array([7.,10.,13.,15.,20.,25.])
+        extraOm = omlist[0]
+        extraTSR = extraOm * R / extraData[:,0]
+        extraQ = extraData[:,1]
+        extraCp = WT_performance(extraV, R, areaRef, rho, extraTSR, extraQ)
+        extraCp = extraCp[0]
+
+        extraX = extraTSR
+        
+    elif args.configuration == "DTU_10MW":
+        extraFile = "QEll.csv" 
+
+        extraData = np.genfromtxt(os.path.join(path_to_case, extraFolder, extraFile), delimiter=';')
+        extraV = extraData[:,0]
+        extraOm = np.array([.63, .63, .70, .88, .96, 1.01, 1.01, 1.01])
+        extraTSR = extraOm * R / extraData[:,0]
+        extraQ = extraData[:,1]
+        extraCp = WT_performance(extraV, R, areaRef, rho, extraTSR, extraQ)
+        extraCp = extraCp[0]
+
+        extraX = extraV
 
 # ================================================
 # High-Fidelity runs with ADflow
