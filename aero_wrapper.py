@@ -77,6 +77,7 @@ if args.configuration == "NREL_PhaseVI_UAE":
     R0 = 0.508  # spanwise location of the root [m]
     Nblade = 2
     rotsign = -1 #trigonometric sign of the rotor revolution along axis x
+    xvals = tsrlist #x axis values for the plots
 elif args.configuration == "DTU_10MW":
     Tag = "DTU10MW"
     spanDir = "y"
@@ -84,6 +85,7 @@ elif args.configuration == "DTU_10MW":
     R0 = 2.8
     Nblade = 3
     rotsign = 1
+    xvals = Vlist
 
 omlist = tsrlist * Vlist / R #absolute value of the rotation rate
 rpmlist = omlist / (2 * np.pi) * 60
@@ -116,6 +118,11 @@ if args.configuration == "NREL_PhaseVI_UAE":
         EDfile,
         fstFile]
 
+    #hardcoded for now, for the results in the corresponding folder
+    ADtsr = np.array([7.58, 6.32, 5.42, 4.74, 4.21, 3.78, 3.16, 2.53, 1.90])
+    ADvel = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
+    AD_xvals = ADtsr
+
 elif args.configuration == "DTU_10MW":
 
     fstFile = "DTU10MW.fst"
@@ -132,6 +139,10 @@ elif args.configuration == "DTU_10MW":
         EDfile,
         fstFile]
 
+    #hardcoded for now, for the results in the corresponding folder
+    ADtsr = np.array([14.01, 9.34, 7.81, 7.81, 7.81, 7.81, 7.47])
+    ADvel = np.array([4.,6.,8.,9.,10.,11.,12.])
+    AD_xvals = ADvel
 
 path_to_openfast = config["lofi"]["path_2_openfast"]
 
@@ -241,11 +252,11 @@ AD_thrust = []
 AD_cp = []
 outputDirectory = os.path.join(path_to_case, "AeroDyn", args.output)
 if MPI.COMM_WORLD.rank == 0 and args.withADres:
-    for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
-        tsr = tsrlist[i]
-        Vel = Vlist[i]
+    for i in range(len(ADvel)):  # Looping over a range of input tip speed ratios
+        tsr = ADtsr[i]
+        Vel = ADvel[i]
         # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide as an argument to the wrapper
-        outputFile = os.path.join(outputDirectory, f"20kWturbine.{i+1:d}.out")
+        outputFile = os.path.join(outputDirectory, f"{Tag:s}.{i+1:d}.out")
 
         #postprocessing output files
         thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
@@ -290,17 +301,21 @@ if MPI.COMM_WORLD.rank == 0:
             Ecp[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eq[i])
             Ecps[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eqs[i])
 
-
     f, ax = plt.subplots(figsize=(10, 7.5))
-    plt.plot(tsrlist, hifi_cp, label="High Fidelity", marker="x", color=(0.5, 0, 0))
-    plt.plot(tsrlist, lofi_cp, label='Low Fidelity', marker="o")
+    plt.plot(xvals, hifi_cp, label="ADflow (old) L1", marker="x", color=(0.5, 0, 0))
+    plt.plot(xvals, lofi_cp, label='OpenFAST', marker="o")
     if args.withADres:
-        plt.plot(tsrlist, AD_cp, label='AaerDyn only', marker="s")
-    #plt.plot(tsrlist, Ecp, label='Expe', marker="D", color='k')
-    plt.errorbar(tsrlist, Ecp, yerr=Ecps, color='black', label='Expe', marker="D")
+        plt.plot(AD_xvals, AD_cp, label='AaerDyn only', marker="s")
+    if extraFolder and args.withEllipsys:
+        plt.plot(extraX, extraCp, label=extraFolder, marker="^")
+    #plt.plot(xvals, Ecp, label='Expe', marker="D", color='k')
+    plt.errorbar(xvals, Ecp, yerr=Ecps, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)
     plt.title("Power coefficient", fontsize=18)
-    plt.xlabel(r"TSR", fontsize=16)
+    if args.configuration == "NREL_PhaseVI_UAE":
+        plt.xlabel(r"TSR", fontsize=16)
+    else:
+        plt.xlabel(r"$V$", fontsize=16)
     plt.ylabel(r"$C_p$", fontsize=16)
     plt.grid()
     plt.tick_params(axis="both", labelsize=16)
@@ -312,17 +327,20 @@ if MPI.COMM_WORLD.rank == 0:
 
 
     f, ax = plt.subplots(figsize=(10, 7.5))
-    plt.plot(tsrlist, hifi_torque, label="High Fidelity", marker="x", color=(0.5, 0, 0))
-    plt.plot(tsrlist, lofi_torque, label='Low Fidelity', marker="o")
+    plt.plot(xvals, hifi_torque, label="ADflow (old) L1", marker="x", color=(0.5, 0, 0))
+    plt.plot(xvals, lofi_torque, label='OpenFAST', marker="o")
     if args.withADres:
-        plt.plot(tsrlist, AD_torque, label='AeroDyn only', marker="s")
+        plt.plot(AD_xvals, AD_torque, label='AeroDyn only', marker="s")
     if extraFolder and args.withEllipsys:
-        plt.plot(extraTSR, extraData[:,1], label=extraFolder, marker="^")
-    #plt.plot(tsrlist, Eq, label='Expe', marker="D", color='k')
-    plt.errorbar(tsrlist, Eq, yerr=Eqs, color='black', label='Expe', marker="D")
+        plt.plot(extraX, extraQ, label=extraFolder, marker="^")
+    #plt.plot(xvals, Eq, label='Expe', marker="D", color='k')
+    plt.errorbar(xvals, Eq, yerr=Eqs, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)
     plt.title("Torque", fontsize=18)
-    plt.xlabel(r"TSR", fontsize=16)
+    if args.configuration == "NREL_PhaseVI_UAE":
+        plt.xlabel(r"TSR", fontsize=16)
+    else:
+        plt.xlabel(r"$V$", fontsize=16)
     plt.ylabel(r"$Q \: [Nm]$", fontsize=16)
     plt.grid()
     plt.tick_params(axis="both", labelsize=16)
