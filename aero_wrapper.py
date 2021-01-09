@@ -328,8 +328,8 @@ if MPI.COMM_WORLD.rank == 0:
         plt.plot(AD_xvals, AD_cp, label='AaerDyn only', marker="s")
     if extraFolder and args.withEllipsys:
         plt.plot(extraX, extraCp, label=extraFolder, marker="^")
-    #plt.plot(xvals, Ecp, label='Expe', marker="D", color='k')
-    plt.errorbar(xvals, Ecp, yerr=Ecps, color='black', label='Expe', marker="D")
+    if not np.isnan(sum(Eq)):
+        plt.errorbar(xvals, Ecp, yerr=Ecps, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)
     plt.title("Power coefficient", fontsize=18)
     if args.configuration == "NREL_PhaseVI_UAE":
@@ -339,7 +339,7 @@ if MPI.COMM_WORLD.rank == 0:
     plt.ylabel(r"$C_p$", fontsize=16)
     plt.grid()
     plt.tick_params(axis="both", labelsize=16)
-    plt.legend(loc="upper left", fontsize=16)
+    plt.legend(loc="lower right", fontsize=16)
     # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     # plt.xticks(N, N_list)
     f.tight_layout()
@@ -353,8 +353,8 @@ if MPI.COMM_WORLD.rank == 0:
         plt.plot(AD_xvals, AD_torque, label='AeroDyn only', marker="s")
     if extraFolder and args.withEllipsys:
         plt.plot(extraX, extraQ, label=extraFolder, marker="^")
-    #plt.plot(xvals, Eq, label='Expe', marker="D", color='k')
-    plt.errorbar(xvals, Eq, yerr=Eqs, color='black', label='Expe', marker="D")
+    if not np.isnan(sum(Eq)):
+        plt.errorbar(xvals, Eq, yerr=Eqs, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)
     plt.title("Torque", fontsize=18)
     if args.configuration == "NREL_PhaseVI_UAE":
