@@ -6,16 +6,9 @@ def OFparse(outfile,nodeR):
    # Reading the csv output
    ofh = open(outfile)
 
-   data = []
-   for row in csv.reader(ofh, delimiter='\t' ):
-      if len(row)<=1:
-         continue
-      Ncol = len(row)
-      data = np.append(data,row)
-   ofh.close()
-
-   data = np.resize(data,[int(len(data)/Ncol),Ncol])
-
+   head = np.genfromtxt(outfile, delimiter='\t',skip_header=6 , dtype="|U20", autostrip=True,max_rows=1)
+   data = np.genfromtxt(outfile, delimiter='\t',skip_header=8 , dtype="float", autostrip=True)
+   
    # Identifying the rows of interest
    i = 0
    ifN0 = np.nan
@@ -23,7 +16,7 @@ def OFparse(outfile,nodeR):
    iPwr = np.nan
    iThr = np.nan
    iTrq = np.nan
-   for str in data[0,:]:
+   for str in head:
       # if "B1N1Fn" in str:  #in the frame of the root chord
       # if "AB1N001Fn" in str:  #in the frame of the root chord
       if "AB1N001Fx" in str: #in the frame of the rotor plane
@@ -51,24 +44,24 @@ def OFparse(outfile,nodeR):
       print('WARNING: did not find fN or fT in OF outputs. Output will be NaN.')
    else:
       for i in range(len(nodeR)):
-         fN[i] = np.mean(data[2:,ifN0+i].astype(np.float))
-         fT[i] = np.mean(data[2:,ifT0+i].astype(np.float))
+         fN[i] = np.mean(data[2:,ifN0+i])
+         fT[i] = np.mean(data[2:,ifT0+i])
 
    if not np.isnan(iPwr):
-      pwr = np.mean(data[2:-1,iPwr].astype(np.float))
+      pwr = np.mean(data[2:-1,iPwr])
 
    # Rough estimates of the torque/thrust using
    if np.isnan(iThr):
       thrust = np.trapz(fN,nodeR)
       print('WARNING: did not find thrust in OF outputs. Integrating the loads as an estimate.')
    else:
-      thrust = np.mean(data[2:-1,iThr].astype(np.float))
+      thrust = np.mean(data[2:-1,iThr])
       
    if np.isnan(iTrq):
       torque = np.trapz(fT*np.array(nodeR),nodeR)
       print('WARNING: did not find torque in OF outputs. Integrating the loads as an estimate.')
    else:
-      torque = np.mean(data[2:-1,iTrq].astype(np.float))
+      torque = np.mean(data[2:-1,iTrq])
 
    return thrust, torque, pwr, fN, fT #could do better with the finer exports
 
