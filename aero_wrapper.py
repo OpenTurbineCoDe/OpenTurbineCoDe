@@ -19,6 +19,7 @@ from OTCDparser import OFparse, UAEHparse, getLiftDistribution
 parser = argparse.ArgumentParser()
 parser.add_argument("--output", help="Output directory (relative to case files)", type=str, default="outputs")
 parser.add_argument("--configuration", help="WT Configuration", type=str, default="NREL_PhaseVI_UAE", choices=["NREL_PhaseVI_UAE","DTU_10MW"])
+parser.add_argument("--variant", help="variant of the configuration", type=str, default="original")
 parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
 parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0], nargs="+")
 parser.add_argument("--tsrlist", help="Prescribed tip speed ratio", type=float, default=[5.42], nargs="+")
@@ -29,7 +30,7 @@ parser.add_argument("--withEllipsys", action='store_true', help="Look for EllipS
 args = parser.parse_args()
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
-path_to_case = os.path.join(baseDir, args.configuration, "original")
+path_to_case = os.path.join(baseDir, args.configuration, args.variant)
 
 # =============================================================
 # Parse the parser data
@@ -234,9 +235,8 @@ for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
     hifi_torque.append(torque)
     hifi_cp.append(abs(cp))
 
-
 # ================================================
-# Low-Fidelity runs with AeroDyn / CCBlade
+# Low-Fidelity runs with OpenFAST
 # ================================================
 lofi_torque = []
 lofi_thrust = []
@@ -267,26 +267,32 @@ if MPI.COMM_WORLD.rank == 0:
         lofi_cp.append(cp)
 
 
-AD_torque = []
-AD_thrust = []
-AD_cp = []
+# ================================================
+# Low-Fidelity runs with AeroDyn 
+# CAUTION: the wrapper does not execute AeroDyn:
+#   Data should be obtained independently.
+# ================================================
+suffixes = [""]
+AD_torque = np.zeros([len(ADvel),len(suffixes)])
+AD_thrust = np.zeros([len(ADvel),len(suffixes)])
+AD_cp = np.zeros([len(ADvel),len(suffixes)])
 outputDirectory = os.path.join(path_to_case, "AeroDyn", args.output)
 if MPI.COMM_WORLD.rank == 0 and args.withADres:
     for i in range(len(ADvel)):  # Looping over a range of input tip speed ratios
         tsr = ADtsr[i]
         Vel = ADvel[i]
-        # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide as an argument to the wrapper
-        outputFile = os.path.join(outputDirectory, f"{Tag:s}.{i+1:d}.out")
+        for j in range(len(suffixes)):  
+            # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide in ADvel
+            outputFile = os.path.join(outputDirectory + suffixes[j], f"{Tag:s}.{i+1:d}.out")
 
-        #postprocessing output files
-        thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
+            #postprocessing output files
+            thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
 
-        cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
+            cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
 
-        AD_torque.append(torque)
-        AD_thrust.append(thrust)
-        AD_cp.append(cp)
-
+            AD_torque[i,j] = torque
+            AD_thrust[i,j] = thrust
+            AD_cp[i,j] = cp
 
 # ================================================
 # Plotting the results
@@ -339,7 +345,7 @@ if MPI.COMM_WORLD.rank == 0:
     plt.ylabel(r"$C_p$", fontsize=16)
     plt.grid()
     plt.tick_params(axis="both", labelsize=16)
-    plt.legend(loc="lower right", fontsize=16)
+    plt.legend(fontsize=16)
     # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     # plt.xticks(N, N_list)
     f.tight_layout()
