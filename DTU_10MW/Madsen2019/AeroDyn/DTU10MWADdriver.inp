@@ -8,8 +8,8 @@ False         Echo               -   Echo the input to "<rootname>.ech"?  (flag)
       2.800   HubRad          - Hub radius (m)
       119.0   HubHt           - Hub height (m)
       -7.10   Overhang        - Overhang (m)
-       -5.0   ShftTilt        - Shaft tilt (deg)
-       -2.5   Precone         - Blade precone (deg)
+        0.0   ShftTilt        - Shaft tilt (deg) - MADS DID NOT INCLUDED TILT !
+        0.0   Precone         - Blade precone (deg) - MADS DID NOT INCLUDED PRECONE !
 ------- I/O Settings ------------------------------
 "DTU10MW"    OutFileRoot     -   Root name for any output files (use "" for .dvr rootname) (-)
 True          TabDel          - When   generating formatted output (OutForm=True), make output tab-delimited     (fixed-width otherwise) (flag)

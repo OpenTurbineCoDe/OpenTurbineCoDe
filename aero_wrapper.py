@@ -122,6 +122,10 @@ if args.configuration == "NREL_PhaseVI_UAE":
     #hardcoded for now, for the results in the corresponding folder
     ADtsr = np.array([7.58, 6.32, 5.42, 4.74, 4.21, 3.78, 3.16, 2.53, 1.90])
     ADvel = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
+
+  #  for use with the limited range (ltd, see `suffixes` below)
+  #  ADvel = np.array([7.,8.,9.,10.])
+  #  ADtsr = np.array([5.42, 4.74, 4.21, 3.78])
     AD_xvals = ADtsr
 
 elif args.configuration == "DTU_10MW":
@@ -141,8 +145,8 @@ elif args.configuration == "DTU_10MW":
         fstFile]
 
     #hardcoded for now, for the results in the corresponding folder
-    ADtsr = np.array([14.01, 9.34, 7.81, 7.81, 7.81, 7.81, 7.47])
-    ADvel = np.array([4.,6.,8.,9.,10.,11.,12.])
+    ADtsr = np.array([14.01, 9.34, 7.81, 7.81, 7.81, 7.81, 7.47, 5.98, 3.59])
+    ADvel = np.array([4.,6.,8.,9.,10.,11.,12.,15.,25.])
     AD_xvals = ADvel
 
 path_to_openfast = config["lofi"]["path_2_openfast"]
@@ -178,7 +182,10 @@ if extraFolder and args.withEllipsys:
         extraCp = WT_performance(extraV, R, areaRef, rho, extraTSR, extraQ)
         extraCp = extraCp[0]
 
-        extraX = extraTSR
+        extraQ = extraQ[0:2]
+        extraCp = extraCp[0:2]
+        extraX = extraTSR[0:2]
+        print(extraQ)
         
     elif args.configuration == "DTU_10MW":
         extraFile = "QEll.csv" 
@@ -192,6 +199,26 @@ if extraFolder and args.withEllipsys:
         extraCp = extraCp[0]
 
         extraX = extraV
+
+# #hardcoded data, just for comparison
+# if extraFolder and args.withEllipsys:
+#     if args.configuration == "NREL_PhaseVI_UAE":
+#         extraTSR2 = [7.58,5.42,4.21]
+#         extraV2  = [5.,7.,9.]
+#         extraQ2 = 2*np.array([173.4194, 465.9139, 821.3795])
+#         extraCp2 = WT_performance(np.array(extraV2), R, areaRef, rho, np.array(extraTSR2), extraQ2) 
+#         extraCp2 = extraCp2[0]
+#         extraX2 = extraTSR2
+#     elif args.configuration == "DTU_10MW" and args.variant == "Madsen2019":
+#         extraFile = "QADflow.csv" 
+#         extraData = np.genfromtxt(os.path.join(path_to_case, extraFolder, extraFile), delimiter=';')
+#         extraV2 = extraData[:,0]
+#         extraOm = np.array([.63, .63, .70, .88, .96, 1.01, 1.01, 1.01])
+#         extraTSR2 = extraOm * R / extraData[:,0]
+#         extraQ2 = extraData[:,1]
+#         extraCp2 = WT_performance(np.array(extraV2), R, areaRef, rho, np.array(extraTSR2), extraQ2) 
+#         extraCp2 = extraCp2[0]
+#         extraX2 = extraV2
 
 # ================================================
 # High-Fidelity runs with ADflow
@@ -272,6 +299,7 @@ if MPI.COMM_WORLD.rank == 0:
 # CAUTION: the wrapper does not execute AeroDyn:
 #   Data should be obtained independently.
 # ================================================
+#suffixes = ["_ltd"]
 suffixes = [""]
 AD_torque = np.zeros([len(ADvel),len(suffixes)])
 AD_thrust = np.zeros([len(ADvel),len(suffixes)])
@@ -327,21 +355,25 @@ if MPI.COMM_WORLD.rank == 0:
             Ecp[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eq[i])
             Ecps[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eqs[i])
 
-    f, ax = plt.subplots(figsize=(10, 7.5))
-    plt.plot(xvals, hifi_cp, label="ADflow (old) L1", marker="x", color=(0.5, 0, 0))
+    f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
+    plt.plot(xvals, hifi_cp, label="ADflow", marker="x", color=(1., 0, 0))
     plt.plot(xvals, lofi_cp, label='OpenFAST', marker="o")
     if args.withADres:
-        plt.plot(AD_xvals, AD_cp, label='AaerDyn only', marker="s")
+        plt.plot(AD_xvals, AD_cp, label='AeroDyn', marker="s")
     if extraFolder and args.withEllipsys:
-        plt.plot(extraX, extraCp, label=extraFolder, marker="^")
+        # plt.plot(extraX, extraCp, label=extraFolder, marker="^",markersize=12, linestyle='', color=(0, 0.5, 0))
+        plt.plot(extraX, extraCp, label=extraFolder, marker="^", markersize=8, color=(0, 0.5, 0))
+        
+        # plt.plot(extraX2, extraCp2, label="ADflow", marker="+")       
+        
     if not np.isnan(sum(Eq)):
-        plt.errorbar(xvals, Ecp, yerr=Ecps, color='black', label='Expe', marker="D")
+        plt.errorbar(xvals, Ecp, yerr=Ecps, color='black', label='experiment', marker="D")
     # ax.set_xlim(0, -40)
-    plt.title("Power coefficient", fontsize=18)
+    # plt.title("Power coefficient", fontsize=18)
     if args.configuration == "NREL_PhaseVI_UAE":
         plt.xlabel(r"TSR", fontsize=16)
     else:
-        plt.xlabel(r"$V$", fontsize=16)
+        plt.xlabel(r"$V \: [m/s]$", fontsize=16)
     plt.ylabel(r"$C_p$", fontsize=16)
     plt.grid()
     plt.tick_params(axis="both", labelsize=16)
@@ -353,12 +385,14 @@ if MPI.COMM_WORLD.rank == 0:
 
 
     f, ax = plt.subplots(figsize=(10, 7.5))
-    plt.plot(xvals, hifi_torque, label="ADflow (old) L1", marker="x", color=(0.5, 0, 0))
+    plt.plot(xvals, hifi_torque, label="ADflow", marker="x", color=(0.5, 0, 0))
     plt.plot(xvals, lofi_torque, label='OpenFAST', marker="o")
     if args.withADres:
         plt.plot(AD_xvals, AD_torque, label='AeroDyn only', marker="s")
     if extraFolder and args.withEllipsys:
         plt.plot(extraX, extraQ, label=extraFolder, marker="^")
+
+        # plt.plot(extraX2, extraQ2, label="ADflow L0", marker="+")
     if not np.isnan(sum(Eq)):
         plt.errorbar(xvals, Eq, yerr=Eqs, color='black', label='Expe', marker="D")
     # ax.set_xlim(0, -40)
@@ -370,10 +404,15 @@ if MPI.COMM_WORLD.rank == 0:
     plt.ylabel(r"$Q \: [Nm]$", fontsize=16)
     plt.grid()
     plt.tick_params(axis="both", labelsize=16)
-    plt.legend(loc="upper right", fontsize=16)
+    plt.legend(fontsize=16)
     # ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     # plt.xticks(N, N_list)
     f.tight_layout()
     plt.savefig(f"{globaloutputs}/Q.pdf")
 
     plt.show()
+
+    print(AD_torque)
+    print(AD_cp)
+#    export_data=
+#    numpy.savetxt("data.csv", export_data, delimiter=",")

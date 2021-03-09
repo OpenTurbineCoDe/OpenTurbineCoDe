@@ -11,8 +11,7 @@ import csv
 # Several file names come from higher level
 
 # HARDCODED VALUES FOR NOW:
-dirList =["AeroData",
-    "Airfoils"]
+dirList =["AeroData"]
 
 
 # ======================================================================

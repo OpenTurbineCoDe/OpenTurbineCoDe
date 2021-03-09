@@ -36,6 +36,6 @@ To produce the plot comparing data from all the available sources on the UAE tur
     python3 aero_wrapper.py --V 5. 6. 7. 8. 9. 10. 12. 15. 20. --tsrlist 7.58 6.32 5.42 4.74 4.21 3.78 3.16 2.53 1.90 --plotonly --withADres --withEllipsys
 
 For DTU 10MW:
-    python3 aero_wrapper.py --V 6. 8. 10. 12. --tsrlist 9.34 7.81 7.81 7.474 --configuration DTU_10MW --plotonly --withEllipsys 
+    python3 aero_wrapper.py --V 6. 8. 10. 12. --tsrlist 9.34 7.81 7.81 7.474 --configuration DTU_10MW --variant=Madsen2019 --plotonly --withEllipsys 
 
 :warning: some parameters (turbine data, file names, etc.) are currently hardcoded, see the first sections in `aero_wrapper.py`.

@@ -46,9 +46,9 @@ False         PtfmYDOF    - Platform yaw rotation DOF (flag)
           3   NumBl       - Number of blades (-)
      89.167   TipRad      - The distance from the rotor apex to the blade tip (meters)
         2.8   HubRad      - The distance from the rotor apex to the blade root (meters)
-       -2.5   PreCone(1)  - Blade 1 cone angle (degrees) 
-       -2.5   PreCone(2)  - Blade 2 cone angle (degrees) 
-       -2.5   PreCone(3)  - Blade 3 cone angle (degrees) [unused for 2 blades] 
+       -0.0   PreCone(1)  - Blade 1 cone angle (degrees) 
+       -0.0   PreCone(2)  - Blade 2 cone angle (degrees) 
+       -0.0   PreCone(3)  - Blade 3 cone angle (degrees) [unused for 2 blades] 
           0   HubCM       - Distance from rotor apex to hub mass [positive downwind] (meters)
           0   UndSling    - Undersling length [distance from teeter pin to the rotor apex] (meters) [unused for 3 blades]
           0   Delta3      - Delta-3 angle for teetering rotors (degrees) [unused for 3 blades]
@@ -150,11 +150,6 @@ END
 "ALy"
 "ALz"
 END
-
-
-
-
-
 
 
 
