@@ -26,7 +26,7 @@ parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0], 
 parser.add_argument("--tsrlist", help="Prescribed tip speed ratio", type=float, default=[5.42], nargs="+")
 parser.add_argument("--restart", help="Name of the restart file", type=str, default=None)
 parser.add_argument("--plotonly", action='store_true', help="Skip the computations (outputs must be present in folders)")
-parser.add_argument("--withADres", action='store_true', help="Look for AeroDyn-only results and plot them")
+parser.add_argument("--withADres", action='store_true', help="Look for external AeroDyn results and plot them")
 parser.add_argument("--withEllipsys", action='store_true', help="Look for EllipSys3D results and plot them")
 args = parser.parse_args()
 
@@ -106,13 +106,14 @@ nodeR = nodeidxs/100.*(R-R0) + R0
 
 if args.configuration == "NREL_PhaseVI_UAE":
 
-    fstFile = "20kWturbine.fst"
-    outFile = "20kWturbine.out"
+    case_prefix = "20kWturbine"
+    fstFile = case_prefix + ".fst"
     EDfile = "20kWEDexp.dat"
     IWfile = "20kW_InflowWind.dat"
+    ADdrvfile = "20kWturbineADdriver.inp"
 
     #TODO: define standard names and look for the proper file instead of hardcoding it
-    fileList = [IWfile,
+    OFfileList = [IWfile,
         "20kWADBlade.dat",
         "20kWAD15.dat",
         "20kWED_Tower.dat",
@@ -120,24 +121,29 @@ if args.configuration == "NREL_PhaseVI_UAE":
         EDfile,
         fstFile]
 
+    ADfileList = [ADdrvfile,
+        "20kWADBlade.dat",
+        "20kWAD15.dat",]
+
     #hardcoded for now, for the results in the corresponding folder
-    ADtsr = np.array([7.58, 6.32, 5.42, 4.74, 4.21, 3.78, 3.16, 2.53, 1.90])
-    ADvel = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
+    ADext_tsr = np.array([7.58, 6.32, 5.42, 4.74, 4.21, 3.78, 3.16, 2.53, 1.90])
+    ADext_vel = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
 
   #  for use with the limited range (ltd, see `suffixes` below)
-  #  ADvel = np.array([7.,8.,9.,10.])
-  #  ADtsr = np.array([5.42, 4.74, 4.21, 3.78])
-    AD_xvals = ADtsr
+  #  ADext_vel = np.array([7.,8.,9.,10.])
+  #  ADext_tsr = np.array([5.42, 4.74, 4.21, 3.78])
+    ADext_xvals = ADext_tsr
 
 elif args.configuration == "DTU_10MW":
 
-    fstFile = "DTU10MW.fst"
-    outFile = "DTU10MW.out"
-    EDfile = "DTU10MWED.dat"
-    IWfile = "DTU10MWInflowWind.dat"
+    case_prefix = "DTU10MW"
+    fstFile = case_prefix + ".fst"
+    EDfile = case_prefix+"ED.dat"
+    IWfile = case_prefix+"InflowWind.dat"
+    ADdrvfile = case_prefix+"ADdriver.inp"
 
     #TODO: define standard names and look for the proper file instead of hardcoding it
-    fileList = [IWfile,
+    OFfileList = [IWfile,
         "DTU10MWAD_Blade.dat",
         "DTU10MWAD15.dat",
         "DTU10MWED_Tower.dat",
@@ -145,10 +151,14 @@ elif args.configuration == "DTU_10MW":
         EDfile,
         fstFile]
 
+    ADfileList = [ADdrvfile,
+        "DTU10MWAD_Blade.dat",
+        "DTU10MWAD15.dat",]
+
     #hardcoded for now, for the results in the corresponding folder
-    ADtsr = np.array([14.01, 9.34, 7.81, 7.81, 7.81, 7.81, 7.47, 5.98, 3.59])
-    ADvel = np.array([4.,6.,8.,9.,10.,11.,12.,15.,25.])
-    AD_xvals = ADvel
+    ADext_tsr = np.array([14.01, 9.34, 7.81, 7.81, 7.81, 7.81, 7.47, 5.98, 3.59])
+    ADext_vel = np.array([4.,6.,8.,9.,10.,11.,12.,15.,25.])
+    ADext_xvals = ADext_vel
 
 path_to_openfast = config["lofi"]["path_2_openfast"]
 
@@ -274,6 +284,8 @@ lofi_cp = []
 lofi_file = os.path.join(baseDir, "scripts", "Wrapped_lofi_Analysis.py")
 outputDirectory = os.path.join(path_to_case, "OpenFAST", args.output)
 if 'OpenFAST' in args.fidelities:
+    lofi_code = "OpenFAST"
+    fileList = OFfileList
     if not os.path.exists(outputDirectory):
         os.mkdir(outputDirectory)
     if MPI.COMM_WORLD.rank == 0:
@@ -300,22 +312,57 @@ if 'OpenFAST' in args.fidelities:
 
 # ================================================
 # Low-Fidelity runs with AeroDyn 
+# ================================================
+AD_torque = []
+AD_thrust = []
+AD_cp     = []
+lofi_file = os.path.join(baseDir, "scripts", "Wrapped_lofi_Analysis.py")
+outputDirectory = os.path.join(path_to_case, "AeroDyn", args.output)
+if 'AeroDyn' in args.fidelities:
+    lofi_code = "AeroDyn"
+    fileList = ADfileList
+    if not os.path.exists(outputDirectory):
+        os.mkdir(outputDirectory)
+    if MPI.COMM_WORLD.rank == 0:
+        #TODO: use a single drive file with multiple inflow velocities instead
+        for i in range(len(Vlist)):
+            tsr = tsrlist[i]
+            Vel = Vlist[i]
+            rpm = rpmlist[i]
+            outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+
+            #computing results
+            if not args.plotonly:
+                print(f"Starting AeroDyn analysis at tsr={tsr}")
+                exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
+            
+            #postprocessing output files
+            thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
+
+            cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
+
+            AD_torque.append(torque)
+            AD_thrust.append(thrust)
+            AD_cp.append(cp)
+
+# ================================================
+# External Low-Fidelity data 
 # CAUTION: the wrapper does not execute AeroDyn:
 #   Data should be obtained independently.
 # ================================================
 #suffixes = ["_ltd"]
 suffixes = [""]
-AD_torque = np.zeros([len(ADvel),len(suffixes)])
-AD_thrust = np.zeros([len(ADvel),len(suffixes)])
-AD_cp = np.zeros([len(ADvel),len(suffixes)])
+ADext_torque = np.zeros([len(ADext_vel),len(suffixes)])
+ADext_thrust = np.zeros([len(ADext_vel),len(suffixes)])
+ADext_cp = np.zeros([len(ADext_vel),len(suffixes)])
 outputDirectory = os.path.join(path_to_case, "AeroDyn", args.output)
-if 'AeroDyn' in args.fidelities:
+if args.withADres:
     if MPI.COMM_WORLD.rank == 0:
-        for i in range(len(ADvel)):  # Looping over a range of input tip speed ratios
-            tsr = ADtsr[i]
-            Vel = ADvel[i]
+        for i in range(len(ADext_vel)):  # Looping over a range of input tip speed ratios
+            tsr = ADext_tsr[i]
+            Vel = ADext_vel[i]
             for j in range(len(suffixes)):  
-                # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide in ADvel
+                # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide in ADext_vel
                 outputFile = os.path.join(outputDirectory + suffixes[j], f"{Tag:s}.{i+1:d}.out")
 
                 #postprocessing output files
@@ -323,9 +370,9 @@ if 'AeroDyn' in args.fidelities:
 
                 cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
 
-                AD_torque[i,j] = torque
-                AD_thrust[i,j] = thrust
-                AD_cp[i,j] = cp
+                ADext_torque[i,j] = torque
+                ADext_thrust[i,j] = thrust
+                ADext_cp[i,j] = cp
 
 # ================================================
 # Plotting the results
@@ -341,8 +388,8 @@ if MPI.COMM_WORLD.rank == 0:
     print(lofi_torque)
     print(hifi_cp)
     print(lofi_cp)
-    # print(AD_torque)
-    # print(AD_cp)
+    # print(ADext_torque)
+    # print(ADext_cp)
 
     #pull experimental data if they exist (only for UAE actually)
     exp_folder = os.path.join(path_to_case, "experiment")
@@ -368,7 +415,9 @@ if MPI.COMM_WORLD.rank == 0:
     if 'OpenFAST' in args.fidelities:        
         plt.plot(xvals, lofi_cp, label='OpenFAST', marker="o")
     if 'AeroDyn' in args.fidelities:
-        plt.plot(AD_xvals, AD_cp, label='AeroDyn', marker="s")
+        plt.plot(xvals, AD_cp, label='AeroDyn', marker="+")
+    if args.withADres:
+        plt.plot(ADext_xvals, ADext_cp, label='AeroDyn ext', marker="s")
     if extraFolder and args.withEllipsys:
         # plt.plot(extraX, extraCp, label=extraFolder, marker="^",markersize=12, linestyle='', color=(0, 0.5, 0))
         plt.plot(extraX, extraCp, label=extraFolder, marker="^", markersize=8, color=(0, 0.5, 0))
@@ -399,7 +448,9 @@ if MPI.COMM_WORLD.rank == 0:
     if 'OpenFAST' in args.fidelities:        
         plt.plot(xvals, lofi_torque, label='OpenFAST', marker="o")
     if 'AeroDyn' in args.fidelities:
-        plt.plot(AD_xvals, AD_torque, label='AeroDyn only', marker="s")
+        plt.plot(xvals, AD_torque, label='AeroDyn', marker="+")
+    if args.withADres:
+        plt.plot(ADext_xvals, ADext_torque, label='AeroDyn ext', marker="s")
     if extraFolder and args.withEllipsys:
         plt.plot(extraX, extraQ, label=extraFolder, marker="^")
 
