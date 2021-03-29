@@ -3,9 +3,9 @@ DTU 10MW onshore reference wind turbine v0.1 - OpenFAST v2.4
 ======  General Options  ============================================================================
 False         Echo               - Echo the input to "<rootname>.AD.ech"?  (flag)
 "default"     DTAero             - Time interval for aerodynamic calculations {or "default"} (s)
-          2   WakeMod            - Type of wake/induction model (switch) {0=none, 1=BEMT, 2=DBEMT} [WakeMod cannot be 2 when linearizing]
+          1   WakeMod            - Type of wake/induction model (switch) {0=none, 1=BEMT, 2=DBEMT} [WakeMod cannot be 2 when linearizing]
           1   AFAeroMod          - Type of blade airfoil aerodynamics model (switch) {1=steady model, 2=Beddoes-Leishman unsteady model} [AFAeroMod must be 1 when linearizing]
-          1   TwrPotent          - Type tower influence on wind based on potential flow around the tower (switch) {0=none, 1=baseline potential flow, 2=potential flow with Bak correction}
+          0   TwrPotent          - Type tower influence on wind based on potential flow around the tower (switch) {0=none, 1=baseline potential flow, 2=potential flow with Bak correction}
 False         TwrShadow          - Calculate tower influence on wind based on downstream tower shadow? (flag)
 False          TwrAero            - Calculate tower aerodynamic loads? (flag)
 False         FrozenWake         - Assume frozen wake during linearization? (flag) [used only when WakeMod=1 and when linearizing]
@@ -13,8 +13,8 @@ False         CavitCheck         - Perform cavitation check? (flag) [AFAeroMod m
 False         CompAA             - Flag to compute AeroAcoustics calculation [only used when WakeMod=1 or 2]
 "unused"      AA_InputFile       - Aeroacoustics input file
 ======  Environmental Conditions  ===================================================================
-      1.248   AirDens            - Air density (kg/m^3)
-  1.589E-05   KinVisc            - Kinematic air viscosity (m^2/s)
+      1.225   AirDens            - Air density (kg/m^3)
+  1.784E-05   KinVisc            - Kinematic air viscosity (m^2/s)
      337.29   SpdSound           - Speed of sound (m/s)
      103500   Patm               - Atmospheric pressure (Pa) [used only when CavitCheck=True]
        1700   Pvap               - Vapour pressure of fluid (Pa) [used only when CavitCheck=True]
@@ -122,7 +122,7 @@ B1N8Ct
 B1N9Ct
 END of input file (the word "END" must appear in the first 3 columns of this last OutList line)
 ---------------------- NODE OUTPUTS --------------------------------------------
-          3   BldNd_BladesOut  - Blades to output
+          1   BldNd_BladesOut  - Blades to output
          99   - Blade nodes on each blade (currently unused)
                    OutList             - The next line(s) contains a list of output parameters.  See s for a listing of available output channels, (-)
 "VUndx"
