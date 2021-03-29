@@ -19,6 +19,7 @@ from OTCDparser import OFparse, UAEHparse, getLiftDistribution
 parser = argparse.ArgumentParser()
 parser.add_argument("--output", help="Output directory (relative to case files)", type=str, default="outputs")
 parser.add_argument("--configuration", help="WT Configuration", type=str, default="NREL_PhaseVI_UAE", choices=["NREL_PhaseVI_UAE","DTU_10MW"])
+parser.add_argument("--fidelities", help="fidelities to be included [AeroDyn, (OpenFAST,) ADflow]", type=str, default=["AeroDyn","ADflow"], nargs="+")
 parser.add_argument("--variant", help="variant of the configuration", type=str, default="original")
 parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
 parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0], nargs="+")
@@ -230,37 +231,39 @@ hifi_thrust = []
 hifi_cp = []
 hifi_file = os.path.join(baseDir, "scripts", "Wrapped_hifi_Analysis.py")
 outputDirectory = os.path.join(path_to_case, "ADflow", args.output)
-if not os.path.exists(outputDirectory):
-    os.mkdir(outputDirectory)
-for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
-    tsr = tsrlist[i] * rotsign
-    Vel = Vlist[i]
-    
-    #TODO: use Tag instead of the long name of the configuration
-    name = f"{args.configuration}_L{args.hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
-    if not args.plotonly:
-        if MPI.COMM_WORLD.rank == 0:
-            print(f"Starting Hi-fi analysis at tsr={tsr}")
-        exec(compile(open(hifi_file, "rb").read(), hifi_file, "exec"))  # Running the ADflow runscript
 
-        # Extracting performance information
-        torque = funcs[f"{ap.name}_mx"]
-        thrust = funcs[f"{ap.name}_fx"]
-    else:
-        #Name used for plotting purposes only
-        # TODO: we should probably rerun the cases with the new name and generate new output files, then we can remove outsname and use name directly for --plotonly
-        outsname = f"Analysis_{Tag:s}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}_000_lift.dat"
-        res = getLiftDistribution(os.path.join(outputDirectory,outsname))
-           
-        Ico = 'Coordinate' + str.capitalize(spanDir)
-        torque = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
-        thrust = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
+if 'ADflow' in args.fidelities:
+    if not os.path.exists(outputDirectory):
+        os.mkdir(outputDirectory)
+    for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
+        tsr = tsrlist[i] * rotsign
+        Vel = Vlist[i]
+        
+        #TODO: use Tag instead of the long name of the configuration
+        name = f"{args.configuration}_L{args.hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
+        if not args.plotonly:
+            if MPI.COMM_WORLD.rank == 0:
+                print(f"Starting Hi-fi analysis at tsr={tsr}")
+            exec(compile(open(hifi_file, "rb").read(), hifi_file, "exec"))  # Running the ADflow runscript
 
-    cp, pwr, rpm, om, tip_speed = WT_performance(Vel, spanRef, areaRef, rho, tsr, torque)
+            # Extracting performance information
+            torque = funcs[f"{ap.name}_mx"]
+            thrust = funcs[f"{ap.name}_fx"]
+        else:
+            #Name used for plotting purposes only
+            # TODO: we should probably rerun the cases with the new name and generate new output files, then we can remove outsname and use name directly for --plotonly
+            outsname = f"Analysis_{Tag:s}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}_000_lift.dat"
+            res = getLiftDistribution(os.path.join(outputDirectory,outsname))
+            
+            Ico = 'Coordinate' + str.capitalize(spanDir)
+            torque = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
+            thrust = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
 
-    hifi_thrust.append(thrust)
-    hifi_torque.append(torque)
-    hifi_cp.append(abs(cp))
+        cp, pwr, rpm, om, tip_speed = WT_performance(Vel, spanRef, areaRef, rho, tsr, torque)
+
+        hifi_thrust.append(thrust)
+        hifi_torque.append(torque)
+        hifi_cp.append(abs(cp))
 
 # ================================================
 # Low-Fidelity runs with OpenFAST
@@ -270,28 +273,29 @@ lofi_thrust = []
 lofi_cp = []
 lofi_file = os.path.join(baseDir, "scripts", "Wrapped_lofi_Analysis.py")
 outputDirectory = os.path.join(path_to_case, "OpenFAST", args.output)
-if not os.path.exists(outputDirectory):
-    os.mkdir(outputDirectory)
-if MPI.COMM_WORLD.rank == 0:
-    for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
-        tsr = tsrlist[i]
-        Vel = Vlist[i]
-        rpm = rpmlist[i]
-        outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+if 'OpenFAST' in args.fidelities:
+    if not os.path.exists(outputDirectory):
+        os.mkdir(outputDirectory)
+    if MPI.COMM_WORLD.rank == 0:
+        for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
+            tsr = tsrlist[i]
+            Vel = Vlist[i]
+            rpm = rpmlist[i]
+            outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
 
-        #computing results
-        if not args.plotonly:
-            print(f"Starting Lo-fi analysis at tsr={tsr}")
-            exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
-        
-        #postprocessing output files
-        thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
+            #computing results
+            if not args.plotonly:
+                print(f"Starting Lo-fi analysis at tsr={tsr}")
+                exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
+            
+            #postprocessing output files
+            thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
 
-        cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
+            cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
 
-        lofi_torque.append(torque)
-        lofi_thrust.append(thrust)
-        lofi_cp.append(cp)
+            lofi_torque.append(torque)
+            lofi_thrust.append(thrust)
+            lofi_cp.append(cp)
 
 
 # ================================================
@@ -305,22 +309,23 @@ AD_torque = np.zeros([len(ADvel),len(suffixes)])
 AD_thrust = np.zeros([len(ADvel),len(suffixes)])
 AD_cp = np.zeros([len(ADvel),len(suffixes)])
 outputDirectory = os.path.join(path_to_case, "AeroDyn", args.output)
-if MPI.COMM_WORLD.rank == 0 and args.withADres:
-    for i in range(len(ADvel)):  # Looping over a range of input tip speed ratios
-        tsr = ADtsr[i]
-        Vel = ADvel[i]
-        for j in range(len(suffixes)):  
-            # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide in ADvel
-            outputFile = os.path.join(outputDirectory + suffixes[j], f"{Tag:s}.{i+1:d}.out")
+if 'AeroDyn' in args.fidelities:
+    if MPI.COMM_WORLD.rank == 0:
+        for i in range(len(ADvel)):  # Looping over a range of input tip speed ratios
+            tsr = ADtsr[i]
+            Vel = ADvel[i]
+            for j in range(len(suffixes)):  
+                # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide in ADvel
+                outputFile = os.path.join(outputDirectory + suffixes[j], f"{Tag:s}.{i+1:d}.out")
 
-            #postprocessing output files
-            thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
+                #postprocessing output files
+                thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
 
-            cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
+                cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
 
-            AD_torque[i,j] = torque
-            AD_thrust[i,j] = thrust
-            AD_cp[i,j] = cp
+                AD_torque[i,j] = torque
+                AD_thrust[i,j] = thrust
+                AD_cp[i,j] = cp
 
 # ================================================
 # Plotting the results
@@ -336,6 +341,8 @@ if MPI.COMM_WORLD.rank == 0:
     print(lofi_torque)
     print(hifi_cp)
     print(lofi_cp)
+    # print(AD_torque)
+    # print(AD_cp)
 
     #pull experimental data if they exist (only for UAE actually)
     exp_folder = os.path.join(path_to_case, "experiment")
@@ -356,9 +363,11 @@ if MPI.COMM_WORLD.rank == 0:
             Ecps[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eqs[i])
 
     f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
-    plt.plot(xvals, hifi_cp, label="ADflow", marker="x", color=(1., 0, 0))
-    plt.plot(xvals, lofi_cp, label='OpenFAST', marker="o")
-    if args.withADres:
+    if 'ADflow' in args.fidelities:
+        plt.plot(xvals, hifi_cp, label="ADflow", marker="x", color=(1., 0, 0))
+    if 'OpenFAST' in args.fidelities:        
+        plt.plot(xvals, lofi_cp, label='OpenFAST', marker="o")
+    if 'AeroDyn' in args.fidelities:
         plt.plot(AD_xvals, AD_cp, label='AeroDyn', marker="s")
     if extraFolder and args.withEllipsys:
         # plt.plot(extraX, extraCp, label=extraFolder, marker="^",markersize=12, linestyle='', color=(0, 0.5, 0))
@@ -385,9 +394,11 @@ if MPI.COMM_WORLD.rank == 0:
 
 
     f, ax = plt.subplots(figsize=(10, 7.5))
-    plt.plot(xvals, hifi_torque, label="ADflow", marker="x", color=(0.5, 0, 0))
-    plt.plot(xvals, lofi_torque, label='OpenFAST', marker="o")
-    if args.withADres:
+    if 'ADflow' in args.fidelities:
+        plt.plot(xvals, hifi_torque, label="ADflow", marker="x", color=(0.5, 0, 0))
+    if 'OpenFAST' in args.fidelities:        
+        plt.plot(xvals, lofi_torque, label='OpenFAST', marker="o")
+    if 'AeroDyn' in args.fidelities:
         plt.plot(AD_xvals, AD_torque, label='AeroDyn only', marker="s")
     if extraFolder and args.withEllipsys:
         plt.plot(extraX, extraQ, label=extraFolder, marker="^")
@@ -412,7 +423,5 @@ if MPI.COMM_WORLD.rank == 0:
 
     plt.show()
 
-    print(AD_torque)
-    print(AD_cp)
 #    export_data=
 #    numpy.savetxt("data.csv", export_data, delimiter=",")
