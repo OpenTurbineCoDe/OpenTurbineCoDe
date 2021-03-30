@@ -2,7 +2,7 @@ import numpy as np
 import os
 import csv
 
-def OFparse(outfile,nodeR):
+def OFparse(outfile,nodeR=[]):
    # Reading the csv output
    ofh = open(outfile)
 
@@ -33,12 +33,12 @@ def OFparse(outfile,nodeR):
          iTrq = i   
       i+=1
    
-   fN = np.zeros(len(nodeR))
-   fT = np.zeros(len(nodeR))
+   fN = np.zeros(max(len(nodeR),1))
+   fT = np.zeros(max(len(nodeR),1))
    pwr = np.nan
 
    # Time averaging the results for each spanwise station
-   if np.isnan(ifN0) or np.isnan(ifT0):
+   if np.isnan(ifN0) or np.isnan(ifT0) or len(nodeR)==0:
       fN = np.nan*fN
       fT = np.nan*fT
       print('WARNING: did not find fN or fT in OF outputs. Output will be NaN.')
