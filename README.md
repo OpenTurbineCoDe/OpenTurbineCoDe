@@ -4,11 +4,19 @@
 ## Installation / Configuration
 
 Make sure you `pip installed` the following dependencies:
-- ...
+- numpy
+- mpi4py
 
 Adapt `config.json` to specify the path to your OpenFAST executable.
 
-For this module to work, the root folder of `OpenTurbineCoDe` should be in your `PYTHONPATH`.
+To install this package, run 
+```
+pip3 install . --develop
+```
+
+<!-- For this module to work, the parent folder of `OpenTurbineCoDe` should be in your `PYTHONPATH`.  -->
+
+:warning: we currently only support OpenFAST v2.4.
 
 ## TODO
  - [ ] license

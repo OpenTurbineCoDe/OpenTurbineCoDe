@@ -16,14 +16,9 @@ import sys
 from mpi4py import MPI
 import matplotlib.pyplot as plt
 
-import importlib
-import OpenTurbineCoDe.OpenTurbineTestCases.aero_wrapper  as OTCDaw
-
-sys.path.insert(1, './scripts')
-from OTCDparser import UAEHparse, OFparse
-from utilities import WT_performance
-
-# OpenTurbineCoDe.OpenTurbineTestCases.aero_wrapper  = importlib.reload(OpenTurbineCoDe.OpenTurbineTestCases.aero_wrapper)
+import aerodynamics.aero_wrapper as OTCDaw
+import utils.OTCDparser as parser
+import utils.utilities as ut
 
 # ================================================
 # Input arguments
@@ -43,8 +38,8 @@ parser.add_argument("--withADres", action='store_true', help="Look for external 
 parser.add_argument("--withEllipsys", action='store_true', help="Look for EllipSys3D results and plot them")
 args = parser.parse_args()
 
-baseDir = os.path.dirname(os.path.abspath(__file__))
-path_to_case = os.path.join(baseDir, args.configuration, args.variant)
+baseDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + os.sep 
+path_to_case = os.path.join(baseDir, 'models', args.configuration, args.variant)
 
 # =============================================================
 # Parse the parser data
@@ -58,7 +53,7 @@ elif isinstance(args.tsrlist,list): #sweeping vel with constant tsr
     tsrlist = np.ones(np.shape(Vlist)) *args.tsrlist
 else:
     if len(args.V) != len(args.tsrlist):
-        printf("ERROR: V and tsrlist must have the same size")
+        print("ERROR: V and tsrlist must have the same size")
         exit(1)
     Vlist = np.array(args.V)
     tsrlist = np.array(args.tsrlist)
@@ -148,7 +143,7 @@ if extraFolder and args.withEllipsys:
         extraOm = omlist[0]
         extraTSR = extraOm * R / extraData[:,0]
         extraQ = extraData[:,1]
-        extraCp = WT_performance(extraV, R, areaRef, rho, extraTSR, extraQ)
+        extraCp = ut.WT_performance(extraV, R, areaRef, rho, extraTSR, extraQ)
         extraCp = extraCp[0]
 
         extraQ = extraQ[0:2]
@@ -164,7 +159,7 @@ if extraFolder and args.withEllipsys:
         extraOm = np.array([.63, .63, .70, .88, .96, 1.01, 1.01, 1.01])
         extraTSR = extraOm * R / extraData[:,0]
         extraQ = extraData[:,1]
-        extraCp = WT_performance(extraV, R, areaRef, rho, extraTSR, extraQ)
+        extraCp = ut.WT_performance(extraV, R, areaRef, rho, extraTSR, extraQ)
         extraCp = extraCp[0]
 
         extraX = extraV
@@ -241,9 +236,9 @@ if args.withADres:
                 outputFile = os.path.join(outputDirectory + suffixes[j], f"{Tag:s}.{i+1:d}.out")
 
                 #postprocessing output files
-                thrust, torque, power, fN, fT = OFparse(outputFile,nodeR)
+                thrust, torque, power, fN, fT = parser.OFparse(outputFile,nodeR)
 
-                cp, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
+                cp, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
 
                 ADext_torque[i,j] = torque
                 ADext_thrust[i,j] = thrust
@@ -281,9 +276,9 @@ if MPI.COMM_WORLD.rank == 0:
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i]
             Vel = Vlist[i]
-            Et[i], Eq[i], Ep[i], Ets[i], Eqs[i], Eps[i] = UAEHparse(os.path.join(exp_folder,"uae6.z07.00.h%02.0f00000.hd1"%Vel))
-            Ecp[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eq[i])
-            Ecps[i], pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eqs[i])
+            Et[i], Eq[i], Ep[i], Ets[i], Eqs[i], Eps[i] = parser.UAEHparse(os.path.join(exp_folder,"uae6.z07.00.h%02.0f00000.hd1"%Vel))
+            Ecp[i], pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eq[i])
+            Ecps[i], pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eqs[i])
 
     f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
     if 'ADflow' in args.fidelities:

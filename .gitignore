@@ -1,3 +1,5 @@
 /outputs/
 workdir
 *.out
+*.egg-info
+__pycache__

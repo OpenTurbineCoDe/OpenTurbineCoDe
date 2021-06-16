@@ -13,10 +13,13 @@ import sys
 import json
 from mpi4py import MPI
 
-sys.path.insert(1, './scripts')
-from OTCDparser import OFparse, getLiftDistribution
-from utilities import WT_performance
-# from Wrapped_lofi_Analysis import compute_lofi 
+# sys.path.insert(1, './scripts')
+# from OTCDparser import OFparse, getLiftDistribution
+# from utilities import WT_performance
+# # from Wrapped_lofi_Analysis import compute_lofi 
+
+import utils.OTCDparser as parser
+import utils.utilities as ut
 
 
 # TODO: add the ability to specify blade pitch
@@ -119,7 +122,7 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
     # ================================================
     if 'ADflow' in fidelity:
         spanRef = R # used for moment normalisation
-        hifi_file = os.path.join(baseDir, "scripts", "Wrapped_hifi_Analysis.py")
+        hifi_file = os.path.join(baseDir, "Wrapped_hifi_Analysis.py")
         outputDirectory = os.path.join(path_to_case, "ADflow", output)
 
         if not os.path.exists(outputDirectory):
@@ -149,14 +152,14 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
             else:
                 #Name used for plotting purposes only
                 outsname = f"Analysis_{case_prefix:s}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}_000_lift.dat"
-                res = getLiftDistribution(os.path.join(outputDirectory,outsname))
+                res = parser.getLiftDistribution(os.path.join(outputDirectory,outsname))
                 
                 Ico = 'Coordinate' + str.capitalize(spanDir)
                 trq = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
                 thr = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
 
             # Extracting performance information
-            CP, pwr, rpm, om, tip_speed = WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
+            CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
 
             thrust.append(thr)
             torque.append(trq)
@@ -168,7 +171,7 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
     # ================================================
     elif 'OpenFAST' in fidelity:
 
-        lofi_file = os.path.join(baseDir, "scripts", "Wrapped_lofi_Analysis.py")
+        lofi_file = os.path.join(baseDir, "Wrapped_lofi_Analysis.py")
         outputDirectory = os.path.join(path_to_case, "OpenFAST", output)
         lofi_code = "OpenFAST"
         fileList = OFfileList
@@ -190,9 +193,9 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
                     exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
                 
                 #postprocessing output files
-                thr, trq, power, fN, fT = OFparse(outputFile)
+                thr, trq, power, fN, fT = parser.OFparse(outputFile)
 
-                CP, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, trq)
+                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, trq)
 
                 torque.append(trq)
                 thrust.append(thr)
@@ -203,7 +206,7 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
     # Low-Fidelity runs with AeroDyn 
     # ================================================
     elif 'AeroDyn' in fidelity:
-        lofi_file = os.path.join(baseDir, "scripts", "Wrapped_lofi_Analysis.py")
+        lofi_file = os.path.join(baseDir, "Wrapped_lofi_Analysis.py")
         outputDirectory = os.path.join(path_to_case, "AeroDyn", output)
 
         lofi_code = "AeroDyn"
@@ -224,9 +227,9 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
                     exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
                 
                 #postprocessing output files
-                thr, trq, power, fN, fT = OFparse(outputFile)
+                thr, trq, power, fN, fT = parser.OFparse(outputFile)
 
-                CP, pwr, rpm, om, tip_speed = WT_performance(Vel, R, np.pi*R**2, rho, tsr, trq)
+                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, trq)
 
                 torque.append(trq)
                 thrust.append(thr)

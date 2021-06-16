@@ -1,5 +1,5 @@
 {
     "lofi": {
-        "path_2_openfast" : "/path/to/the/gluecode/executable"        
+        "path_2_openfast" : "/path/to/glue-codes/openfast/openfast"        
     } 
 }
