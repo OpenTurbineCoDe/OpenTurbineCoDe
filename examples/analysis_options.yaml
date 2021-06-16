@@ -1,0 +1,16 @@
+# Generic modeling options file to run standard WISDEM case
+General:
+    verbosity: False  # When set to True, the code prints to screen many infos
+OpenTurbineCoDe:
+    Ganeral:
+        fidelity: high
+    Geometry:
+        flag: True
+    Aerodynamics:
+        flag: True
+    Structure:
+        flag: True
+    Aerostructural: 
+        flag: False
+    CoDesign:
+        flag: False

@@ -1,6 +1,21 @@
-# Open Turbine Test Cases
+# Open Turbine Co-Design
 
-This repository gathers a collection of test cases for the ARPA-E Atlantis project on Open Turbine control Co-Design.
+
+## Installation / Configuration
+
+Make sure you `pip installed` the following dependencies:
+- ...
+
+Adapt `config.json` to specify the path to your OpenFAST executable.
+
+For this module to work, the root folder of `OpenTurbineCoDe` should be in your `PYTHONPATH`.
+
+## TODO
+ - [ ] license
+ - [ ] consider using git lfs for managing cgns files
+
+## Models
+This folder gathers a collection of test cases for the ARPA-E Atlantis project on Open Turbine control Co-Design (originally part of OpenTurbineTestCases).
 
 Folders are organized as follows:
 - level 0: reference turbine
@@ -10,10 +25,6 @@ Folders are organized as follows:
 
 This repository does *not* contain the main pieces of software for the coupled optimization and for the control co-design loop.
 
-
-## TODO
- - [ ] license
- - [ ] consider using git lfs for managing cgns files
 ## Aerodynamics wrapper
 
 The draft wrapper currently available iteratively runs ADflow and OpenFAST (v2.4) scripts over a set of tsr for a fixed inflow velocity, and returns a plot of Cp over tsr.
@@ -21,17 +32,11 @@ To check the available input options type:
 
     python aero_wrapper.py --help
 
-### Configuration
-
-Adapt `config.json` to specify the path to your OpenFAST executable.
-
-For the module to work, the parent folder of `OpenTurbineCoDe` should be in your `PYTHONPATH`.
-
 ### Usage
 
 To run the aero wrapper use e.g. the following command:
 
-    mpirun -np <number of procs> python aero_wrapper.py --V <V1 V2 V3> --tsrlist <TSR1 TSR2 TSR3>
+    mpirun -np <number of procs> python aero_compute_standalone.py --V <V1 V2 V3> --tsrlist <TSR1 TSR2 TSR3>
 
 To produce the plot comparing data from all the available sources on the UAE turbine, run:
 
