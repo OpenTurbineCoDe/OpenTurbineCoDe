@@ -166,7 +166,7 @@ elif 'AeroDyn' in lofi_code:
     # # driver: Uinf, line 12 (EDIT THE SAME FILE!)
     # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),1,V_,separator='  ',EF=True) #cut the file at the end
 
-    run_cmd = path_to_openfast + "../../modules/aerodyn/aerodyn_driver "+ ADdrvfile
+    run_cmd = path_to_openfast + "/../../modules/aerodyn/aerodyn_driver "+ ADdrvfile
     outFile = case_prefix+".1.out"
 
 # ======================================================================
