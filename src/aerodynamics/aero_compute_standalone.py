@@ -17,7 +17,7 @@ from mpi4py import MPI
 import matplotlib.pyplot as plt
 
 import aerodynamics.aero_wrapper as OTCDaw
-import utils.OTCDparser as parser
+import utils.OTCDparser as OTCDparser
 import utils.utilities as ut
 
 # ================================================
@@ -236,7 +236,7 @@ if args.withADres:
                 outputFile = os.path.join(outputDirectory + suffixes[j], f"{Tag:s}.{i+1:d}.out")
 
                 #postprocessing output files
-                thrust, torque, power, fN, fT = parser.OFparse(outputFile,nodeR)
+                thrust, torque, power, fN, fT = OTCDparser.OFparse(outputFile,nodeR)
 
                 cp, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
 
@@ -255,10 +255,10 @@ if MPI.COMM_WORLD.rank == 0:
     if not os.path.exists(globaloutputs):
         os.mkdir(globaloutputs)
 
-    print(hifi_torque)
-    print(lofi_torque)
-    print(hifi_cp)
-    print(lofi_cp)
+    # print(hifi_torque)
+    # print(lofi_torque)
+    # print(hifi_cp)
+    # print(lofi_cp)
     # print(ADext_torque)
     # print(ADext_cp)
 
@@ -276,7 +276,7 @@ if MPI.COMM_WORLD.rank == 0:
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i]
             Vel = Vlist[i]
-            Et[i], Eq[i], Ep[i], Ets[i], Eqs[i], Eps[i] = parser.UAEHparse(os.path.join(exp_folder,"uae6.z07.00.h%02.0f00000.hd1"%Vel))
+            Et[i], Eq[i], Ep[i], Ets[i], Eqs[i], Eps[i] = OTCDparser.UAEHparse(os.path.join(exp_folder,"uae6.z07.00.h%02.0f00000.hd1"%Vel))
             Ecp[i], pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eq[i])
             Ecps[i], pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, Eqs[i])
 

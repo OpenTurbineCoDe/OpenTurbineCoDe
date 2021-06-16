@@ -8,18 +8,17 @@ Make sure you `pip installed` the following dependencies:
 - mpi4py
 
 Adapt `config.json` to specify the path to your OpenFAST executable.
+:warning: we currently only support OpenFAST v2.4.
 
 To install this package, run 
 ```
-pip3 install . --develop
+pip3 install -e .
 ```
 
-<!-- For this module to work, the parent folder of `OpenTurbineCoDe` should be in your `PYTHONPATH`.  -->
-
-:warning: we currently only support OpenFAST v2.4.
 
 ## TODO
  - [ ] license
+ - [ ] include dependencies in `setup.py`
  - [ ] consider using git lfs for managing cgns files
 
 ## Models
