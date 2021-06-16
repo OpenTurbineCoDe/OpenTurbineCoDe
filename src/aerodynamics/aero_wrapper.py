@@ -10,7 +10,6 @@ authors: Denis-Gabriel Caprace, Marco Mangano
 import numpy as np
 import os
 import sys
-import json
 from mpi4py import MPI
 
 # sys.path.insert(1, './scripts')
@@ -30,10 +29,8 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
     # =============================================================
     # Parse additional config input file(s)
     # =============================================================
-
-    with open('config.json') as file:
-        config = json.load(file)
-
+    
+    config = ut.read_config()
     path_to_openfast = config["lofi"]["path_2_openfast"]
 
     # =============================================================

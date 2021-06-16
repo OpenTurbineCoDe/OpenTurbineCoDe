@@ -6,6 +6,7 @@
 Make sure you `pip installed` the following dependencies:
 - numpy
 - mpi4py
+- ...
 
 Adapt `config.json` to specify the path to your OpenFAST executable.
 :warning: we currently only support OpenFAST v2.4.
@@ -34,16 +35,19 @@ This repository does *not* contain the main pieces of software for the coupled o
 
 ## Aerodynamics wrapper
 
-The draft wrapper currently available iteratively runs ADflow and OpenFAST (v2.4) scripts over a set of tsr for a fixed inflow velocity, and returns a plot of Cp over tsr.
+The aerodynamic standalone wrapper runs ADflow, OpenFAST (v2.4) and/or AeroDyn over a set of tsr and inflow velocities, and returns a plot of Cp over tsr. To use it, first 
+
+    cd ./examples/01_Aerodynamics_Standalone/
+
 To check the available input options type:
 
-    python aero_wrapper.py --help
+    python3 aero_compute_standalone.py --help
 
 ### Usage
 
 To run the aero wrapper use e.g. the following command:
 
-    mpirun -np <number of procs> python aero_compute_standalone.py --V <V1 V2 V3> --tsrlist <TSR1 TSR2 TSR3>
+    mpirun -np <number of procs> python3 aero_compute_standalone.py --V <V1 V2 V3> --tsrlist <TSR1 TSR2 TSR3>
 
 To produce the plot comparing data from all the available sources on the UAE turbine, run:
 
@@ -52,4 +56,4 @@ To produce the plot comparing data from all the available sources on the UAE tur
 For DTU 10MW:
     python3 aero_compute_standalone.py --V 6. 8. 10. 12. --tsrlist 9.34 7.81 7.81 7.474 --configuration DTU_10MW --variant=Madsen2019 --plotonly --withEllipsys 
 
-:warning: some parameters (turbine data, file names, etc.) are currently hardcoded, see the first sections in `aero_wrapper.py`.
+:warning: some parameters (turbine data, file names, etc.) are currently hardcoded, see the first sections in `aero_wrapper.py` and `aero_compute_standalone.py`.
