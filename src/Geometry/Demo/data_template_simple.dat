@@ -1,0 +1,10 @@
+2 ## Number of blade sections
+1 ## Number of lofts
+1 ## Number of spars
+1     shape
+2     shape
+#NODE RNODES   TWIST   DRNODES  CHORD  AEROCENT  AEROORIG LOFT  
+1	0	0	0	ROOTCHORD	0.125	0.25	1	
+2	length	twistAngle	0	tipChord	0.125	0.25	1	
+#SPAR PERCENTAGE
+0.5
