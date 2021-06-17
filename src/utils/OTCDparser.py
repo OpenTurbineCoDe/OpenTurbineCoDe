@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import csv
+import sys
 
 def OFparse(outfile,nodeR=[]):
    # Reading the csv output
@@ -44,24 +45,24 @@ def OFparse(outfile,nodeR=[]):
       print('WARNING: did not find fN or fT in OF outputs. Output will be NaN.')
    else:
       for i in range(len(nodeR)):
-         fN[i] = np.mean(data[2:,ifN0+i])
-         fT[i] = np.mean(data[2:,ifT0+i])
+         fN[i] = np.mean(data[0:,ifN0+i])
+         fT[i] = np.mean(data[0:,ifT0+i])
 
    if not np.isnan(iPwr):
-      pwr = np.mean(data[2:-1,iPwr])
+      pwr = np.mean(data[0:-1,iPwr])
 
    # Rough estimates of the torque/thrust using
    if np.isnan(iThr):
       thrust = np.trapz(fN,nodeR)
       print('WARNING: did not find thrust in OF outputs. Integrating the loads as an estimate.')
    else:
-      thrust = np.mean(data[2:-1,iThr])
+      thrust = np.mean(data[0:-1,iThr])
       
    if np.isnan(iTrq):
       torque = np.trapz(fT*np.array(nodeR),nodeR)
       print('WARNING: did not find torque in OF outputs. Integrating the loads as an estimate.')
    else:
-      torque = np.mean(data[2:-1,iTrq])
+      torque = np.mean(data[0:-1,iTrq])
 
    return thrust, torque, pwr, fN, fT #could do better with the finer exports
 

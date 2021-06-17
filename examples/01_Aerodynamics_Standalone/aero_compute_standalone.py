@@ -23,12 +23,14 @@ import utils.utilities as ut
 # ================================================
 # Input arguments
 # ================================================
+baseDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + os.sep  #path to OTCD root
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--output", help="Output directory (relative to case files)", type=str, default="outputs")
 parser.add_argument("--configuration", help="WT Configuration", type=str, default="NREL_PhaseVI_UAE", choices=["NREL_PhaseVI_UAE","DTU_10MW"])
+    #-> meant to disappear when the hardcoded parameters will instead be passed in a case file
 parser.add_argument("--fidelities", help="fidelities to be included [AeroDyn, (OpenFAST,) ADflow]", type=str, default=["AeroDyn","ADflow"], nargs="+")
-parser.add_argument("--variant", help="variant of the configuration", type=str, default="original")
+parser.add_argument("--path_to_case", help="path where the case files are and where we will dump outputs", type=str, default=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'case_aero_standalone' ))
 parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
 parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0], nargs="+")
 parser.add_argument("--tsrlist", help="Prescribed tip speed ratio", type=float, default=[5.42], nargs="+")
@@ -38,8 +40,15 @@ parser.add_argument("--withADres", action='store_true', help="Look for external 
 parser.add_argument("--withEllipsys", action='store_true', help="Look for EllipSys3D results and plot them")
 args = parser.parse_args()
 
-baseDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + os.sep 
-path_to_case = os.path.join(baseDir, 'models', args.configuration, args.variant)
+path_to_case = args.path_to_case
+
+# =============================================================
+# Initialize output case folder
+# =============================================================
+if not os.path.exists(path_to_case):
+    print("ERROR: The case folder\n"+path_to_case+"\ndoes not exist. Please consider copy/pasting one of the cases provided in ./models")
+    sys.exit(1)
+    #ideally, we should check that we also have aerodyn files etc...
 
 # =============================================================
 # Parse the parser data
@@ -99,7 +108,6 @@ areaRef = np.pi*R**2
 # DG: yes, and all this should be factored out and passed in a cfg or json file
 nodeidxs = np.array([1, 9, 29, 35, 48, 68, 75, 85, 92])
 nodeR = nodeidxs/100.*(R-R0) + R0
-
 
 
 
@@ -249,7 +257,7 @@ if args.withADres:
 # Plotting the results
 # ================================================
 
-globaloutputs = os.path.join(baseDir, args.output)
+globaloutputs = os.path.join(path_to_case, args.output)
 
 if MPI.COMM_WORLD.rank == 0:
     if not os.path.exists(globaloutputs):
