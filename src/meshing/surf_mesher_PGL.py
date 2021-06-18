@@ -14,7 +14,10 @@ import utils.convert_fXYZ_to_uXYZ as conv
 
 
 
-def generateSurfMesh(R0, R, path_to_case, planform_file, airfoil_list, blend_var, output_folder, output_name):
+def generateSurfMesh(R0, R, path_to_case, planform_file, airfoil_list, blend_var, output_name):
+
+    output_folder = path_to_case + os.sep + 'PGL'
+    #TODO: check that this folder exists
 
     m = BladeMesher()
 
@@ -138,12 +141,57 @@ def generateSurfMesh(R0, R, path_to_case, planform_file, airfoil_list, blend_var
     conv.convert_fXYZ_to_uXYZ(output_folder+os.sep+output_name+".xyz",output_folder+os.sep+output_name+".unf.xyz")
 
 
+def writePGLinputs(turbine_data, path_to_case, planform_file):
+    
+    output_folder = path_to_case + os.sep + 'PGL'
+
+    if not os.path.exists(output_folder):
+        os.mkdir(output_folder)
+
+    #-loop over airfoils and write them-
+    print( "List of airfoils that I should write: ")
+    for af in turbine_data["airfoils"]:
+        #write the file...
+        #...
+        print( af )
 
 
+    #-retrieve planform data and write it-
+    R = turbine_data["R"]
+    R0 = turbine_data["R0"]
+
+    r_coords = np.array(turbine_data["chord"]["grid"]) * (R-R0) + R0
+    ze = np.zeros(np.size(r_coords))
+
+    twist = np.array(turbine_data["twist"]["value"]) * 180. / np.pi
+    chord = turbine_data["chord"]["value"]
+    pitch_ax = turbine_data["pitch_axis"]["value"]
+    
+    #determine the relative thickness at every r_coords
+    r_af = np.array(turbine_data["airfoil_position"]["grid"])
+    th_af = np.zeros(np.size(r_af))
+    i = 0
+    for af in turbine_data["airfoil_position"]["labels"]:
+        th_af[i] = turbine_data["airfoils"][af]["relative_thickness"]
+        i+=1
+
+    thickness = np.interp( np.array(turbine_data["chord"]["grid"]), r_af, th_af )
+    
+
+    fname = output_folder + os.sep + planform_file
+
+    #TODO: check that all rows they are the same size    
+    data = np.asarray([ ze, ze, r_coords, ze, ze, twist, chord, thickness, pitch_ax, ze ])
+    data = np.transpose(data)
+    np.savetxt(fname, data, delimiter=" ")
+
+
+
+# local test function
 if __name__ == "__main__":
 
     path_to_case = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + os.sep + 'models' + os.sep + 'DTU_10MW' + os.sep + 'Madsen2019'
-    output_folder = path_to_case + os.sep + 'PGL'
+    
     output_name = 'sample_mesh'
 
     R0 = 2.8
@@ -153,4 +201,4 @@ if __name__ == "__main__":
     airfoil_list = ['ffaw3241','ffaw3301','ffaw3360','ffaw3480','cylinder']
 
     #Call the function:
-    generateSurfMesh(R0, R, path_to_case, planform_file, airfoil_list, blend_var, output_folder, output_name)
+    generateSurfMesh(R0, R, path_to_case, planform_file, airfoil_list, blend_var, output_name)

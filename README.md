@@ -33,6 +33,16 @@ Folders are organized as follows:
 
 This repository does *not* contain the main pieces of software for the coupled optimization and for the control co-design loop.
 
+## Mesh Generation (DEMO)
+
+This is just a demo of how the glue code can be used to call functions of different modules.
+
+To run the example, do:
+
+    mkdir tmp
+    cp -r models/DTU_10MW/Madsen2019/PGL/*.dat tmp
+    python3 src/glue_code/main.py --case ./tmp/case.yaml
+
 ## Aerodynamics wrapper
 
 The aerodynamic standalone wrapper runs ADflow, OpenFAST (v2.4) and/or AeroDyn over a set of tsr and inflow velocities, and returns a plot of Cp over tsr. To use it, first 
