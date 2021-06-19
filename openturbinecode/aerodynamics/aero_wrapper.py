@@ -17,8 +17,8 @@ from mpi4py import MPI
 # from utilities import WT_performance
 # # from Wrapped_lofi_Analysis import compute_lofi 
 
-import utils.OTCDparser as parser
-import utils.utilities as ut
+from ..utils import OTCDparser as parser
+from ..utils import utilities as ut
 
 
 # TODO: add the ability to specify blade pitch
@@ -123,7 +123,7 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
         outputDirectory = os.path.join(path_to_case, "ADflow", output)
 
         if not os.path.exists(outputDirectory):
-            os.mkdir(outputDirectory)
+            os.makedirs(outputDirectory, exist_ok=True)
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i] * rotsign
             Vel = Vlist[i]

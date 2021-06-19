@@ -16,9 +16,9 @@ import sys
 from mpi4py import MPI
 import matplotlib.pyplot as plt
 
-import aerodynamics.aero_wrapper as OTCDaw
-import utils.OTCDparser as OTCDparser
-import utils.utilities as ut
+import openturbinecode.aerodynamics.aero_wrapper as OTCDaw
+import openturbinecode.utils.OTCDparser as OTCDparser
+import openturbinecode.utils.utilities as ut
 
 # ================================================
 # Input arguments
