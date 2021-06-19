@@ -20,7 +20,24 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
+    extras_require={
+        "high-fidelity": [
+            "adflow",
+            "pytacs",
+        ],
+        # "low-fidelity": [],
+    },
+    # package_dir={"": "src"},
+    packages=[
+        "openturbinecode",
+        "openturbinecode.aerodynamics",
+        "openturbinecode.aerostructural",
+        "openturbinecode.controls",
+        "openturbinecode.glue_code",
+        "openturbinecode.master_GUI",
+        "openturbinecode.prepro",
+        "openturbinecode.structure",
+        "openturbinecode.utils",
+    ],
     python_requires=">=3.6",
 )
