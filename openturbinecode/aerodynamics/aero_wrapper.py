@@ -125,7 +125,7 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
         outputDirectory = os.path.join(path_to_case, "ADflow", output)
 
         if not os.path.exists(outputDirectory):
-            os.makedirs(outputDirectory, exist_ok=True)
+            os.mkdir(outputDirectory, exist_ok=True)
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i] * rotsign
             Vel = Vlist[i]
