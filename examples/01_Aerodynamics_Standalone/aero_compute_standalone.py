@@ -208,19 +208,20 @@ options["plotonly"] = args.plotonly
 # High-Fidelity runs with ADflow
 # ================================================
 if 'ADflow' in args.fidelities:
-    hifi_torque, hifi_thrust, hifi_cp = OTCDaw.aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, "ADflow", options, args.configuration, path_to_case)
+    # TODO: we should not pass "args" like this, need to figure out a better approach
+    hifi_torque, hifi_thrust, hifi_cp = OTCDaw.aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, "ADflow", options, path_to_case)
     
 # ================================================
 # Low-Fidelity runs with OpenFAST
 # ================================================
 if 'OpenFAST' in args.fidelities:
-    lofi_torque, lofi_thrust, lofi_cp = OTCDaw.aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, "OpenFAST", options, args.configuration, path_to_case)
+    lofi_torque, lofi_thrust, lofi_cp = OTCDaw.aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, "OpenFAST", options, path_to_case)
 
 # ================================================
 # Low-Fidelity runs with AeroDyn 
 # ================================================
 if 'AeroDyn' in args.fidelities:
-    AD_torque, AD_thrust, AD_cp = OTCDaw.aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, "AeroDyn", options, args.configuration, path_to_case)
+    AD_torque, AD_thrust, AD_cp = OTCDaw.aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, "AeroDyn", options, path_to_case)
 
 
 # ================================================

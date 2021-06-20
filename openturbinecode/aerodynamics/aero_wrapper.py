@@ -19,10 +19,12 @@ from mpi4py import MPI
 
 from ..utils import OTCDparser as parser
 from ..utils import utilities as ut
+from .Wrapped_hifi_Analysis import HiFiAero
+# from .Wrapped_lofi_Analysis import LoFiAero
 
 
 # TODO: add the ability to specify blade pitch
-def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, configuration, path_to_case):
+def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, path_to_case):
     #TEMPS:
     baseDir = os.path.dirname(os.path.abspath(__file__))
     
@@ -61,7 +63,7 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
     # File names for the lofi analysis
     # =============================================================
 
-    if configuration == "NREL_PhaseVI_UAE":
+    if args.configuration == "NREL_PhaseVI_UAE":
 
         case_prefix = "20kWturbine"
         fstFile = case_prefix + ".fst"
@@ -82,7 +84,7 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
             "20kWADBlade.dat",
             "20kWAD15.dat",]
 
-    elif configuration == "DTU_10MW":
+    elif args.configuration == "DTU_10MW":
 
         case_prefix = "DTU10MW"
         fstFile = case_prefix + ".fst"
@@ -129,7 +131,7 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
             Vel = Vlist[i]
             
             #TODO: use Tag instead of the long name of the configuration
-            name = f"{configuration}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
+            name = f"{args.configuration}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
             if not plotonly:
                 #TODO: change for a func
                 # # inputs:
@@ -142,7 +144,7 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
 
                 if MPI.COMM_WORLD.rank == 0:
                     print(f"Starting Hi-fi analysis at tsr={tsr}")
-                exec(compile(open(hifi_file, "rb").read(), hifi_file, "exec"))  # Running the ADflow runscript
+                funcs, ap = HiFiAero(args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,name,outputDirectory)
 
                 trq = funcs[f"{ap.name}_mx"]
                 thr = funcs[f"{ap.name}_fx"]
@@ -216,7 +218,7 @@ def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, confi
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                outputFile = os.path.join(outputDirectory, f"{configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
 
                 #computing results
                 if not plotonly:
