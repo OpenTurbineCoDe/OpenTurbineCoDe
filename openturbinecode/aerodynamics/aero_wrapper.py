@@ -33,7 +33,8 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     # =============================================================
     
     config = ut.read_config()
-    path_to_openfast = config["lofi"]["path_2_openfast"]
+    path_to_openfast = config["lofi"]["path_to_openfast"]
+    path_to_aerodyn = config["lofi"]["path_to_aerodyn"]
 
     # =============================================================
     # Turbine data unpacking

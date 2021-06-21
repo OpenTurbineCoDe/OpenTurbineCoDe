@@ -146,7 +146,7 @@ if 'OpenFAST' in lofi_code:
     # inflow wind: Uinf, line 12
     replaceInFile(IWfile, fileDirectory, workingDirectory, [12], [Vel])
 
-    run_cmd = path_to_openfast + "openfast "+ fstFile
+    run_cmd = path_to_openfast + " " + fstFile
     outFile = case_prefix+".out"
 
 elif 'AeroDyn' in lofi_code:
@@ -166,7 +166,7 @@ elif 'AeroDyn' in lofi_code:
     # # driver: Uinf, line 12 (EDIT THE SAME FILE!)
     # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),1,V_,separator='  ',EF=True) #cut the file at the end
 
-    run_cmd = path_to_openfast + "/../../modules/aerodyn/aerodyn_driver "+ ADdrvfile
+    run_cmd = path_to_aerodyn + " " + ADdrvfile
     outFile = case_prefix+".1.out"
 
 # ======================================================================
@@ -178,8 +178,8 @@ os.chdir(workingDirectory)
 flag = os.system(run_cmd)
 
 if flag!=0:
-    print("Execution failed during call to %s"%lofi_code)
-    #exit(1)
+    print("ERROR - Execution failed during call to %s"%lofi_code)
+    exit(1)
 
 #Copy the results into the ouput file
 fromdir = os.path.join(workingDirectory, outFile)
