@@ -9,11 +9,12 @@ try:
     from adflow import ADFLOW
     from multipoint import multiPointSparse
 except ImportError as err:
-    # print("Warning - You are missing high-fidelity packages. You will not be able to run high-fi.") #we could do nothing. At this stage, the user should know.
+    # print("Warning - You are missing high-fidelity packages.
+    # You will not be able to run high-fi.") #we could do nothing. At this stage, the user should know.
     pass
 
 
-def HiFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,name,outputDirectory):
+def HiFiAero(name,args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outputDirectory): # config not currently used
     # ======================================================================
     #         Input Information
     # ======================================================================
@@ -37,6 +38,9 @@ def HiFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,name
     MGCYCLE = "sg"
     MGSTART = -1
     nCycles = 200000
+
+    # TODO: for future maintainability, we might need to take the aeroOptions and ADflow instantiation to a separate file
+    # to be also accessed by the optimization script
 
     aeroOptions = {
         # Common Parameters
@@ -110,7 +114,7 @@ def HiFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,name
     nGroup = 1
     nProcPerGroup = MPI.COMM_WORLD.size
     MP.addProcessorSet("standard", nMembers=nGroup, memberSizes=nProcPerGroup)
-    comm, setComm, setFlags, groupFlags, ptID = MP.createCommunicators()
+    comm, _, _, _, _ = MP.createCommunicators()
 
     # Create solver
     CFDSolver = AEROSOLVER(options=aeroOptions, comm=comm)

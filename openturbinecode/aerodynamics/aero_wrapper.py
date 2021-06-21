@@ -142,7 +142,7 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
                 
                 if MPI.COMM_WORLD.rank == 0:
                     print(f"Starting Hi-fi analysis at tsr={tsr}")
-                funcs, ap = HiFiAero(args,config["hifi"],tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,name,outputDirectory)
+                funcs, ap = HiFiAero(name,args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outputDirectory)
 
                 trq = funcs[f"{ap.name}_mx"]
                 thr = funcs[f"{ap.name}_fx"]

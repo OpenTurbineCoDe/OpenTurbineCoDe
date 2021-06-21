@@ -6,8 +6,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setuptools.setup(
     name="OpenTurbineCoDe",
     version="0.0.1",
-    author="Example Author",
-    author_email="author@example.com",
+    author="",
+    author_email="",
     description="Open Turbine Control co-Design package",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -20,16 +20,15 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    # install_requires = ['numpy',],  #'json'
+    install_requires = ["numpy"],  #'json'
     extras_require={
         "high-fidelity": [
             "adflow",
-            "pytacs",
+            "multipoint"
         ],
         # "low-fidelity": [],
         # 'openmdao>=3.4',
     },
-    # package_dir={"": "src"},
     packages=[
         "openturbinecode",
         "openturbinecode.aerodynamics",
