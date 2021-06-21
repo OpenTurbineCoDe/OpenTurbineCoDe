@@ -21,6 +21,7 @@ pip3 install -e .
  - [ ] license
  - [ ] include dependencies in `setup.py`
  - [ ] consider using git lfs for managing cgns files
+ - [ ] manage verbosity levels
 
 ## Developer guidelines
 

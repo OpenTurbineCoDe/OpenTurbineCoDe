@@ -13,17 +13,13 @@ except ImportError as err:
     pass
 
 
-def HiFiAero(args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,name,outputDirectory):
+def HiFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,name,outputDirectory):
     # ======================================================================
     #         Input Information
     # ======================================================================
 
-
-    tip_speed_ratio = tsr
-    rotRate_z = tip_speed_ratio * Vel / spanRef
+    rotRate_z = tsr * Vel / spanRef
     rpm = rotRate_z / (2 * np.pi) * 60
-
-
 
     print("Rotation Rate:", rotRate_z)
     print("RPM:", rpm)
