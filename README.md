@@ -8,7 +8,7 @@ Make sure you `pip installed` the following dependencies:
 - mpi4py
 - ...
 
-Adapt `config.json` to specify the path to your OpenFAST executable.
+If `openfast` and `aerodyn` are not already in your path, you may adapt `config.json` to specify the path to your executables. They are usualy located respectively under `/path/to/openfast/build/glue-codes/openfast/openfast` and `/path/to/openfast/build/modules/aerodyn/aerodyn_driver`.
 :warning: we currently only support OpenFAST v2.4.
 
 To install this package, run 
@@ -21,6 +21,7 @@ pip3 install -e .
  - [ ] license
  - [ ] include dependencies in `setup.py`
  - [ ] consider using git lfs for managing cgns files
+ - [ ] manage verbosity levels
 
 ## Developer guidelines
 

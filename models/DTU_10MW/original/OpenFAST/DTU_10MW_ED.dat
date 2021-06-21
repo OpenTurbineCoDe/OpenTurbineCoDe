@@ -46,9 +46,9 @@ False         PtfmYDOF    - Platform yaw rotation DOF (flag)
           3   NumBl       - Number of blades (-)
      89.167   TipRad      - The distance from the rotor apex to the blade tip (meters)
         2.8   HubRad      - The distance from the rotor apex to the blade root (meters)
-       -0.0   PreCone(1)  - Blade 1 cone angle (degrees) 
-       -0.0   PreCone(2)  - Blade 2 cone angle (degrees) 
-       -0.0   PreCone(3)  - Blade 3 cone angle (degrees) [unused for 2 blades] 
+       -2.5   PreCone(1)  - Blade 1 cone angle (degrees) 
+       -2.5   PreCone(2)  - Blade 2 cone angle (degrees) 
+       -2.5   PreCone(3)  - Blade 3 cone angle (degrees) [unused for 2 blades] 
           0   HubCM       - Distance from rotor apex to hub mass [positive downwind] (meters)
           0   UndSling    - Undersling length [distance from teeter pin to the rotor apex] (meters) [unused for 3 blades]
           0   Delta3      - Delta-3 angle for teetering rotors (degrees) [unused for 3 blades]
@@ -85,9 +85,9 @@ False         PtfmYDOF    - Platform yaw rotation DOF (flag)
           0   PtfmYIner   - Platform inertia for yaw rotation about the platform CM (kg m^2)
 ---------------------- BLADE ---------------------------------------------------
          40   BldNodes    - Number of blade nodes (per blade) used for analysis (-)
-"DTU10MWED_Blade.dat"             BldFile(1)  - Name of file containing properties for blade 1 (quoted string)
-"DTU10MWED_Blade.dat"              BldFile(2)  - Name of file containing properties for blade 2 (quoted string)
-"DTU10MWED_Blade.dat"              BldFile(3)  - Name of file containing properties for blade 3 (quoted string) [unused for 2 blades]
+"DTU_10MW_EDBlade.dat"             BldFile(1)  - Name of file containing properties for blade 1 (quoted string)
+"DTU_10MW_EDBlade.dat"              BldFile(2)  - Name of file containing properties for blade 2 (quoted string)
+"DTU_10MW_EDBlade.dat"              BldFile(3)  - Name of file containing properties for blade 3 (quoted string) [unused for 2 blades]
 ---------------------- ROTOR-TEETER --------------------------------------------
           0   TeetMod     - Rotor-teeter spring/damper model {0: none, 1: standard, 2: user-defined from routine UserTeet} (switch) [unused for 3 blades]
           0   TeetDmpP    - Rotor-teeter damper position (degrees) [used only for 2 blades and when TeetMod=1]
@@ -107,7 +107,7 @@ False         Furling     - Read in additional model properties for furling turb
 "unused"      FurlFile    - Name of file containing furling properties (quoted string) [unused when Furling=False]
 ---------------------- TOWER ---------------------------------------------------
          20   TwrNodes    - Number of tower nodes used for analysis (-)
-"DTU10MWED_Tower.dat"    TwrFile     - Name of file containing tower properties (quoted string)
+"DTU_10MW_EDTower.dat"    TwrFile     - Name of file containing tower properties (quoted string)
 ---------------------- OUTPUT --------------------------------------------------
 false         SumPrint    - Print summary data to "<RootName>.sum" (flag)
           1   OutFile     - Switch to determine where output will be placed: {1: in module output file only; 2: in glue code output file only; 3: both} (currently unused)
@@ -150,6 +150,11 @@ END
 "ALy"
 "ALz"
 END
+
+
+
+
+
 
 
 
