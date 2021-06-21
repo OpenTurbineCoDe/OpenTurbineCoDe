@@ -65,56 +65,28 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     # TODO: need a better management of file lists for OF/AD - more uniformity across files, etc.
     # =============================================================
 
-    if args.configuration == "NREL_PhaseVI_UAE":
-
-        case_prefix = "20kWturbine"
-        config["lofi"]["files"]["fstFile"] = case_prefix + ".fst"
-        config["lofi"]["files"]["EDfile"] = "20kWEDexp.dat"
-        config["lofi"]["files"]["IWfile"] = "20kW_InflowWind.dat"
-        config["lofi"]["files"]["ADdrvfile"] = "20kWturbineADdriver.inp"
-
-        #TODO: define standard names and look for the proper file instead of hardcoding it
-        config["lofi"]["files"]["OFfileList"] = [config["lofi"]["files"]["IWfile"],
-            "20kWADBlade.dat",
-            "20kWAD15.dat",
-            "20kWED_Tower.dat",
-            "20kWEDBlade_experiment.dat",
-            config["lofi"]["files"]["EDfile"],
-            config["lofi"]["files"]["fstFile"]]
-
-        config["lofi"]["files"]["ADfileList"] = [config["lofi"]["files"]["ADdrvfile"],
-            "20kWADBlade.dat",
-            "20kWAD15.dat",]
-
-    elif args.configuration == "DTU_10MW":
-
-        case_prefix = "DTU10MW"
-        config["lofi"]["files"]["fstFile"] = case_prefix + ".fst"
-        config["lofi"]["files"]["EDfile"] = case_prefix+"ED.dat"
-        config["lofi"]["files"]["IWfile"] = case_prefix+"InflowWind.dat"
-        config["lofi"]["files"]["ADdrvfile"] = case_prefix+"ADdriver.inp"
-
-        #TODO: define standard names and look for the proper file instead of hardcoding it
-        config["lofi"]["files"]["OFfileList"] = [config["lofi"]["files"]["IWfile"],
-            "DTU10MWAD_Blade.dat",
-            "DTU10MWAD15.dat",
-            "DTU10MWED_Tower.dat",
-            "DTU10MWED_Blade.dat",
-            config["lofi"]["files"]["EDfile"],
-            config["lofi"]["files"]["fstFile"]]
-
-        config["lofi"]["files"]["ADfileList"] = [config["lofi"]["files"]["ADdrvfile"],
-            "DTU10MWAD_Blade.dat",
-            "DTU10MWAD15.dat",]
-
-    else:
+    if args.configuration not in ["NREL_PhaseVI_UAE","DTU_10MW"]:
         raise ValueError("unknown configuration")
 
+    config["lofi"]["files"]["fstFile"] = args.configuration + ".fst"
+    config["lofi"]["files"]["EDfile"] = args.configuration + "_ED.dat"
+    config["lofi"]["files"]["IWfile"] = args.configuration + "_IW.dat"
+    config["lofi"]["files"]["ADdrvfile"] = args.configuration + "_ADdriver.inp"
+
+    #TODO: define standard names and look for the proper file instead of hardcoding it
+    config["lofi"]["files"]["OFfileList"] = [config["lofi"]["files"]["IWfile"],
+        args.configuration + "_ADBlade.dat",
+        args.configuration + "_AD15.dat",
+        args.configuration + "_EDTower.dat",
+        args.configuration + "_EDBlade.dat",
+        config["lofi"]["files"]["EDfile"],
+        config["lofi"]["files"]["fstFile"]]
+
+    config["lofi"]["files"]["ADfileList"] = [config["lofi"]["files"]["ADdrvfile"],
+        args.configuration + "_ADBlade.dat",
+        args.configuration + "_AD15.dat",]
+
     config["lofi"]["files"]["dirList"] = ["AeroData"]
-
-
-    #TODO: remove this
-    args.case_prefix = case_prefix
 
     # ================================================
     # Definition of the ouptus. TODO: pre-allocate...

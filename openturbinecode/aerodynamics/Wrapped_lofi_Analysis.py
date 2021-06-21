@@ -149,7 +149,7 @@ def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outp
         replaceInFile(config["files"]["IWfile"], fileDirectory, workingDirectory, [12], [Vel])
 
         run_cmd = config["path_to_openfast"] + " " + config["files"]["fstFile"]
-        outFile = args.case_prefix + ".out"
+        outFile = args.configuration + ".out"
 
     elif 'AeroDyn' in config["lofi_code"]:
         # driver: rpm
@@ -169,7 +169,7 @@ def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outp
         # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),1,V_,separator='  ',EF=True) #cut the file at the end
 
         run_cmd = config["path_to_aerodyn"] + " " + config["files"]["ADdrvfile"]
-        outFile = args.case_prefix + ".1.out"
+        outFile = args.configuration + ".1.out"
 
     # ======================================================================
     #         Run OpenFAST / AeroDyn

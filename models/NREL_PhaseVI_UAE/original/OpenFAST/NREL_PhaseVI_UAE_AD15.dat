@@ -49,9 +49,9 @@ True          FLookup            - Flag to indicate whether a lookup for f' will
 "AeroData/s809_1000k.dat"
 ======  Rotor/Blade Properties  =====================================================================
 True          UseBlCm            - Include aerodynamic pitching moment in calculations?  (flag)
-"20kWADBlade.dat"   ADBlFile(1)        - Name of file containing distributed aerodynamic properties for Blade #1 (-)
-"20kWADBlade.dat"   ADBlFile(2)        - Name of file containing distributed aerodynamic properties for Blade #2 (-)
-"20kWADBlade.dat"   ADBlFile(3)        - Name of file containing distributed aerodynamic properties for Blade #3 (-)
+"NREL_PhaseVI_UAE_ADBlade.dat"   ADBlFile(1)        - Name of file containing distributed aerodynamic properties for Blade #1 (-)
+"NREL_PhaseVI_UAE_ADBlade.dat"   ADBlFile(2)        - Name of file containing distributed aerodynamic properties for Blade #2 (-)
+"NREL_PhaseVI_UAE_ADBlade.dat"   ADBlFile(3)        - Name of file containing distributed aerodynamic properties for Blade #3 (-)
 ======  Tower Influence and Aerodynamics =============================================================
          21   NumTwrNds         - Number of tower nodes used in the analysis  (-) [used only when TwrPotent/=0, TwrShadow=True, or TwrAero=True]
 TwrElev        TwrDiam        TwrCd
