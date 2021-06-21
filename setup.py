@@ -20,12 +20,14 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    # install_requires = ['numpy',],  #'json'
     extras_require={
         "high-fidelity": [
             "adflow",
             "pytacs",
         ],
         # "low-fidelity": [],
+        # 'openmdao>=3.4',
     },
     # package_dir={"": "src"},
     packages=[

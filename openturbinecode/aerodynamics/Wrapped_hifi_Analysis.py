@@ -3,9 +3,15 @@
 # ======================================================================
 import numpy as np
 from mpi4py import MPI
-from baseclasses import AeroProblem
-from adflow import ADFLOW
-from multipoint import multiPointSparse
+
+try:
+    from baseclasses import AeroProblem
+    from adflow import ADFLOW
+    from multipoint import multiPointSparse
+except ImportError as err:
+    # print("Warning - You are missing high-fidelity packages. You will not be able to run high-fi.") #we could do nothing. At this stage, the user should know.
+    pass
+
 
 def HiFiAero(args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,name,outputDirectory):
     # ======================================================================

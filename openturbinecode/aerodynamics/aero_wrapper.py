@@ -184,7 +184,7 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                outputFile = os.path.join(outputDirectory, f"{configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
 
                 #computing results
                 if not plotonly:
