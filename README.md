@@ -22,6 +22,23 @@ pip3 install -e .
  - [ ] include dependencies in `setup.py`
  - [ ] consider using git lfs for managing cgns files
 
+## Developer guidelines
+
+*What follows is just a proposition for arranging the entire code, data structures, workflows.*
+
+### Case management, data handling, 
+Every time the user will want to start a project, a case study, etc. we suggest that he starts from one of the examples given in the `models` folder. He should create a working copy of an entire model at a location of his choice, e.g. doing 
+ 
+    cp -r ./models/DTU_10MW/Madsen2019  /path/to/case
+
+From there, all the actions performed from OpenTurbineCoDe will either modify or create new files in the file-tree under /path/to/case. For example, we can imagine that we generate the case files for an OpenFOAM run in some sub-folder there. Having everyting centralized in a single, well-organized folder will allow us for example to sync the entire file-tree between a local machine and a cluster, so that some of the computationally expensive operations are performed on HPC and results are then synced back.
+
+### Code architecture
+
+The `OpenTurbineCoDe` class is defined in `src/glue_code`. This is where we define functions to call the various modules: every single module should expose a number of functions that can be called to perform actions, e.g. from the GUI. The handling of the case files (potentially including turbine data, simulations parameters, etc.) also goes in the `OpenTurbineCoDe` class. The idea is that we can run the main script of `OpenTurbineCoDe` either from the command line, or use it to start the GUI. In GUI mode, the actions triggered from the UI elements should call functions of the `OpenTurbineCoDe` class, which then in turn call functions in other modules. This way, we centralize all the GUI related stuff in the `master_GUI` folder. 
+
+See an work-in-progress example for the geometry module in the `dev/meshing` branch.
+
 ## Models
 This folder gathers a collection of test cases for the ARPA-E Atlantis project on Open Turbine control Co-Design (originally part of OpenTurbineTestCases).
 
@@ -39,9 +56,10 @@ This is just a demo of how the glue code can be used to call functions of differ
 
 To run the example, do:
 
-    mkdir tmp
-    cp -r models/DTU_10MW/Madsen2019/PGL/*.dat tmp
-    python3 src/glue_code/main.py --case ./tmp/case.yaml
+    mkdir -p tmp/PGL
+    cp -r models/DTU_10MW/Madsen2019/PGL/*.dat tmp/PGL
+    cp -r models/DTU_10MW/Madsen2019/Madsen2019_10.yaml tmp/
+    python3 src/glue_code/main.py --turbine ./tmp/Madsen2019_10.yaml   
 
 ## Aerodynamics wrapper
 

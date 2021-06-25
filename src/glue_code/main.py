@@ -4,35 +4,59 @@ import sys
 import os
 import numpy as np
 
+import utils.io as io
 import meshing.surf_mesher_PGL as pgl
 
 class OpenTurbineCoDe:
 
     def __init__(self, args):
         print('Hello, this is OpenTurbineCoDe.')
-        
-        self.path_to_case = os.path.dirname(os.path.abspath(args))
 
-        # turbine_params ...
-        self.load_case(args)
-        
-        # simulation params ...
-        self.load_params()
-        
-        print('initilization done')
+        # global constants
+        self.path_to_root = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+        self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
+        # self.model_schema = self.path_to_root #TODO
+        # self.run_schema = self.path_to_root #TODO
+        self.path_to_case = ""
 
-    #function to load tubine data from a case file
-    def load_case(self,file):
-        
-        self.turbine_data = {}
+        # parse input arguments
+        self.parse_args(args)
 
-        if os.path.exists(file):
-            #TODO:
-            # self.turbine_data = io.load_turbine(...)
-            pass
+        # run params
+        self.load_run_options()    
+
+        # turbine_params (only if turbine data present)
+        if self.turb_yaml:
+            self.load_turbine_case()
+        
+        # model params
+        self.load_modeling_options()    
+
+        self.printv('initilization done')
+
+    # ---------------- IO/PARSING FUNCTIONS --------------------------------------
+    def parse_args(self,args):
+        self.turb_yaml = args.turbine if "turbine" in args else ""
+        self.model_yaml = args.models if "models" in args else ""
+        self.run_yaml = args.runoptions if "runoptions" in args else ""
+
+        if self.turb_yaml:
+            self.path_to_case = os.path.dirname(self.turb_yaml) 
+
+    def load_run_options(self):
+        self.run_options = io.load_yaml(self.run_yaml) #TODO: change for validate_with_defaults
+
+        #parsing important options:
+        self.verbose = self.run_options["General"]["verbosity"]
+
+        self.printv('run options loaded')
+
+    def load_turbine_case(self):
+        self.turb_data = io.validate_with_defaults(self.turb_yaml,self.turbine_schema)
 
         #=========================================================================
         #temporary definition for a quick demo:
+        self.turbine_data = {}
         self.turbine_data["R"] = 89.166
         self.turbine_data["R0"] = 2.8
 
@@ -66,21 +90,23 @@ class OpenTurbineCoDe:
         self.turbine_data["pitch_axis"]["grid"] = self.turbine_data["chord"]["grid"]
         self.turbine_data["pitch_axis"]["value"] = [0.5000, 0.5030, 0.5010, 0.4950, 0.4870, 0.4800, 0.4730, 0.4660, 0.4590, 0.4520, 0.4440, 0.4350, 0.4230, 0.4080, 0.3890, 0.3690, 0.3520, 0.3390, 0.3310, 0.3290, 0.3330, 0.3410, 0.3530, 0.3680, 0.3870, 0.4070, 0.4270, 0.4470, 0.4650, 0.4810, 0.4950, 0.5060, 0.5150, 0.5220, 0.5250, 0.5270, 0.5260, 0.5230, 0.5190, 0.5130, 0.5070, 0.4990, 0.4920, 0.4850, 0.4770, 0.4700, 0.4640, 0.4570, 0.4520, 0.4460]
         #=========================================================================
-        print('case loaded')
+        self.printv('turbine case loaded')
 
-    #function to load parameters for the different modules, simulations tools, preprocessing/posprocessing, etc.
-    def load_params(self):
-        
-        #TODO: import from file
-        self.sim_params = {}
+    def load_modeling_options(self):
+        self.modeling_options = io.load_yaml(self.model_yaml) #TODO: change for validate_with_defaults
 
         #=========================================================================
         #temporary definition for a quick demo:
+        self.sim_params = {}
         self.sim_params["PGL"] = {}
         self.sim_params["PGL"]["planform_file"] = 'planform.dat'
         #=========================================================================
-        print('params loaded')
+        self.printv('modeling options loaded')
 
+    # ---------------- UTILITY FUNCTIONS --------------------------------------
+    def printv(self,str):
+        if(self.verbose):
+            print(str)
 
     # ---------------- MESHING FUNCTIONS --------------------------------------
     def call_writePGLinputs(self):
@@ -107,14 +133,17 @@ class OpenTurbineCoDe:
         #Call the function:
         pgl.generateSurfMesh(R0, R, self.path_to_case, self.sim_params["PGL"]["planform_file"], airfoil_list, blend_var, "demo_mesh")
 
+
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("--case", help="Path to the case file", type=str, default="")
+    parser.add_argument("--turbine", help="Path to the turbine case file (e.g. turbine.yaml)", type=str, default="")
+    parser.add_argument("--models", help="Path to the modeling options file (e.g. modeling_options.yaml)", type=str, default="")
+    parser.add_argument("--runoptions", help="Path to the run options file (e.g. run_options.yaml)", type=str, default="")
     parser.add_argument("--GUI", action='store_true', help="Run PyTurbineCoDe with the GUI")
     args = parser.parse_args()
 
-    OTCD = OpenTurbineCoDe(args.case) #initialize me
+    OTCD = OpenTurbineCoDe(args) #initialize me
 
     #do some arg parsing:
     if args.GUI:
@@ -122,13 +151,12 @@ if __name__ == '__main__':
         ##something like:
         #start_gui(OTCD)
     else:
-        if not args.case:
-            print('No case file specified. Exiting.')
+        if not OTCD.path_to_case:
+            print('You did not provide a turbine case. I will not be able to do anything. Exiting.')
             sys.exit(0)
 
-        print('no GUI. One day, I could read a dedicated file that tells me what to do.')
-
-
+        #... do something, depending on what was sepcified in turbine, run, and modeling options
+        
         #=========================================================================
         #temporary demo:
         OTCD.call_writePGLinputs()
@@ -137,5 +165,5 @@ if __name__ == '__main__':
         #=========================================================================
         
 
-    print('Done, byebye')
+    OTCD.printv('Done, byebye')
     
