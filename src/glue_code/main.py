@@ -123,15 +123,18 @@ if __name__ == '__main__':
             print('You did not provide a turbine case. I will not be able to do anything. Exiting.')
             sys.exit(0)
 
-        #... do something, depending on what was sepcified in turbine, run, and modeling options
-        
-        #=========================================================================
-        #temporary demo:
-        OTCD.call_writePGLinputs()
+        #=====  GEOMETRY ACTIVITIES ===============================================
+        if OTCD.modeling_options["OpenTurbineCoDe"]["Geometry"]["PGL"]["writeFiles"]:
+            OTCD.printv('Writing PGL files...')
+            OTCD.call_writePGLinputs()
+            OTCD.printv('...done.')
 
-        OTCD.call_generateSurfMesh()
-        #=========================================================================
+        #=====  MESHING ACTIVITIES ===============================================
+        #aero:
+        if OTCD.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["run"]:
+            OTCD.printv('Running PGL...')
+            OTCD.call_generateSurfMesh()
+            OTCD.printv('...done.')
         
-
     OTCD.printv('Done, byebye')
     

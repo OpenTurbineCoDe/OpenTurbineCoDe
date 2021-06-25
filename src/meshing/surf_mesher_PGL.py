@@ -149,11 +149,20 @@ def writePGLinputs(turbine_data, path_to_case, planform_file):
         os.mkdir(output_folder)
 
     #-loop over airfoils and write them-
-    print( "List of airfoils that I should write: ")
     for af in turbine_data["airfoils"]:
-        #write the file...
-        #...
-        print( af )
+        print("Writing " + af["name"] )
+        with open(output_folder + os.sep + af["name"] + '.dat','wt') as file:
+            #CAUTION: PGL expects to start with the pressure side: reverting coords
+            xs = af["coordinates"]["x"]
+            ys = af["coordinates"]["y"]
+            if xs[0]==xs[-1] and ys[0]==ys[-1]:
+                print("CAUTION: airfoil coordinates of "+ af["name"] +"formed a closed path (TE thickness=0). I will create some thickness for you...")
+                xs = xs[1:-2]
+                ys = ys[1:-2]
+
+            file.write( "# %i\n"%(len(xs)) )
+            for i in range(len(xs)-1,-1,-1):
+                file.write( "%8.5f %8.5f\n"%(xs[i],ys[i]) )
 
 
     #-retrieve planform data and write it-
