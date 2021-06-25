@@ -157,25 +157,29 @@ def writePGLinputs(turbine_data, path_to_case, planform_file):
 
 
     #-retrieve planform data and write it-
-    R = turbine_data["R"]
-    R0 = turbine_data["R0"]
+    R = turbine_data["assembly"]["rotor_diameter"] / 2.
+    R0 = turbine_data["components"]["hub"]["diameter"] / 2.
 
-    r_coords = np.array(turbine_data["chord"]["grid"]) * (R-R0) + R0
+    r_coords = np.array(turbine_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]) * (R-R0) + R0
     ze = np.zeros(np.size(r_coords))
 
-    twist = np.array(turbine_data["twist"]["value"]) * 180. / np.pi
-    chord = turbine_data["chord"]["value"]
-    pitch_ax = turbine_data["pitch_axis"]["value"]
+    twist = np.array(turbine_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"]) * 180. / np.pi
+    chord = turbine_data["components"]["blade"]["outer_shape_bem"]["chord"]["values"]
+    pitch_ax = turbine_data["components"]["blade"]["outer_shape_bem"]["pitch_axis"]["values"]
     
     #determine the relative thickness at every r_coords
-    r_af = np.array(turbine_data["airfoil_position"]["grid"])
+    r_af = np.array(turbine_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["grid"])
     th_af = np.zeros(np.size(r_af))
     i = 0
-    for af in turbine_data["airfoil_position"]["labels"]:
-        th_af[i] = turbine_data["airfoils"][af]["relative_thickness"]
+    for af in turbine_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"]:
+        for j in range(len(turbine_data["airfoils"])):
+            if af in turbine_data["airfoils"][j]["name"]:
+                th_af[i] = turbine_data["airfoils"][j]["relative_thickness"]
+        if j == len(turbine_data["airfoils"]):
+            print("Warning: airfoil " + af + " not found in airfoil list.")
         i+=1
 
-    thickness = np.interp( np.array(turbine_data["chord"]["grid"]), r_af, th_af )
+    thickness = np.interp( np.array(turbine_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]), r_af, th_af )
     
 
     fname = output_folder + os.sep + planform_file
