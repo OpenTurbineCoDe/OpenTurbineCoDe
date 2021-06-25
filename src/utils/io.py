@@ -79,14 +79,17 @@ def validate_with_defaults(finput, fschema):
 
 
 if __name__ == '__main__':
-    # path2yaml   = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "IEA-10-198-RWT_test.yaml"
-    # path2schema = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + 'defaults' + os.sep + "IEAontology_schema_test.yaml"
+    # path2yaml   = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "IEA-10-198-RWT" + os.sep + "IEA-10-198-RWT.yaml"
+    path2yaml   = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep + "Madsen2019_10.yaml"
+    path2schema = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
 
-    path2yaml   = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "dummy.yaml"
-    path2schema = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + 'defaults' + os.sep + "dummy_schema.yaml"
+    # path2yaml   = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "dummy.yaml"
+    # path2schema = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + 'defaults' + os.sep + "dummy_schema.yaml"
 
     out = validate_with_defaults(path2yaml,path2schema)
     print(out)
+
+    #NOTE: need to revert the coordinates for PGL, take the opposite of the twist angle
 
     # #test or writing:
     # pth = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))+'/test.yaml' 
