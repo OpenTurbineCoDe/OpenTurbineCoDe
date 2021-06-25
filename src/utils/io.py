@@ -25,6 +25,8 @@ import yaml
 #============= COPY PASTE FROM WEIS validation.py ====================================
 # ---------------------
 def load_yaml(fname_input):
+    if not fname_input:
+        return {}
     with open(fname_input, "r", encoding="utf-8") as f:
         data = f.read()
         input_yaml = yaml.load(data, Loader=yaml.FullLoader)
