@@ -56,10 +56,10 @@ This is just a demo of how the glue code can be used to call functions of differ
 
 To run the example, do:
 
-    mkdir -p tmp/PGL
-    cp -r models/DTU_10MW/Madsen2019/PGL/*.dat tmp/PGL
-    cp -r models/DTU_10MW/Madsen2019/Madsen2019_10.yaml tmp/
-    python3 src/glue_code/main.py --turbine ./tmp/Madsen2019_10.yaml   
+    cd ./examples/02_Mesh_Generation_PGL
+    python3 ../../src/main.py --runoptions ./run_options.yaml --turbine ./Madsen2019_10.yaml --models ./modeling_options.yaml
+
+It should generate the PGL geometry files and the surface mesh.
 
 ## Aerodynamics wrapper
 
