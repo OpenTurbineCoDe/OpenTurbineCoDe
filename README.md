@@ -1,4 +1,9 @@
-# Open Turbine Co-Design
+# Open Turbine Control co-Design
+
+This is a repository for the Open Turbine Control co-Designm code, under construction. We provide
+- installation instructions
+- developer's guidelines
+- preliminary instructions to run part of the code/examples
 
 
 ## Installation / Configuration
@@ -21,7 +26,7 @@ pip3 install -e .
  - [ ] license
  - [ ] include dependencies in `setup.py`
  - [ ] consider using git lfs for managing cgns files
- - [ ] manage verbosity levels
+ - [ ] see most recent PR for additional TODO items
 
 ## Developer guidelines
 
@@ -32,13 +37,47 @@ Every time the user will want to start a project, a case study, etc. we suggest 
  
     cp -r ./models/DTU_10MW/Madsen2019  /path/to/case
 
+At a later stage in this project, we might provide the ability to perform that operation automatically from the GUI.
+
 From there, all the actions performed from OpenTurbineCoDe will either modify or create new files in the file-tree under /path/to/case. For example, we can imagine that we generate the case files for an OpenFOAM run in some sub-folder there. Having everyting centralized in a single, well-organized folder will allow us for example to sync the entire file-tree between a local machine and a cluster, so that some of the computationally expensive operations are performed on HPC and results are then synced back.
+
+### Code philosophy
+
+We work with a "parent-child" organization. There is a single, overarching entity that controls the entire execution of the code, that is, the `main` file of OpenTurbineCoDe. The code in there is in charge of interpreting user commands and data (either provided in command line or through a GUI) and then, from this information, call the relevant submodule functions. One big advantage of this approach is the following: we intend to be able to execute the exact same code either on a local computer, or on a supercomputer. For instance, a user can pull up the GUI on his local computer, generate some geometry files and set up and save a case; them, he can take the exact same file architecture to a supercomputer and execute the same code without the GUI in order to produce the results he asked for in the case file. This way, we ensure portability and maintainability.
+
+The `main` routine, also called *backend* or simply *framework*, defines a python class. This means that we can create objects of the type `OpenTurbineCoDe`. The object will have attribute variables, mostly related to main/common parameters that we want to be able to pass to every module: the path to the executed case, the level of fidelity, etc. Most likely also, it should also have a complete definition of a given turbine, potentially under the form of a dictionnary (*see utils/IO, and mechanisms to load/save turbine data, even though this is currently still in development*). 
+
+Importantly, we also define functions associated with the `OpenTurbineCoDe` object. These are really the entry point to any other functionality of the framework. For any action that the developer's want to expose to the user, there should be an associated function in the `main`. This way, we ensure to centralize all the feature of the framework at a single place. However, the function in `main` should call specific functions of the submodules.
+
+Another important aspect is the independancy of the sub-modules. Let's take an example to illustrate this. The aerodynamic module (either low or high-fidelity) requires input files from other modules: global parameters, DLC definition, geometry module and potentially meshing module. We however want to make sure that the aerodynamic module can actually run in `standaline` meaning that it does not require that the other above-mentioned module be executed beforehands. To do this, we always leave the possibility to the user to specify a set of files that correspond to the output of these other modules. So the user should be able to choose if he wants to provide his own **external** files (meshes, DLC generated wind, aerodyn files, etc.), or to use **internal** files (i.e. those generated previously). 
+
+### User interaction with the code
+
+As mentioned previously, we intend for the user to be able to run `OpenTurbineCoDe` with or without GUI.
+The master GUI is a specific submodule that deserves attention. 
+For clarity and maintainability, we want to separate as much as possible the GUI-related handling (graphical representations, buttons, bars, menus, etc.) and the actual code executing actions. This is also part of the reason why we define a `main`. 
+For instance, you can think of the functions defined in `main` as the action that the code need to do when you hit a specific button (e.g., write a set of files, run a solver, etc.). In practice, the script of the GUI will call the related function when the use hits the button, and that will trigger the action.
 
 ### Code architecture
 
-The `OpenTurbineCoDe` class is defined in `src/glue_code`. This is where we define functions to call the various modules: every single module should expose a number of functions that can be called to perform actions, e.g. from the GUI. The handling of the case files (potentially including turbine data, simulations parameters, etc.) also goes in the `OpenTurbineCoDe` class. The idea is that we can run the main script of `OpenTurbineCoDe` either from the command line, or use it to start the GUI. In GUI mode, the actions triggered from the UI elements should call functions of the `OpenTurbineCoDe` class, which then in turn call functions in other modules. This way, we centralize all the GUI related stuff in the `master_GUI` folder. 
+The `OpenTurbineCoDe` class is defined in `openturbinecode/main.py`. This is where we define functions to call the various modules: every single module should expose a number of functions that can be called to perform actions, e.g. from the `main`. The handling of the case files (potentially including turbine data, simulations parameters, etc.) also goes in the `OpenTurbineCoDe` class. 
+All other sub-modules have dedicated sub-folders under `openturbinecode`. Feel free to create new ones if you need.
+Again, the idea is that we can run the main script of `OpenTurbineCoDe` either from the command line, or use it to start the GUI. In GUI mode, the actions triggered from the UI elements should call functions of the `OpenTurbineCoDe` class, which then in turn call functions in other modules. This way, we centralize all the GUI-related stuff in the `master_GUI` folder. 
 
-See an work-in-progress example for the geometry module in the `dev/meshing` branch.
+See an work-in-progress example for the geometry module in the `master` branch.
+
+### IO management
+
+*This part is still under reflection, but we propose a vision here. It is partially inspired from NREL standards, and how reference tools such as WISDEM operate.*
+
+It is possible to manage all data required to run OpenTurbineCoDe, and control the execution, with data/control files. We plan to work with 3 different types of files:
+- turbine data files: collects all information pertaining to the definition of the turbine
+- modeling option files AND run option files: specifies main/global options, and controls what needs to be done from the main - they basically are equivalent to and replace the GUI when `OpenTurbineCoDe` is run in command line (i.e., 
+from a super-computer).
+
+### Misc features
+
+The `OpenTurbineCoDe` class defines its own `print` function. Please use it to display informative, non-essential messages. They will be shown in terminal if the code is set to be verbose. All critical messages (warnings/errors) should however use std/err print functions.
 
 ## Models
 This folder gathers a collection of test cases for the ARPA-E Atlantis project on Open Turbine control Co-Design (originally part of OpenTurbineTestCases).
