@@ -4,8 +4,10 @@ import sys
 import os
 import numpy as np
 
-import utils.io as io
-import meshing.surf_mesher_PGL as pgl
+import openturbinecode.meshing.surf_mesher_PGL as pgl
+import openturbinecode.utils.io as io
+import openturbinecode.utils.utilities as ut
+
 
 class OpenTurbineCoDe:
 
@@ -13,7 +15,7 @@ class OpenTurbineCoDe:
         print('Hello, this is OpenTurbineCoDe.')
 
         # global constants
-        self.path_to_root = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+        self.path_to_root = os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
         # self.model_schema = self.path_to_root #TODO
         # self.run_schema = self.path_to_root #TODO
@@ -53,13 +55,6 @@ class OpenTurbineCoDe:
 
     def load_turbine_case(self):
         self.turb_data = io.validate_with_defaults(self.turb_yaml,self.turbine_schema)
-
-        #=========================================================================
-        #temporary definition for a quick demo:
-        self.turbine_data = {}
-        self.turbine_data["R"] = 89.166
-        self.turbine_data["R0"] = 2.8
-
 
         self.printv('turbine case loaded')
 
