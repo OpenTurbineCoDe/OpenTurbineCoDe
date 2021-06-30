@@ -17,23 +17,21 @@ from mpi4py import MPI
 # from utilities import WT_performance
 # # from Wrapped_lofi_Analysis import compute_lofi 
 
-from ..utils import OTCDparser as parser
-from ..utils import utilities as ut
-from .Wrapped_hifi_Analysis import HiFiAero
-from .Wrapped_lofi_Analysis import LoFiAero
+import utils.OTCDparser as parser
+import utils.utilities as ut
 
 
 # TODO: add the ability to specify blade pitch
-def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, path_to_case):
-    # baseDir = os.path.dirname(os.path.abspath(__file__))
+def aero_Wrapper(tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, configuration, path_to_case):
+    #TEMPS:
+    baseDir = os.path.dirname(os.path.abspath(__file__))
     
     # =============================================================
     # Parse additional config input file(s)
     # =============================================================
     
     config = ut.read_config()
-    config["hifi"] = {}
-    config["lofi"]["files"] = {}
+    path_to_openfast = config["lofi"]["path_2_openfast"]
 
     # =============================================================
     # Turbine data unpacking
@@ -61,32 +59,53 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
 
     # =============================================================
     # File names for the lofi analysis
-    # TODO: use read values instead of HARDCODED VALUES
-    # TODO: need a better management of file lists for OF/AD - more uniformity across files, etc.
     # =============================================================
 
-    if args.configuration not in ["NREL_PhaseVI_UAE","DTU_10MW"]:
+    if configuration == "NREL_PhaseVI_UAE":
+
+        case_prefix = "20kWturbine"
+        fstFile = case_prefix + ".fst"
+        EDfile = "20kWEDexp.dat"
+        IWfile = "20kW_InflowWind.dat"
+        ADdrvfile = "20kWturbineADdriver.inp"
+
+        #TODO: define standard names and look for the proper file instead of hardcoding it
+        OFfileList = [IWfile,
+            "20kWADBlade.dat",
+            "20kWAD15.dat",
+            "20kWED_Tower.dat",
+            "20kWEDBlade_experiment.dat",
+            EDfile,
+            fstFile]
+
+        ADfileList = [ADdrvfile,
+            "20kWADBlade.dat",
+            "20kWAD15.dat",]
+
+    elif configuration == "DTU_10MW":
+
+        case_prefix = "DTU10MW"
+        fstFile = case_prefix + ".fst"
+        EDfile = case_prefix+"ED.dat"
+        IWfile = case_prefix+"InflowWind.dat"
+        ADdrvfile = case_prefix+"ADdriver.inp"
+
+        #TODO: define standard names and look for the proper file instead of hardcoding it
+        OFfileList = [IWfile,
+            "DTU10MWAD_Blade.dat",
+            "DTU10MWAD15.dat",
+            "DTU10MWED_Tower.dat",
+            "DTU10MWED_Blade.dat",
+            EDfile,
+            fstFile]
+
+        ADfileList = [ADdrvfile,
+            "DTU10MWAD_Blade.dat",
+            "DTU10MWAD15.dat",]
+
+    else:
         raise ValueError("unknown configuration")
 
-    config["lofi"]["files"]["fstFile"] = args.configuration + ".fst"
-    config["lofi"]["files"]["EDfile"] = args.configuration + "_ED.dat"
-    config["lofi"]["files"]["IWfile"] = args.configuration + "_IW.dat"
-    config["lofi"]["files"]["ADdrvfile"] = args.configuration + "_ADdriver.inp"
-
-    #TODO: define standard names and look for the proper file instead of hardcoding it
-    config["lofi"]["files"]["OFfileList"] = [config["lofi"]["files"]["IWfile"],
-        args.configuration + "_ADBlade.dat",
-        args.configuration + "_AD15.dat",
-        args.configuration + "_EDTower.dat",
-        args.configuration + "_EDBlade.dat",
-        config["lofi"]["files"]["EDfile"],
-        config["lofi"]["files"]["fstFile"]]
-
-    config["lofi"]["files"]["ADfileList"] = [config["lofi"]["files"]["ADdrvfile"],
-        args.configuration + "_ADBlade.dat",
-        args.configuration + "_AD15.dat",]
-
-    config["lofi"]["files"]["dirList"] = ["AeroData"]
 
     # ================================================
     # Definition of the ouptus. TODO: pre-allocate...
@@ -100,21 +119,30 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     # ================================================
     if 'ADflow' in fidelity:
         spanRef = R # used for moment normalisation
+        hifi_file = os.path.join(baseDir, "Wrapped_hifi_Analysis.py")
         outputDirectory = os.path.join(path_to_case, "ADflow", output)
 
         if not os.path.exists(outputDirectory):
-            os.mkdir(outputDirectory, exist_ok=True)
+            os.mkdir(outputDirectory)
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
-            tsr = tsrlist[i] * rotsign # Caution: tsr is signed!
+            tsr = tsrlist[i] * rotsign
             Vel = Vlist[i]
             
             #TODO: use Tag instead of the long name of the configuration
-            name = f"{args.configuration}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
+            name = f"{configuration}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
             if not plotonly:
-                
+                #TODO: change for a func
+                # # inputs:
+                # spanDir 
+                # rotsign 
+                # output  
+                # omlist  
+                # rpmlist 
+                # areaRef 
+
                 if MPI.COMM_WORLD.rank == 0:
                     print(f"Starting Hi-fi analysis at tsr={tsr}")
-                funcs, ap = HiFiAero(name,args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outputDirectory)
+                exec(compile(open(hifi_file, "rb").read(), hifi_file, "exec"))  # Running the ADflow runscript
 
                 trq = funcs[f"{ap.name}_mx"]
                 thr = funcs[f"{ap.name}_fx"]
@@ -140,9 +168,10 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     # ================================================
     elif 'OpenFAST' in fidelity:
 
+        lofi_file = os.path.join(baseDir, "Wrapped_lofi_Analysis.py")
         outputDirectory = os.path.join(path_to_case, "OpenFAST", output)
-        config["lofi"]["lofi_code"] = "OpenFAST"
-        config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["OFfileList"]
+        lofi_code = "OpenFAST"
+        fileList = OFfileList
         # omlist  
         # rpmlist ...
 
@@ -153,14 +182,12 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                outputFile = os.path.join(outputDirectory, f"{configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
 
                 #computing results
                 if not plotonly:
                     print(f"Starting Lo-fi analysis at tsr={tsr}")
-
-                    # Running the OpenFast runscript
-                    LoFiAero(args,config["lofi"],tsr,Vel,R,spanDir,rho,areaRef,T,path_to_case,outputFile,outputDirectory)
+                    exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
                 
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)
@@ -176,10 +203,11 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     # Low-Fidelity runs with AeroDyn 
     # ================================================
     elif 'AeroDyn' in fidelity:
+        lofi_file = os.path.join(baseDir, "Wrapped_lofi_Analysis.py")
         outputDirectory = os.path.join(path_to_case, "AeroDyn", output)
 
-        config["lofi"]["lofi_code"] = "AeroDyn"
-        config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["ADfileList"]
+        lofi_code = "AeroDyn"
+        fileList = ADfileList
         if not os.path.exists(outputDirectory):
             os.mkdir(outputDirectory)
         if MPI.COMM_WORLD.rank == 0:
@@ -188,14 +216,12 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                outputFile = os.path.join(outputDirectory, f"{configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
 
                 #computing results
                 if not plotonly:
                     print(f"Starting AeroDyn analysis at tsr={tsr}")
-                    
-                    # Running the OpenFast runscript
-                    LoFiAero(args,config["lofi"],tsr,Vel,R,spanDir,rho,areaRef,T,path_to_case,outputFile,outputDirectory)
+                    exec(compile(open(lofi_file, "rb").read(), lofi_file, "exec"))  # Running the OpenFast runscript
                 
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)
@@ -205,5 +231,39 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
                 torque.append(trq)
                 thrust.append(thr)
                 cp.append(CP)
+
+    elif 'turbinesFoam' in fidelity:
+        almFolder = os.path.join(path_to_case, "turbinesFoam")
+        os.chdir(almFolder)
+        for i in range(len(tsrList)):
+            caseName = "tsr" + str(i)
+            shutil.copy('source', caseName)
+            os.chdir(caseName)
+            fname = open('0/include/initialConditions', 'w')
+            fname.write("/*--------------------------------*- C++ -*----------------------------------*\ \n")
+            fname.write("| =========                 |                                                 | \n")
+            fname.write("| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | \n")
+            fname.write("|  \\    /   O peration     | Version:  4.x                                   | \n")
+            fname.write("|   \\  /    A nd           | Web:      www.OpenFOAM.org                      | \n")
+            fname.write("|    \\/     M anipulation  |                                                 | \n")
+            fname.write("\*---------------------------------------------------------------------------*/ \n")
+
+            fname.write("WndVel		" + self.lineEdit_7.text() + ';\n')
+            fname.write("TSR		" + str(tsr) + ';\n')
+            fname.write("BldPitchAng	" + self.lineEdit_3.text() + ';\n')
+            fname.write("Yaw		" + self.lineEdit_4.text() + ';\n')
+
+            fname.write("EndTime		" + self.lineEdit_11.text() + ';\n')
+            fname.write("WriteInterval		" + self.lineEdit_5.text() + ';\n')
+            fname.write("DynamicStall	" + self.comboBox_11.currentText() + ';\n');
+            fname.write("EndEffectsModel	" + self.comboBox_10.currentText() + ';\n');
+            fname.write("Processors" + self.comBox_11.currentText() + ';\n');
+            fname.close()   
+
+            subprocess.run(["of4x"])
+            subprocess.run(["mpirun -np " + self.comBox_11.currentText() + "pimpleFoam -parallel > log&" ])
+            os.chdir("..")  
+        os.chdir("..")      
+
 
     return torque, thrust, cp
