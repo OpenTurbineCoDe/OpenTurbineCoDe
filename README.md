@@ -2,8 +2,10 @@
 
 This is a repository for the Open Turbine Control co-Designm code, under construction. We provide
 - installation instructions
+- quick start guide
 - developer's guidelines
 - preliminary instructions to run part of the code/examples
+- other explanations
 
 
 ## Installation / Configuration
@@ -21,6 +23,13 @@ To install this package, run
 pip3 install -e .
 ```
 
+## Quick start guide
+
+From the root folder of , execute
+
+    python3 openturbinecode/main.py --GUI
+
+The GUI shoudl pop up. There are other ways to run the main function without the GUI. Documentation to come...
 
 ## TODO
  - [ ] license

@@ -8,38 +8,79 @@ from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import pyqtgraph as pg
-import scp
 
-form_class = uic.loadUiType("Config.ui")[0]  # Load the UI
+#NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
+#       Later, we should replace this by a static load when everybody is done editing the GUI.
+#       See also https://realpython.com/qt-designer-python/
+UIrepresentation = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "Config.ui")[0]  # Load the UI
 
 
-class Mapper(QtWidgets.QMainWindow, form_class):
-    def __init__(self,  parent=None):
+class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
+    def __init__(self,  OTCD_, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
+
+        # This is the OpenTurbineCode object. You can access all the functions defined in main by calling `self.OTCD.myfunction()`
+        self.OTCD = OTCD_
+        
+        
+        # The following code maps the action handlers with the main.py functionalities.
+        # ------>> PLEASE WRITE CODE UNDER YOUR ASSOCIATED SECTION <<---------
+        # You can get inspiration from sample code below, or other resources/tutorials on Qt stuff.
+        
+        #=====  MAIN OPTIONS ===============================================
+        
+        #...
+
+        #=====  GEOMETRY ===============================================
+        
+        #...
+
+        #=====  MESHING ===============================================
+        
+        #...
+
+        #=====  AERODYNAMICS ===============================================
+        
+        #...
+
+        #=====  STRUCTURE ===============================================
+        
+        #...
+
+        #=====  AERO-STrUCTURE ===============================================
+        
+        #...
+
+        #=====  CCD ===============================================
+        
+        #...
+
+        # ===================================
+        # SAMPLE CODE:
+        # ===================================
+
         # Bind the event handlers to the buttons
-        self.pushButton.clicked.connect(self.sendToHPC)
+        # self.pushButton.clicked.connect(self.sendToHPC)
 
-	# Set placeholders
-        self.lineEdit_7.setText("11.4")
+        # Set placeholders
+        # self.lineEdit_7.setText("11.4")
 
-    def showSolverSetup(self):
-        print("The user have selected "+str(self.comboBox.currentText()))
-        if self.comboBox.currentText() == "AeroDyn (BEM)":
-            self.stackedWidget.setCurrentIndex(1)
-            self.lineEdit_2.setText("0 0.5 20")
-        if self.comboBox.currentText() == "OpenFOAM (ALM)":
-            self.stackedWidget.setCurrentIndex(0)
-            self.lineEdit_2.setText("0 0.5 20")
+        # def showSolverSetup(self):
+        #     print("The user have selected "+str(self.comboBox.currentText()))
+        #     if self.comboBox.currentText() == "AeroDyn (BEM)":
+        #         self.stackedWidget.setCurrentIndex(1)
+        #         self.lineEdit_2.setText("0 0.5 20")
+        #     if self.comboBox.currentText() == "OpenFOAM (ALM)":
+        #         self.stackedWidget.setCurrentIndex(0)
+        #         self.lineEdit_2.setText("0 0.5 20")
 
-    def sendToHPC(self):
-        subprocess.run(["scp", "-r", self.lineEdit_12.text() ,self.lineEdit_13.text()+"@"+self.lineEdit_14.text()+":"+self.lineEdit_15.text()])
-        subprocess.run(["rm", "-r",  self.ALMFolder+"/rpm*"])
+        # def sendToHPC(self):
+        #     subprocess.run(["scp", "-r", self.lineEdit_12.text() ,self.lineEdit_13.text()+"@"+self.lineEdit_14.text()+":"+self.lineEdit_15.text()])
+        #     subprocess.run(["rm", "-r",  self.ALMFolder+"/rpm*"])
 
-def run():
+def run(OTCD):
     app = QtWidgets.QApplication(sys.argv)
-    myWindow = Mapper()
+    myWindow = OTCD_GUI(OTCD)
     myWindow.show()
     app.exec_()
-
-run()

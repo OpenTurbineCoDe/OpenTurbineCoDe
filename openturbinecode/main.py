@@ -7,7 +7,7 @@ import numpy as np
 import openturbinecode.meshing.surf_mesher_PGL as pgl
 import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
-
+import openturbinecode.master_GUI.GUI as GUI
 
 class OpenTurbineCoDe:
 
@@ -73,7 +73,17 @@ class OpenTurbineCoDe:
         if(self.verbose):
             print(str)
 
-    # ---------------- MESHING FUNCTIONS --------------------------------------
+
+
+    #=====  MAIN FUNCTIONS ===============================================
+        
+    #...
+
+    #=====  GEOMETRY FUNCTIONS ===============================================
+    
+    #...
+
+    #=====  MESHING FUNCTIONS ===============================================
     #write all the geometry files required by PGL, from global turbine data 
     def call_writePGLinputs(self):
         planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
@@ -103,6 +113,23 @@ class OpenTurbineCoDe:
         planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
         pgl.generateSurfMesh(R0, R, self.path_to_case, planform_file, airfoil_list, blend_var, mesh_file)
 
+        #=====  AERODYNAMICS ===============================================
+        
+        #...
+
+        #=====  STRUCTURE ===============================================
+        
+        #...
+
+        #=====  AERO-STrUCTURE ===============================================
+        
+        #...
+
+        #=====  CCD ===============================================
+        
+        #...
+
+
 
 if __name__ == '__main__':
     
@@ -118,8 +145,7 @@ if __name__ == '__main__':
     if args.GUI:
         print('Starting the GUI')
         # =========== CALL THE MASTER GUI ============
-        ##something like:
-        #start_gui(OTCD) 
+        GUI.run(OTCD)
         # ============================================
     else:
         if not OTCD.path_to_case:
