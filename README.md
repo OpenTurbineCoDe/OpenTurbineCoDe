@@ -25,7 +25,7 @@ pip3 install -e .
 
 ## Quick start guide
 
-From the root folder of , execute
+From the root of the folder, execute
 
     python3 openturbinecode/main.py --GUI
 
