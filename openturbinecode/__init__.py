@@ -7,6 +7,11 @@ try: # check adflow import
 except ImportError as err:
     failed_imports.append("adflow")
 
+try: # check pgl import
+    import PGL
+except ImportError as err:
+    failed_imports.append("pgl")
+
 try:  # check local installation of openfast
     config = ut.read_config()
     path_to_openfast = config["lofi"]["path_to_openfast"]
