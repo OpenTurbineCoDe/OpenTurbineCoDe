@@ -4,7 +4,7 @@ import sys
 import os
 import numpy as np
 
-import openturbinecode.meshing.surf_mesher_PGL as pgl
+import openturbinecode.meshing.surf_mesher_PGL as pgl  # TODO: this import makes PGL a hard requirement!
 import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
 import openturbinecode.master_GUI.GUI as GUI

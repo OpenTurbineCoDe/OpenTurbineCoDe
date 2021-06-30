@@ -23,6 +23,10 @@ To install this package, run
 pip3 install -e .
 ```
 
+If you need to use the GUI, ensure that you have all the requirements by installing with:
+```
+pip3 install -e .[gui]
+```
 ## Quick start guide
 
 From the root of the folder, execute
@@ -52,7 +56,7 @@ Every time the user will want to start a project, a case study, etc. we suggest 
 
 At a later stage in this project, we might provide the ability to perform that operation automatically from the GUI.
 
-From there, all the actions performed from OpenTurbineCoDe will either modify or create new files in the file-tree under /path/to/case. For example, we can imagine that we generate the case files for an OpenFOAM run in some sub-folder there. Having everyting centralized in a single, well-organized folder will allow us for example to sync the entire file-tree between a local machine and a cluster, so that some of the computationally expensive operations are performed on HPC and results are then synced back.
+From there, all the actions performed from OpenTurbineCoDe will either modify or create new files in the file-tree under /path/to/case. For example, we can imagine that we generate the case files for an OpenFOAM run in some sub-folder there. Having everything centralized in a single, well-organized folder will allow us for example to sync the entire file-tree between a local machine and a cluster, so that some of the computationally expensive operations are performed on HPC and results are then synced back.
 
 ### Code philosophy
 
@@ -62,7 +66,7 @@ The `main` routine, also called *backend* or simply *framework*, defines a pytho
 
 Importantly, we also define functions associated with the `OpenTurbineCoDe` object. These are really the entry point to any other functionality of the framework. For any action that the developer's want to expose to the user, there should be an associated function in the `main`. This way, we ensure to centralize all the feature of the framework at a single place. However, the function in `main` should call specific functions of the submodules.
 
-Another important aspect is the independancy of the sub-modules. Let's take an example to illustrate this. The aerodynamic module (either low or high-fidelity) requires input files from other modules: global parameters, DLC definition, geometry module and potentially meshing module. We however want to make sure that the aerodynamic module can actually run in a _standalone_ fashion, meaning that it does not require that the other above-mentioned module be executed beforehands. To do this, we always leave the possibility to the user to specify a set of files that correspond to the output of these other modules. So the user should be able to choose if he wants to provide his own **external** files (meshes, DLC generated wind, aerodyn files, etc.), or to use **internal** files (i.e. those generated previously). 
+Another important aspect is the independency of the sub-modules. Let's take an example to illustrate this. The aerodynamic module (either low or high-fidelity) requires input files from other modules: global parameters, DLC definition, geometry module and potentially meshing module. We however want to make sure that the aerodynamic module can actually run in a _standalone_ fashion, meaning that it does not require that the other above-mentioned module be executed beforehand. To do this, we always leave the possibility to the user to specify a set of files that correspond to the output of these other modules. So the user should be able to choose if he wants to provide his own **external** files (meshes, DLC generated wind, aerodyn files, etc.), or to use **internal** files (i.e. those generated previously). 
 
 ### User interaction with the code
 

@@ -20,21 +20,21 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires = ["numpy"],  #'json'
+    install_requires = ["numpy", "jsonschema"],  #'json'
     extras_require={
         "high-fidelity": [
             "adflow",
             "multipoint"
         ],
+        "gui": ["PyQt5", "pyqtgraph"],
+        "meshing": ["PGL"]
         # "low-fidelity": [],
-        # 'openmdao>=3.4',
     },
     packages=[
         "openturbinecode",
         "openturbinecode.aerodynamics",
         "openturbinecode.aerostructural",
         "openturbinecode.controls",
-        "openturbinecode.glue_code",
         "openturbinecode.master_GUI",
         "openturbinecode.prepro",
         "openturbinecode.structure",
