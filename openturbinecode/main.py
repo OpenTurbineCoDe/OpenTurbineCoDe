@@ -51,7 +51,9 @@ class OpenTurbineCoDe:
         self.run_options = io.load_yaml(self.run_yaml) #TODO: change for validate_with_defaults
 
         #parsing important options:
-        self.verbose = self.run_options["General"]["verbosity"]
+        self.verbose = True #TODO: replace this with a default schema
+        if self.run_options:
+            self.verbose = self.run_options["General"]["verbosity"]
 
         self.printv('run options loaded')
 
@@ -150,6 +152,10 @@ if __name__ == '__main__':
     else:
         if not OTCD.path_to_case:
             print('You did not provide a turbine case. I will not be able to do anything. Exiting.')
+            sys.exit(0)
+
+        if not OTCD.modeling_options:
+            print('You did not provide a modeling option file. I don''t know what to do. Exiting.')
             sys.exit(0)
 
         # --- From here on, we are going to run whatever was specified in the run/modeling option files ---
