@@ -29,7 +29,7 @@ From the root folder of , execute
 
     python3 openturbinecode/main.py --GUI
 
-The GUI shoudl pop up. There are other ways to run the main function without the GUI. For example, you can start the GUI and load turbine data at the same time (*functionality yet to come*):
+The GUI should pop up. There are other ways to run the main function without the GUI. For example, you can start the GUI and load turbine data at the same time (*functionality yet to come*):
 
     python3 openturbinecode/main.py --GUI --turbine ./models/DTU_10MW/Madsen2019/Madsen2019_10.yaml 
 
