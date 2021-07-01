@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>1360</width>
-    <height>924</height>
+    <height>797</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTabWidget" name="Geometry">
+   <widget class="QTabWidget" name="SampleModule">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>6</number>
     </property>
     <widget class="QWidget" name="tab_5">
      <attribute name="title">
@@ -1959,6 +1959,24 @@
       </widget>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_6">
+     <attribute name="title">
+      <string>SampleModule</string>
+     </attribute>
+     <widget class="QPushButton" name="sample_button1">
+      <property name="geometry">
+       <rect>
+        <x>550</x>
+        <y>140</y>
+        <width>113</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Hello</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
    <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
@@ -1977,7 +1995,7 @@
      <x>0</x>
      <y>0</y>
      <width>1360</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
