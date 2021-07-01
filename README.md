@@ -2,8 +2,10 @@
 
 This is a repository for the Open Turbine Control co-Designm code, under construction. We provide
 - installation instructions
+- quick start guide
 - developer's guidelines
 - preliminary instructions to run part of the code/examples
+- other explanations
 
 
 ## Installation / Configuration
@@ -21,6 +23,21 @@ To install this package, run
 pip3 install -e .
 ```
 
+If you need to use the GUI, ensure that you have all the requirements by installing with:
+```
+pip3 install -e .[gui]
+```
+## Quick start guide
+
+From the root of the folder, execute
+
+    python3 openturbinecode/main.py --GUI
+
+The GUI should pop up. There are other ways to run the main function without the GUI. For example, you can start the GUI and load turbine data at the same time (*functionality yet to come*):
+
+    python3 openturbinecode/main.py --GUI --turbine ./models/DTU_10MW/Madsen2019/Madsen2019_10.yaml 
+
+More documentation to come...
 
 ## TODO
  - [ ] license
@@ -32,6 +49,8 @@ pip3 install -e .
 
 *What follows is just a proposition for arranging the entire code, data structures, workflows.*
 
+**See also specific guidelines for developments hereafter**.
+
 ### Case management, data handling, 
 Every time the user will want to start a project, a case study, etc. we suggest that he starts from one of the examples given in the `models` folder. He should create a working copy of an entire model at a location of his choice, e.g. doing 
  
@@ -39,7 +58,7 @@ Every time the user will want to start a project, a case study, etc. we suggest 
 
 At a later stage in this project, we might provide the ability to perform that operation automatically from the GUI.
 
-From there, all the actions performed from OpenTurbineCoDe will either modify or create new files in the file-tree under /path/to/case. For example, we can imagine that we generate the case files for an OpenFOAM run in some sub-folder there. Having everyting centralized in a single, well-organized folder will allow us for example to sync the entire file-tree between a local machine and a cluster, so that some of the computationally expensive operations are performed on HPC and results are then synced back.
+From there, all the actions performed from OpenTurbineCoDe will either modify or create new files in the file-tree under /path/to/case. For example, we can imagine that we generate the case files for an OpenFOAM run in some sub-folder there. Having everything centralized in a single, well-organized folder will allow us for example to sync the entire file-tree between a local machine and a cluster, so that some of the computationally expensive operations are performed on HPC and results are then synced back.
 
 ### Code philosophy
 
@@ -49,7 +68,7 @@ The `main` routine, also called *backend* or simply *framework*, defines a pytho
 
 Importantly, we also define functions associated with the `OpenTurbineCoDe` object. These are really the entry point to any other functionality of the framework. For any action that the developer's want to expose to the user, there should be an associated function in the `main`. This way, we ensure to centralize all the feature of the framework at a single place. However, the function in `main` should call specific functions of the submodules.
 
-Another important aspect is the independancy of the sub-modules. Let's take an example to illustrate this. The aerodynamic module (either low or high-fidelity) requires input files from other modules: global parameters, DLC definition, geometry module and potentially meshing module. We however want to make sure that the aerodynamic module can actually run in a _standalone_ fashion, meaning that it does not require that the other above-mentioned module be executed beforehands. To do this, we always leave the possibility to the user to specify a set of files that correspond to the output of these other modules. So the user should be able to choose if he wants to provide his own **external** files (meshes, DLC generated wind, aerodyn files, etc.), or to use **internal** files (i.e. those generated previously). 
+Another important aspect is the independency of the sub-modules. Let's take an example to illustrate this. The aerodynamic module (either low or high-fidelity) requires input files from other modules: global parameters, DLC definition, geometry module and potentially meshing module. We however want to make sure that the aerodynamic module can actually run in a _standalone_ fashion, meaning that it does not require that the other above-mentioned module be executed beforehand. To do this, we always leave the possibility to the user to specify a set of files that correspond to the output of these other modules. So the user should be able to choose if he wants to provide his own **external** files (meshes, DLC generated wind, aerodyn files, etc.), or to use **internal** files (i.e. those generated previously). 
 
 ### User interaction with the code
 
@@ -78,6 +97,20 @@ from a super-computer).
 ### Misc features
 
 The `OpenTurbineCoDe` class defines its own `print` function. Please use it to display informative, non-essential messages. They will be shown in terminal if the code is set to be verbose. All critical messages (warnings/errors) should however use std/err print functions.
+
+
+## Specific guidelines for development
+
+### GUI
+
+**Naming conventions**: When designing the UI with Qt tools, be very carefull to **give a name** to every graphical object you create. For instance, if you add a line object, it will automatically be named something like `lineEdit_XX`. Please change this to a name meaningful to your module, e.g. `struct_line_YoungModulus`. This is to make sure that, when we develop the UI in parallel, there will be no duplicates in the named objects.
+
+### Single modules
+
+**Dependencies**: specific external python modules should ideally not be hard requirements. Ideally, the code should be able to run a specific module with only the related dependancies, and without the dependancies of all the other modules. This means that we guarantee standalone execution of each module. 
+For example, to run the low-fidelity aerodynamics, I don't need to have `adflow` installed. See how this is managed at the top of `Wrapped_hifi_Analysis.py`. If you need to add external dependancies, please also amend the `./openturbinecode/__init__.py` file so that the user gets a warning on all the modules he needs to install.
+
+<!-- ------------------------------------------------------------------------------ -->
 
 ## Models
 This folder gathers a collection of test cases for the ARPA-E Atlantis project on Open Turbine control Co-Design (originally part of OpenTurbineTestCases).

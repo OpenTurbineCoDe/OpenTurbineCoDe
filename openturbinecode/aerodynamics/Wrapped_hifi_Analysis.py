@@ -9,11 +9,22 @@ try:
     from adflow import ADFLOW
     from multipoint import multiPointSparse
 except ImportError as err:
-    # print("Warning - You are missing high-fidelity packages.
-    # You will not be able to run high-fi.") #we could do nothing. At this stage, the user should know.
-    pass
+    _has_adflow = False
+else:
+    _has_adflow = True
+
+"""
+Definition of a decorator to be used on every function that requires the sprcific module
+"""
+def requires_adflow(function):
+    def check_requirement(*args,**kwargs):
+        if not _has_adflow:
+            raise ImportError("adflow is required to do this.")
+        function(*args,*kwargs)
+    return check_requirement
 
 
+@requires_adflow
 def HiFiAero(name,args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outputDirectory): # config not currently used
     # ======================================================================
     #         Input Information

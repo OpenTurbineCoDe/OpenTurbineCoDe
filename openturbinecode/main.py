@@ -7,7 +7,8 @@ import numpy as np
 import openturbinecode.meshing.surf_mesher_PGL as pgl
 import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
-
+import openturbinecode.master_GUI.GUI as GUI
+import openturbinecode.sample_module.sample_script as sample
 
 class OpenTurbineCoDe:
 
@@ -39,9 +40,9 @@ class OpenTurbineCoDe:
     # ---------------- IO/PARSING FUNCTIONS --------------------------------------
     #parse parameters coming from command line execution
     def parse_args(self,args):
-        self.turb_yaml = args.turbine if "turbine" in args else ""
-        self.model_yaml = args.models if "models" in args else ""
-        self.run_yaml = args.runoptions if "runoptions" in args else ""
+        self.turb_yaml = (args.turbine) if "turbine" in args else ""
+        self.model_yaml = (args.models) if "models" in args else ""
+        self.run_yaml = (args.runoptions) if "runoptions" in args else ""
 
         if self.turb_yaml:
             self.path_to_case = os.path.dirname(self.turb_yaml) 
@@ -51,7 +52,9 @@ class OpenTurbineCoDe:
         self.run_options = io.load_yaml(self.run_yaml) #TODO: change for validate_with_defaults
 
         #parsing important options:
-        self.verbose = self.run_options["General"]["verbosity"]
+        self.verbose = True #TODO: replace this with a default schema
+        if self.run_options:
+            self.verbose = self.run_options["General"]["verbosity"]
 
         self.printv('run options loaded')
 
@@ -73,7 +76,17 @@ class OpenTurbineCoDe:
         if(self.verbose):
             print(str)
 
-    # ---------------- MESHING FUNCTIONS --------------------------------------
+
+
+    #=====  MAIN FUNCTIONS ===============================================
+        
+    #...
+
+    #=====  GEOMETRY FUNCTIONS ===============================================
+    
+    #...
+
+    #=====  MESHING FUNCTIONS ===============================================
     #write all the geometry files required by PGL, from global turbine data 
     def call_writePGLinputs(self):
         planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
@@ -104,6 +117,32 @@ class OpenTurbineCoDe:
         pgl.generateSurfMesh(R0, R, self.path_to_case, planform_file, airfoil_list, blend_var, mesh_file)
 
 
+    #=====  AERODYNAMICS ===============================================
+    
+    #...
+    # example changes that need to be merged.
+
+    #=====  STRUCTURE ===============================================
+    
+    #...
+
+    #=====  AERO-STrUCTURE ===============================================
+    
+    #...
+
+    #=====  CCD ===============================================
+    
+    #...
+
+    #=====  SAMPLE MODULE ===============================================
+
+    def sample_hello_world(self):
+        print("Hello, running from " + self.path_to_root)
+        sample.hello_from_sample()
+        sample.new_function()
+
+
+
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
@@ -118,12 +157,19 @@ if __name__ == '__main__':
     if args.GUI:
         print('Starting the GUI')
         # =========== CALL THE MASTER GUI ============
-        ##something like:
-        #start_gui(OTCD) 
+        GUI.run(OTCD)
         # ============================================
     else:
         if not OTCD.path_to_case:
             print('You did not provide a turbine case. I will not be able to do anything. Exiting.')
+            sys.exit(0)
+
+        if not OTCD.turb_data:
+            print('I did not find any data in your turbine yaml file... Exiting')
+            sys.exit(0)
+
+        if not OTCD.modeling_options:
+            print('You did not provide a modeling option file. I don''t know what to do. Exiting.')
             sys.exit(0)
 
         # --- From here on, we are going to run whatever was specified in the run/modeling option files ---

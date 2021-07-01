@@ -3,17 +3,33 @@ import numpy as np
 import sys
 import os
 
-from PGL.components.blademesher import BladeMesher
-from PGL.main.planform import read_blade_planform
-from PGL.main.bezier import BezierCurve
-from PGL.main.curve import SegmentedCurve, Curve
+try:    
+    from PGL.components.blademesher import BladeMesher
+    from PGL.main.planform import read_blade_planform
+    from PGL.main.bezier import BezierCurve
+    from PGL.main.curve import SegmentedCurve, Curve
 
-from PGL.main.domain import write_x2d
+    from PGL.main.domain import write_x2d
+except ImportError as err:
+    _has_pgl = False
+else:
+    _has_pgl = True
 
 import utils.convert_fXYZ_to_uXYZ as conv
 
 
+"""
+Definition of a decorator to be used on every function that requires the sprcific module
+"""
+def requires_pgl(function):
+    def check_requirement(*args,**kwargs):
+        if not _has_pgl:
+            raise ImportError("pgl is required to do this.")
+        function(*args,*kwargs)
+    return check_requirement
 
+
+@requires_pgl
 def generateSurfMesh(R0, R, path_to_case, planform_file, airfoil_list, blend_var, output_name):
 
     output_folder = path_to_case + os.sep + 'PGL'
