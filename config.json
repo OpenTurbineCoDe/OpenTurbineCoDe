@@ -1,5 +1,6 @@
 {
     "lofi": {
-        "path_2_openfast" : "/Users/dg/Documents/BYU/devel/openfast_v2.4/build_gcc10_2/glue-codes/openfast/"        
+        "path_to_openfast" : "openfast",
+        "path_to_aerodyn" : "aerodyn_driver"
     } 
 }
