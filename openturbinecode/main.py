@@ -8,6 +8,7 @@ import openturbinecode.meshing.surf_mesher_PGL as pgl
 import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
 import openturbinecode.master_GUI.GUI as GUI
+import openturbinecode.sample_module.sample_script as sample
 
 class OpenTurbineCoDe:
 
@@ -135,6 +136,8 @@ class OpenTurbineCoDe:
 
     def sample_hello_world(self):
         print("Hello, running from " + self.path_to_root)
+        sample.hello_from_sample()
+        sample.new_function()
 
 
 
