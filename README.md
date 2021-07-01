@@ -49,6 +49,8 @@ More documentation to come...
 
 *What follows is just a proposition for arranging the entire code, data structures, workflows.*
 
+**See also specific guidelines for developments hereafter**.
+
 ### Case management, data handling, 
 Every time the user will want to start a project, a case study, etc. we suggest that he starts from one of the examples given in the `models` folder. He should create a working copy of an entire model at a location of his choice, e.g. doing 
  
@@ -95,6 +97,20 @@ from a super-computer).
 ### Misc features
 
 The `OpenTurbineCoDe` class defines its own `print` function. Please use it to display informative, non-essential messages. They will be shown in terminal if the code is set to be verbose. All critical messages (warnings/errors) should however use std/err print functions.
+
+
+## Specific guidelines for development
+
+### GUI
+
+**Naming conventions**: When designing the UI with Qt tools, be very carefull to **give a name** to every graphical object you create. For instance, if you add a line object, it will automatically be named something like `lineEdit_XX`. Please change this to a name meaningful to your module, e.g. `struct_line_YoungModulus`. This is to make sure that, when we develop the UI in parallel, there will be no duplicates in the named objects.
+
+### Single modules
+
+**Dependencies**: specific external python modules should ideally not be hard requirements. Ideally, the code should be able to run a specific module with only the related dependancies, and without the dependancies of all the other modules. This means that we guarantee standalone execution of each module. 
+For example, to run the low-fidelity aerodynamics, I don't need to have `adflow` installed. See how this is managed at the top of `Wrapped_hifi_Analysis.py`. If you need to add external dependancies, please also amend the `./openturbinecode/__init__.py` file so that the user gets a warning on all the modules he needs to install.
+
+<!-- ------------------------------------------------------------------------------ -->
 
 ## Models
 This folder gathers a collection of test cases for the ARPA-E Atlantis project on Open Turbine control Co-Design (originally part of OpenTurbineTestCases).
