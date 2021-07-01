@@ -39,9 +39,9 @@ class OpenTurbineCoDe:
     # ---------------- IO/PARSING FUNCTIONS --------------------------------------
     #parse parameters coming from command line execution
     def parse_args(self,args):
-        self.turb_yaml = ("." + os.sep + args.turbine) if "turbine" in args else ""
-        self.model_yaml = ("." + os.sep + args.models) if "models" in args else ""
-        self.run_yaml = ("." + os.sep + args.runoptions) if "runoptions" in args else ""
+        self.turb_yaml = (args.turbine) if "turbine" in args else ""
+        self.model_yaml = (args.models) if "models" in args else ""
+        self.run_yaml = (args.runoptions) if "runoptions" in args else ""
 
         if self.turb_yaml:
             self.path_to_case = os.path.dirname(self.turb_yaml) 
@@ -115,21 +115,26 @@ class OpenTurbineCoDe:
         planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
         pgl.generateSurfMesh(R0, R, self.path_to_case, planform_file, airfoil_list, blend_var, mesh_file)
 
-        #=====  AERODYNAMICS ===============================================
-        
-        #...
+    #=====  AERODYNAMICS ===============================================
+    
+    #...
 
-        #=====  STRUCTURE ===============================================
-        
-        #...
+    #=====  STRUCTURE ===============================================
+    
+    #...
 
-        #=====  AERO-STrUCTURE ===============================================
-        
-        #...
+    #=====  AERO-STrUCTURE ===============================================
+    
+    #...
 
-        #=====  CCD ===============================================
-        
-        #...
+    #=====  CCD ===============================================
+    
+    #...
+
+    #=====  SAMPLE MODULE ===============================================
+
+    def sample_hello_world(self):
+        print("Hello, running from " + self.path_to_root)
 
 
 

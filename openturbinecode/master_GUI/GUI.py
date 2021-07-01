@@ -56,6 +56,10 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         
         #...
 
+        #=====  SAMPLE MODULE ===============================================
+        
+        self.sample_button1.clicked.connect(self.OTCD.sample_hello_world)
+
         # ===================================
         # SAMPLE CODE:
         # ===================================
