@@ -8,6 +8,7 @@ import openturbinecode.meshing.surf_mesher_PGL as pgl
 import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
 import openturbinecode.master_GUI.GUI as GUI
+import openturbinecode.sample_module.sample_script as sample
 
 class OpenTurbineCoDe:
 
@@ -39,9 +40,9 @@ class OpenTurbineCoDe:
     # ---------------- IO/PARSING FUNCTIONS --------------------------------------
     #parse parameters coming from command line execution
     def parse_args(self,args):
-        self.turb_yaml = ("." + os.sep + args.turbine) if "turbine" in args else ""
-        self.model_yaml = ("." + os.sep + args.models) if "models" in args else ""
-        self.run_yaml = ("." + os.sep + args.runoptions) if "runoptions" in args else ""
+        self.turb_yaml = (args.turbine) if "turbine" in args else ""
+        self.model_yaml = (args.models) if "models" in args else ""
+        self.run_yaml = (args.runoptions) if "runoptions" in args else ""
 
         if self.turb_yaml:
             self.path_to_case = os.path.dirname(self.turb_yaml) 
@@ -115,22 +116,30 @@ class OpenTurbineCoDe:
         planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
         pgl.generateSurfMesh(R0, R, self.path_to_case, planform_file, airfoil_list, blend_var, mesh_file)
 
-        #=====  AERODYNAMICS ===============================================
-        
-        #...
-        # example changes that need to be merged.
 
-        #=====  STRUCTURE ===============================================
-        
-        #...
+    #=====  AERODYNAMICS ===============================================
+    
+    #...
+    # example changes that need to be merged.
 
-        #=====  AERO-STrUCTURE ===============================================
-        
-        #...
+    #=====  STRUCTURE ===============================================
+    
+    #...
 
-        #=====  CCD ===============================================
-        
-        #...
+    #=====  AERO-STrUCTURE ===============================================
+    
+    #...
+
+    #=====  CCD ===============================================
+    
+    #...
+
+    #=====  SAMPLE MODULE ===============================================
+
+    def sample_hello_world(self):
+        print("Hello, running from " + self.path_to_root)
+        sample.hello_from_sample()
+        sample.new_function()
 
 
 

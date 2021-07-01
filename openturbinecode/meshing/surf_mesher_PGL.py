@@ -24,7 +24,7 @@ Definition of a decorator to be used on every function that requires the sprcifi
 def requires_pgl(function):
     def check_requirement(*args,**kwargs):
         if not _has_pgl:
-            raise ImportError("pgl is required to do this."))
+            raise ImportError("pgl is required to do this.")
         function(*args,*kwargs)
     return check_requirement
 
