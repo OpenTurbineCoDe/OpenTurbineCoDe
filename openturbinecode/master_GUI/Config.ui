@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>6</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_5">
      <attribute name="title">
@@ -1872,6 +1872,26 @@
          <string>Optimization</string>
         </attribute>
        </widget>
+      </widget>
+      <widget class="QLabel" name="dummy_text">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>550</y>
+         <width>121</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>TEMP INSTRUCTION</string>
+       </property>
       </widget>
      </widget>
     </widget>
