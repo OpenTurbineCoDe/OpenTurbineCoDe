@@ -1,33 +1,10 @@
 # ======================================================================
 #         Import modules
 # ======================================================================
-# import numpy as np
+import numpy as np
+import os
 import shutil
-import csv
-
-# ======================================================================
-#         Input Information + HARDCODED VALUES
-# ======================================================================
-# Several file names come from higher level
-
-# HARDCODED VALUES FOR NOW:
-dirList =["AeroData"]
-
-
-# ======================================================================
-#         Copying the working files
-# ======================================================================
-
-fileDirectory = os.path.join(path_to_case, lofi_code) #, args.output
-workingDirectory = os.path.join(path_to_case, lofi_code, "workdir")
-
-shutil.rmtree(workingDirectory,True)
-os.mkdir(workingDirectory)
-
-for file in fileList:
-    shutil.copy(os.path.join(fileDirectory,file), os.path.join(workingDirectory,file))
-for dir in dirList:
-    shutil.copytree(os.path.join(fileDirectory,dir), os.path.join(workingDirectory,dir))    
+# import csv
 
 # ======================================================================
 #         Filling in the data where we need them in the input files
@@ -40,6 +17,7 @@ def replaceInFile(filename, inputDir, outputDir, iline, value, mod=0, fmt="  %9.
     ofi = os.path.join(outputDir, filename)
     buffer = ""
 
+    ifh = []
     try:
         ifh = open(ifi, "rt")
     except Exception:
@@ -64,6 +42,7 @@ def replaceInFile(filename, inputDir, outputDir, iline, value, mod=0, fmt="  %9.
             buffer += line
     ifh.close()
 
+    ofh = []
     try:
         ofh = open(ofi, "wt")
     except Exception:
@@ -80,6 +59,7 @@ def replaceInFileTable(filename, inputDir, outputDir, iline, icol, value, mod=0,
     
     buffer = ""
 
+    ifh = []
     try:
         ifh = open(ifi, "rt")
     except Exception:
@@ -129,6 +109,7 @@ def replaceInFileTable(filename, inputDir, outputDir, iline, icol, value, mod=0,
             line += '\n'
             buffer += line
 
+    ofh = []
     try:
         ofh = open(ofi, "wt")
     except Exception:
@@ -138,51 +119,72 @@ def replaceInFileTable(filename, inputDir, outputDir, iline, icol, value, mod=0,
     ofh.close()
 
 
+def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outputFile,outputDirectory):
 
-if 'OpenFAST' in lofi_code:
-    # elastodyn: rpm, line 35
-    replaceInFile(EDfile, fileDirectory, workingDirectory, [35], [rpm])
+    rotRate_z = tsr * Vel / spanRef
+    rpm = rotRate_z / (2 * np.pi) * 60
 
-    # inflow wind: Uinf, line 12
-    replaceInFile(IWfile, fileDirectory, workingDirectory, [12], [Vel])
+    # ======================================================================
+    #         Copying the working files
+    # ======================================================================
 
-    run_cmd = path_to_openfast + "openfast "+ fstFile
-    outFile = case_prefix+".out"
+    fileDirectory = os.path.join(path_to_case, config["lofi_code"]) #, args.output
+    workingDirectory = os.path.join(path_to_case, config["lofi_code"], "workdir")
 
-elif 'AeroDyn' in lofi_code:
-    # driver: rpm
-    replaceInFileTable(ADdrvfile,fileDirectory,workingDirectory,[22],3,[rpm],separator='  ')
+    shutil.rmtree(workingDirectory,True)
+    os.mkdir(workingDirectory)
 
-    # driver: Uinf, line 12 (EDIT THE SAME FILE!)
-    replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,[22],1,[Vel],separator='  ',EF=True) #cut the file at the end
+    for file in config["files"]["fileList"]:
+        shutil.copy(os.path.join(fileDirectory,file), os.path.join(workingDirectory,file))
+    for dir in config["files"]["dirList"]:
+        shutil.copytree(os.path.join(fileDirectory,dir), os.path.join(workingDirectory,dir))    
 
-    # IF WE WERE TO USE 1 DRIVER FILE TO DO MULTIPLE INFOW VEL:
-    # # number of test conditions:
-    # replaceInFile(ADdrvfile,fileDirectory,workingDirectory, [19], [N], fmt="  %d") 
+    
 
-    # # driver: rpm (EDIT THE SAME FILE!)
-    # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),3,rpm_,separator='  ')
+    if 'OpenFAST' in config["lofi_code"]:
+        # elastodyn: rpm, line 35
+        replaceInFile(config["files"]["EDfile"], fileDirectory, workingDirectory, [35], [rpm])
 
-    # # driver: Uinf, line 12 (EDIT THE SAME FILE!)
-    # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),1,V_,separator='  ',EF=True) #cut the file at the end
+        # inflow wind: Uinf, line 12
+        replaceInFile(config["files"]["IWfile"], fileDirectory, workingDirectory, [12], [Vel])
 
-    run_cmd = path_to_openfast + "/../../modules/aerodyn/aerodyn_driver "+ ADdrvfile
-    outFile = case_prefix+".1.out"
+        run_cmd = config["path_to_openfast"] + " " + config["files"]["fstFile"]
+        outFile = args.configuration + ".out"
 
-# ======================================================================
-#         Run OpenFAST / AeroDyn
-# ======================================================================
+    elif 'AeroDyn' in config["lofi_code"]:
+        # driver: rpm
+        replaceInFileTable(config["files"]["ADdrvfile"],fileDirectory,workingDirectory,[22],3,[rpm],separator='  ')
 
-os.chdir(workingDirectory)
+        # driver: Uinf, line 12 (EDIT THE SAME FILE!)
+        replaceInFileTable(config["files"]["ADdrvfile"],workingDirectory,workingDirectory,[22],1,[Vel],separator='  ',EF=True) #cut the file at the end
 
-flag = os.system(run_cmd)
+        # IF WE WERE TO USE 1 DRIVER FILE TO DO MULTIPLE INFOW VEL:
+        # # number of test conditions:
+        # replaceInFile(ADdrvfile,fileDirectory,workingDirectory, [19], [N], fmt="  %d") 
 
-if flag!=0:
-    print("Execution failed during call to %s"%lofi_code)
-    #exit(1)
+        # # driver: rpm (EDIT THE SAME FILE!)
+        # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),3,rpm_,separator='  ')
 
-#Copy the results into the ouput file
-fromdir = os.path.join(workingDirectory, outFile)
-shutil.copy(fromdir, outputFile)
+        # # driver: Uinf, line 12 (EDIT THE SAME FILE!)
+        # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),1,V_,separator='  ',EF=True) #cut the file at the end
+
+        run_cmd = config["path_to_aerodyn"] + " " + config["files"]["ADdrvfile"]
+        outFile = args.configuration + ".1.out"
+
+    # ======================================================================
+    #         Run OpenFAST / AeroDyn
+    # ======================================================================
+
+    os.chdir(workingDirectory)
+
+    flag = os.system(run_cmd)
+
+    if flag!=0:
+        print("ERROR - Execution failed during call to %s"%config["lofi_code"])
+        exit(1)
+
+    #Copy the results into the ouput file
+    fromdir = os.path.join(workingDirectory, outFile)
+    shutil.copy(fromdir, outputFile)
 
 
