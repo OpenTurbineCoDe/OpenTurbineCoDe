@@ -100,9 +100,7 @@ def generateDLC(path, turb_data, DLC_list, n_ws, n_seeds, TMax):
 
     for DLC in DLC_list:
         #VELOCITY
-        if DLC == 0: #not a DLC, just uniform velocity at Vrated
-            iec.dlc_inputs['U'].append(Vrated)
-        elif DLC == 1.4 or DLC == 5.1:
+        if DLC == 1.4 or DLC == 5.1:
             iec.dlc_inputs['U'].append([Vrated - 2., Vrated, Vrated + 2.])
         elif DLC >= 6.1 and DLC <= 6.3:
             iec.dlc_inputs['U'].append([])
@@ -204,6 +202,9 @@ def generateDLC(path, turb_data, DLC_list, n_ws, n_seeds, TMax):
         # print(case_name_list)
         # print(case_list)
         # print(dlc_list)
+
+        for case in case_name_list:
+            print("Generated " + case)
 
     sys.stdout.flush()
     sys.stdout.flush()

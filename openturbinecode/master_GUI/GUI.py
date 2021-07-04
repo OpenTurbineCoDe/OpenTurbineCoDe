@@ -32,6 +32,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         
         #...
 
+        self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
+
         #=====  GEOMETRY ===============================================
         
         #...
@@ -82,6 +84,37 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         # def sendToHPC(self):
         #     subprocess.run(["scp", "-r", self.lineEdit_12.text() ,self.lineEdit_13.text()+"@"+self.lineEdit_14.text()+":"+self.lineEdit_15.text()])
         #     subprocess.run(["rm", "-r",  self.ALMFolder+"/rpm*"])
+
+    #*******************************************************************
+    #************** CALLER FUNCTIONS               *********************
+    #*******************************************************************
+
+
+    #=====  MAIN OPTIONS ===============================================
+        
+    #...
+
+    def caller_generateDLC(self):
+        #update parameters with the current texts in the fields
+        self.save_DLC_options()
+        self.OTCD.call_generateDLC()
+
+    def save_DLC_options(self):
+        DLC_list = [float(dlc) for dlc in self.Main_DLC_listDlc.text().split(',')]
+        n_ws     = float(self.Main_DLC_nws.text())
+        n_seeds  = float(self.Main_DLC_nseeds.text())
+        Tmax     = float(self.Main_DLC_TMax.text())
+        Vrated   = float(self.Main_DLC_VRated.text())
+        
+        self.OTCD.update_DLCoptions(DLC_list, n_ws    , n_seeds , Tmax    , Vrated  ) 
+
+    #...
+
+    def save_all_options(self):
+        # ................... DLCs ...................
+        self.save_DLC_options()
+
+
 
 def run(OTCD):
     app = QtWidgets.QApplication(sys.argv)

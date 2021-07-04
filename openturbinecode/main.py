@@ -69,6 +69,11 @@ class OpenTurbineCoDe:
     #import modeling options under the form of a dictionary and making it available as an attribute to this object
     def load_modeling_options(self):
         self.modeling_options = io.load_yaml(self.model_yaml) #TODO: change for validate_with_defaults
+        #will create opentubrinestuff anyway
+
+        #TODO: remove this when we use validate_with_defaults
+        if not self.modeling_options:
+            self.modeling_options["OpenTurbineCoDe"] = {}
 
         self.printv('modeling options loaded')
 
@@ -83,6 +88,20 @@ class OpenTurbineCoDe:
     #=====  MAIN FUNCTIONS ===============================================
         
     #...
+
+    #TODO: move the definition of this function to IO?
+    def update_DLCoptions(self, DLC_list, n_ws, n_seeds, TMax, Vrated):
+        # check that DLC exists
+        if not "DLC" in self.modeling_options["OpenTurbineCoDe"]:
+            self.modeling_options["OpenTurbineCoDe"]["DLC"] = {}
+            self.modeling_options["OpenTurbineCoDe"]["DLC"]["run"] = False
+
+        self.modeling_options["OpenTurbineCoDe"]["DLC"]["DLC_list"]= DLC_list 
+        self.modeling_options["OpenTurbineCoDe"]["DLC"]["n_ws"]    = n_ws     
+        self.modeling_options["OpenTurbineCoDe"]["DLC"]["n_seeds"] = n_seeds  
+        self.modeling_options["OpenTurbineCoDe"]["DLC"]["TMax"]    = TMax   
+
+        self.turb_data["control"]["supervisory"]["Vrated"]         = Vrated
 
     def call_generateDLC(self):
         DLC_list = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["DLC_list"]
