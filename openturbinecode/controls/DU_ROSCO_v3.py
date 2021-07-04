@@ -2,7 +2,7 @@
 """
 Created on Fri Oct  2 14:12:35 2020
 
-@author: labuser
+@author: Xianping Du (xianping.du@gmail.com)
 """
 # Config program using PyQt5
 
@@ -15,8 +15,8 @@ from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import scp
 import pandas as pd
-form_class = uic.loadUiType("ConfigRosco_v2.ui")[0]  # Load the UI
 
+form_class = uic.loadUiType("ConfigRosco_v3.ui")[0]  # Load the UI
 
 class Mapper(QtWidgets.QMainWindow, form_class):
     def __init__(self,  parent=None):
