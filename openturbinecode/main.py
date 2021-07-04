@@ -33,6 +33,8 @@ class OpenTurbineCoDe:
         # parse turbine_params (only if turbine data present)
         if self.turb_yaml:
             self.load_turbine_case()
+        else:
+            self.turb_data = {}
         
         # parse model params
         self.load_modeling_options()    

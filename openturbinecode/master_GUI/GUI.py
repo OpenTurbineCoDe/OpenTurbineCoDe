@@ -85,20 +85,52 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         #     subprocess.run(["scp", "-r", self.lineEdit_12.text() ,self.lineEdit_13.text()+"@"+self.lineEdit_14.text()+":"+self.lineEdit_15.text()])
         #     subprocess.run(["rm", "-r",  self.ALMFolder+"/rpm*"])
 
+        # ===================================
+        # FILL THE GUI WITH PRELOADED DATA:
+        # ===================================
+        self.disp_Case()
+
+
+
     #*******************************************************************
     #************** CALLER FUNCTIONS               *********************
     #*******************************************************************
 
 
     #=====  MAIN OPTIONS ===============================================
-        
+
+    #set the case path
+    def caller_loadCase(self):
+        pass 
+    
+    # unpack all options and fill the UI
+    def disp_Case(self):
+
+        DLC_list = []
+
+        if "DLC" in self.OTCD.modeling_options["OpenTurbineCoDe"]: 
+            DLC_list = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["DLC_list"]
+            n_ws     = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_ws"]    
+            n_seeds  = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_seeds"] 
+            TMax     = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["TMax"]    
+            Vrated   = 0
+
+        if self.OTCD.turb_data:
+            # ...
+            Vrated   = self.OTCD.turb_data["control"]["supervisory"]["Vrated"]
+
+        #update parameters with the current texts in the fields
+        if "DLC" in self.OTCD.modeling_options["OpenTurbineCoDe"]: 
+            self.disp_DLC_options(DLC_list, n_ws, n_seeds , TMax    , Vrated  )
+
     #...
 
+    # action to generate DLC
     def caller_generateDLC(self):
-        #update parameters with the current texts in the fields
         self.save_DLC_options()
         self.OTCD.call_generateDLC()
 
+    # from UI to internal DLC options
     def save_DLC_options(self):
         DLC_list = [float(dlc) for dlc in self.Main_DLC_listDlc.text().split(',')]
         n_ws     = float(self.Main_DLC_nws.text())
@@ -107,6 +139,19 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         Vrated   = float(self.Main_DLC_VRated.text())
         
         self.OTCD.update_DLCoptions(DLC_list, n_ws    , n_seeds , Tmax    , Vrated  ) 
+
+    # from internal DLC options to UI
+    def disp_DLC_options(self, DLC_list, n_ws, n_seeds, Tmax, Vrated ):
+        # Prepare DLC list as str
+        DLC_str = ""
+        for dlc in DLC_list:
+            DLC_str += str(dlc) + ", "
+        
+        self.Main_DLC_listDlc.setText(DLC_str)
+        self.Main_DLC_nws.setText(str(n_ws))
+        self.Main_DLC_nseeds.setText(str(n_seeds))
+        self.Main_DLC_TMax.setText(str(Tmax))
+        self.Main_DLC_VRated.setText(str(Vrated))
 
     #...
 
