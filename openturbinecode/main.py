@@ -9,6 +9,8 @@ import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
 import openturbinecode.master_GUI.GUI as GUI
 import openturbinecode.sample_module.sample_script as sample
+import openturbinecode.DLC_manager.dump_IECcase as DLC_manager
+
 
 class OpenTurbineCoDe:
 
@@ -173,6 +175,10 @@ if __name__ == '__main__':
             sys.exit(0)
 
         # --- From here on, we are going to run whatever was specified in the run/modeling option files ---
+
+        #=====  DLC GENERATION ====================================================
+        if OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["run"]:
+            DLC_manager.generateDLC(OTCD.path_to_case, OTCD.turb_data)
 
         #=====  GEOMETRY ACTIVITIES ===============================================
         if OTCD.modeling_options["OpenTurbineCoDe"]["Geometry"]["PGL"]["writeFiles"]:

@@ -1,0 +1,42 @@
+# Generic modeling options file
+
+OpenTurbineCoDe:
+    Ganeral:
+        fidelity: high
+        path_to_case: ./
+
+    DLC:
+        run: True
+
+
+    Geometry:
+        PGL:
+            writeFiles: False
+        BB3D:
+            writeFiles: False
+
+    Meshing:
+        Aero:
+            PGL:
+                run: False
+                planform_file: planform.dat
+                bypass_script: /path/to/script #if this is not empty, we use this script instead of the generic one
+                meshName: 2Dmesh
+
+            PyHyp:
+                run: False
+                bypass_script: /path/to/script #if this is not empty, we use this script instead of the generic one
+                meshName: 3Dmesh
+
+    Aerodynamics:
+        flag: False
+        bypass_script: /path/to/script #if this is not empty, we use this script instead of the generic one
+
+    Structure:
+        flag: False
+
+    Aerostructural: 
+        flag: False
+        
+    CoDesign:
+        flag: False

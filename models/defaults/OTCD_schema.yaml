@@ -1772,12 +1772,12 @@ properties:
 
 
 
-    # control:
-    #     type: object
-    #     required:
-    #         - supervisory
-    #         - pitch
-    #         - torque
+    control:
+        type: object
+        required:
+            - supervisory
+            # - pitch
+            # - torque
     #     optional:
     #         - setpoint_smooth
     #         - shutdown     # might need to be required?
@@ -1804,32 +1804,32 @@ properties:
     #         - user_defined_OL_3
     #         - user_defined_OL_4
     #         - user_defined_OL_5
-    #     properties:
-    #         supervisory:
-    #             type: object
-    #             required:
-    #                 - Vin
-    #                 - Vout
-    #                 - maxTS
-    #             properties:
-    #                 Vin:
-    #                     type: number
-    #                     description: Cut-in wind speed of the wind turbine.
-    #                     unit: m/s
-    #                     minimum: 0
-    #                     maximum: 10
-    #                 Vout:
-    #                     type: number
-    #                     description: Cut-out wind speed of the wind turbine.
-    #                     unit: m/s
-    #                     minimum: 0
-    #                     maximum: 50
-    #                 maxTS:
-    #                     type: number
-    #                     description: Maximum allowable blade tip speed.
-    #                     unit: m/s
-    #                     minimum: 60
-    #                     maximum: 120
+        properties:
+            supervisory:
+                type: object
+                required:
+                    - Vin
+                    - Vout
+                    # - maxTS
+                properties:
+                    Vin:
+                        type: number
+                        description: Cut-in wind speed of the wind turbine.
+                        unit: m/s
+                        minimum: 0
+                        maximum: 10
+                    Vout:
+                        type: number
+                        description: Cut-out wind speed of the wind turbine.
+                        unit: m/s
+                        minimum: 0
+                        maximum: 50
+                    # maxTS:
+                    #     type: number
+                    #     description: Maximum allowable blade tip speed.
+                    #     unit: m/s
+                    #     minimum: 60
+                    #     maximum: 120
 
     #         pitch:
     #             type: object

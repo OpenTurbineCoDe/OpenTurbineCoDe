@@ -27,6 +27,18 @@ If you need to use the GUI, ensure that you have all the requirements by install
 ```
 pip3 install -e .[gui]
 ```
+
+Some part of [WEIS](https://github.com/WISDEM/WEIS/tree/master/weis) are required to enable all the functionalities of this package. 
+We recommand using the guidelines provided in WEIS documentation for the full install.
+However, since only some parts of WEIS are necessary (mainly `AeroelasticSE`), a light install should be sufficient:
+```
+export PYTHONPATH=$PYTHONPATH:/path/to/WEIS
+cd /path/to/WEIS/ROSCO_toolbox
+python3 install -e .
+cd /path/to/WEIS/pCrunch
+python3 install -e .
+```
+Some dependencies of `AeroelasticSE` might need to be installed manually, e.g. `ruamel_yaml`.
 ## Quick start guide
 
 From the root of the folder, execute
