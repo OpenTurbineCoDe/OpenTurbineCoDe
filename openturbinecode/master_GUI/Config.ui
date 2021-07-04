@@ -451,6 +451,169 @@
         </property>
        </widget>
       </widget>
+      <widget class="QWidget" name="main_DLCs">
+       <attribute name="title">
+        <string>DLCs</string>
+       </attribute>
+       <widget class="QWidget" name="Main_DLC_widget" native="true">
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>60</y>
+          <width>291</width>
+          <height>421</height>
+         </rect>
+        </property>
+        <widget class="QLabel" name="Main_DLC_listDlcLab">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>26</y>
+           <width>121</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>List of DLCs</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="Main_DLC_listDlc">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>20</y>
+           <width>131</width>
+           <height>27</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="Main_DLC_nws">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>54</y>
+           <width>131</width>
+           <height>27</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLabel" name="Main_DLC_nwsLab">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>60</y>
+           <width>121</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>N wind speeds</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="Main_DLC_nseeds">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>86</y>
+           <width>131</width>
+           <height>27</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="Main_DLC_TMax">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>120</y>
+           <width>131</width>
+           <height>27</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLabel" name="Main_DLC_nseedsLab">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>90</y>
+           <width>121</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>N seeds</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="Main_DLC_TMaxLab">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>122</y>
+           <width>121</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Max time </string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="Main_DLC_genButton">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>350</y>
+           <width>171</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Generate DLCs</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="Main_DLC_VRatedLab">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>160</y>
+           <width>121</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Wind speed (rated)</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="Main_DLC_VRated">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>158</y>
+           <width>131</width>
+           <height>27</height>
+          </rect>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLabel" name="Main_DLC_labelTop">
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>40</y>
+          <width>101</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>DLC generation</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_4">
