@@ -27,7 +27,7 @@ def requires_aeroelasticse(function):
 
 
 @requires_aeroelasticse
-def generateDLC(path, turb_data): 
+def generateDLC(path, turb_data, DLC_list, n_ws, n_seeds, TMax): 
     
     #==================== DEFINITIONS  =====================================
 
@@ -46,20 +46,18 @@ def generateDLC(path, turb_data):
     # Unsteady loading computation from DLCs
 
 
-    #TODO: move definitions in the beginning. Mare sure we use the same turbine in part 1 and 2
     # Turbine inputs
     iec = CaseGen_IEC()
-    iec.Turbine_Class       = 'I'   # Wind class I, II, III, IV
-    iec.Turbulence_Class    = 'B'   # Turbulence class 'A', 'B', or 'C'
-    iec.D                   = 240.  # Rotor diameter to size the wind grid
-    iec.z_hub               = 150.  # Hub height to size the wind grid
-    cut_in                  = 3.    # Cut in wind speed
-    cut_out                 = 25.   # Cut out wind speed
+    iec.Turbine_Class       = turb_data["assembly"]["turbine_class"]   # Wind class I, II, III, IV
+    iec.Turbulence_Class    = turb_data["assembly"]["turbulence_class"]   # Turbulence class 'A', 'B', or 'C'
+    iec.D                   = turb_data["assembly"]["rotor_diameter"]   # Rotor diameter to size the wind grid
+    iec.z_hub               = turb_data["assembly"]["hub_height"]   # Hub height to size the wind grid
+    cut_in                  = turb_data["control"]["supervisory"]["Vin"]    # Cut in wind speed
+    cut_out                 = turb_data["control"]["supervisory"]["Vout"]   # Cut out wind speed
+    Vrated                  = turb_data["control"]["supervisory"]["Vrated"]   # Rated wind speed
     
-    n_ws                    = 3    # Number of wind speed bins
-    TMax                    = 1.    # Length of wind grids and OpenFAST simulations, suggested 720 s
-    Vrated                  = 10.59 # Rated wind speed
-
+    # n_ws                    = 3    # Number of wind speed bins
+    # TMax                    = 1.    # Length of wind grids and OpenFAST simulations, suggested 720 s
 
     Ttrans                  = max([0., TMax - 60.])  # Start of the transient for DLC with a transient, e.g. DLC 1.4
     TStart                  = max([0., TMax - 600.]) # Start of the recording of the channels of OpenFAST
@@ -91,17 +89,45 @@ def generateDLC(path, turb_data):
     # # iec.init_cond[("HydroDyn","PtfmHeave")]        = {'U':[3., 25.]}
     # # iec.init_cond[("HydroDyn","PtfmHeave")]['val'] = [0.5,0.5]
 
-    # DLC inputs
+    # Process DLC inputs
 
-    #   #bunch of them:
     wind_speeds = np.linspace(int(cut_in), int(cut_out), int(n_ws))
     iec.dlc_inputs = {}
-    iec.dlc_inputs['DLC']   = [1.1, 1.3, 1.4, 1.5, 5.1, 6.1, 6.3]
-    iec.dlc_inputs['U']     = [wind_speeds, wind_speeds,[Vrated - 2., Vrated, Vrated + 2.],wind_speeds, [Vrated - 2., Vrated, Vrated + 2., cut_out], [], []]
-    iec.dlc_inputs['Seeds'] = [[1],[1],[],[],[1],[1],[1]]
-    # iec.dlc_inputs['Seeds'] = [range(1,7), range(1,7),[],[], range(1,7), range(1,7), range(1,7)]
-    iec.dlc_inputs['Yaw']   = [[], [], [], [], [], [], []]
-    iec.PC_MaxRat           = 2.
+    iec.dlc_inputs['DLC']   = DLC_list
+    iec.dlc_inputs['U'] = []
+    iec.dlc_inputs['Seeds'] = []
+    iec.dlc_inputs['Yaw'] = []
+
+    for DLC in DLC_list:
+        #VELOCITY
+        if DLC == 0: #not a DLC, just uniform velocity at Vrated
+            iec.dlc_inputs['U'].append(Vrated)
+        elif DLC == 1.4 or DLC == 5.1:
+            iec.dlc_inputs['U'].append([Vrated - 2., Vrated, Vrated + 2.])
+        elif DLC >= 6.1 and DLC <= 6.3:
+            iec.dlc_inputs['U'].append([])
+        else:
+            iec.dlc_inputs['U'].append(wind_speeds)
+
+        #SEED
+        if DLC == 0 or DLC >= 1.4 and DLC <= 1.5:
+            iec.dlc_inputs['Seeds'].append([]) #deterministic
+        else:
+            iec.dlc_inputs['Seeds'].append([n_seeds]) #number of seeds, probabilistic
+        
+        #YAW
+        iec.dlc_inputs['Yaw'].append([])
+    
+    iec.PC_MaxRat           = 2. #??
+
+
+    # #example multiple:
+    # iec.dlc_inputs['DLC']   = [1.1, 1.3, 1.4, 1.5, 5.1, 6.1, 6.3]
+    # iec.dlc_inputs['U']     = [wind_speeds, wind_speeds,[Vrated - 2., Vrated, Vrated + 2.],wind_speeds, [Vrated - 2., Vrated, Vrated + 2., cut_out], [], []]
+    # iec.dlc_inputs['Seeds'] = [[1],[1],[],[],[1],[1],[1]]
+    # # iec.dlc_inputs['Seeds'] = [range(1,7), range(1,7),[],[], range(1,7), range(1,7), range(1,7)]
+    # iec.dlc_inputs['Yaw']   = [[], [], [], [], [], [], []]
+    # iec.PC_MaxRat           = 2. #??
     # #only power curve:
     # wind_speeds = [18]
     # iec.dlc_inputs = {}
@@ -110,6 +136,8 @@ def generateDLC(path, turb_data):
     # iec.dlc_inputs['Seeds'] = [[1]]
     # # iec.dlc_inputs['Seeds'] = [range(1,7), range(1,7),[],[], range(1,7), range(1,7), range(1,7)]
     # iec.dlc_inputs['Yaw']   = [[]]  
+
+
 
 
     iec.TStart              = Ttrans
@@ -155,7 +183,7 @@ def generateDLC(path, turb_data):
     # case_inputs ... pass info to tweak your OF simu if required. Not to be mistaken for the initial conditions.
 
     # Naming, file management, etc
-    iec.wind_dir        = path + os.sep + 'outputs/wind'
+    iec.wind_dir        = path + os.sep + 'DLCs/wind'
     iec.case_name_base  = 'iea10mw'
     iec.cores = 1
 
@@ -163,7 +191,7 @@ def generateDLC(path, turb_data):
 
     iec.parallel_windfile_gen = False
     iec.mpi_run               = False
-    iec.run_dir = path + os.sep + 'outputs/iea15mw'
+    iec.run_dir = path + os.sep + 'DLCs/iea15mw'
 
 
 

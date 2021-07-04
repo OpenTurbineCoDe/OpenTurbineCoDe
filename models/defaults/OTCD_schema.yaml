@@ -1810,6 +1810,7 @@ properties:
                 required:
                     - Vin
                     - Vout
+                    - Vrated
                     # - maxTS
                 properties:
                     Vin:
@@ -1821,6 +1822,12 @@ properties:
                     Vout:
                         type: number
                         description: Cut-out wind speed of the wind turbine.
+                        unit: m/s
+                        minimum: 0
+                        maximum: 50
+                    Vrated: #OTCD specific
+                        type: number
+                        description: Rated wind speed of the wind turbine
                         unit: m/s
                         minimum: 0
                         maximum: 50

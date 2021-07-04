@@ -37,7 +37,7 @@ class OpenTurbineCoDe:
         # parse model params
         self.load_modeling_options()    
 
-        self.printv('initilization done')
+        self.printv('initilization done. \n\n')
 
     # ---------------- IO/PARSING FUNCTIONS --------------------------------------
     #parse parameters coming from command line execution
@@ -83,6 +83,15 @@ class OpenTurbineCoDe:
     #=====  MAIN FUNCTIONS ===============================================
         
     #...
+
+    def call_generateDLC(self):
+        DLC_list = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["DLC_list"]
+        n_ws = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_ws"]
+        n_seeds = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_seeds"]
+        TMax = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["TMax"]
+
+        #TODO: pass info on Omega and pitch, to avoid NaN in test matrix (AeroDyn, Elastodyn)
+        DLC_manager.generateDLC(OTCD.path_to_case, OTCD.turb_data, DLC_list, n_ws, n_seeds, TMax)
 
     #=====  GEOMETRY FUNCTIONS ===============================================
     
@@ -178,7 +187,9 @@ if __name__ == '__main__':
 
         #=====  DLC GENERATION ====================================================
         if OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["run"]:
-            DLC_manager.generateDLC(OTCD.path_to_case, OTCD.turb_data)
+            OTCD.printv('Running the DLC generator...')
+            OTCD.call_generateDLC()
+            OTCD.printv('...done.')
 
         #=====  GEOMETRY ACTIVITIES ===============================================
         if OTCD.modeling_options["OpenTurbineCoDe"]["Geometry"]["PGL"]["writeFiles"]:

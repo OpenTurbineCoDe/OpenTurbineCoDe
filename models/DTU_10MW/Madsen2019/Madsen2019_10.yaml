@@ -654,6 +654,7 @@ control:
     supervisory:
         Vin: 4
         Vout: 25
+        Vrated: 9.
         
 
 environment:
