@@ -97,14 +97,14 @@ class OpenTurbineCoDe:
             next(f)
             content = [x.strip().split()[0:] for x in f]
         NoSec = len(content)
-        self.Geom_Table.setRowCount(NoSec)
+        self.Geom_Table1.setRowCount(NoSec)
         for i in range(0, NoSec-1):
-            self.Geom_Table.setItem(i, 0, self.QtWidgets.QTableWidgetItem(content[i][0]))
-            self.Geom_Table.setItem(i, 1, self.QtWidgets.QTableWidgetItem(content[i][4]))
-            self.Geom_Table.setItem(i, 2, self.QtWidgets.QTableWidgetItem(content[i][5]))
-            self.Geom_Table.setItem(i, 3, self.QtWidgets.QTableWidgetItem(content[i][6]))
-            self.Geom_Table.setItem(i, 4, self.QtWidgets.QTableWidgetItem(str(0.125)))
-            self.Geom_Table.setItem(i, 5, self.QtWidgets.QTableWidgetItem(str(0.25)))
+            self.Geom_Table1.setItem(i, 0, self.QtWidgets.QTableWidgetItem(content[i][0]))
+            self.Geom_Table1.setItem(i, 1, self.QtWidgets.QTableWidgetItem(content[i][4]))
+            self.Geom_Table1.setItem(i, 2, self.QtWidgets.QTableWidgetItem(content[i][5]))
+            self.Geom_Table1.setItem(i, 3, self.QtWidgets.QTableWidgetItem(content[i][6]))
+            self.Geom_Table1.setItem(i, 4, self.QtWidgets.QTableWidgetItem(str(0.125)))
+            self.Geom_Table1.setItem(i, 5, self.QtWidgets.QTableWidgetItem(str(0.25)))
             #self.Geom_Table.setItem(i, 6, self.QtWidgets.QTableWidgetItem(content[i][6]))
         self.printMes('Finished loading AeroDyn blade file')
 

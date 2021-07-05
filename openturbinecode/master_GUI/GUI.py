@@ -44,11 +44,15 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         #=====  GEOMETRY ===============================================
         self.Geo_LineEdit1.setText("/home/kz/Desktop/Geometry/AeroDynCase/blade.dat")
         self.OTCD.AeroDynBladeFileName = self.Geo_LineEdit1  
-        self.OTCD.Geom_Table = self.Geo_Table
+        self.OTCD.Geom_Table1 = self.Geo_Table1
         self.Geo_Button1.clicked.connect(self.OTCD.loadGeom)
         self.Geo_Button1.setToolTip('Load blade geometry from an AeroDyn file')
-        self.toolButton1.clicked.connect(self.OTCD.openFileDialogue)
-        self.toolButton1.setToolTip('Please click here to select AeroDyn blade file')
+        self.Geo_toolButton1.clicked.connect(self.OTCD.openFileDialogue)
+        self.Geo_toolButton1.setToolTip('Click here to select AeroDyn blade file')
+ 
+
+
+
 
         #=====  MESHING ===============================================
         
