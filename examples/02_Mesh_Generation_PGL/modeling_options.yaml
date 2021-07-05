@@ -1,7 +1,7 @@
 # Generic modeling options file
 
 OpenTurbineCoDe:
-    Ganeral:
+    General:
         fidelity: high
         path_to_case: ./
 

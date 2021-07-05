@@ -18,31 +18,36 @@ class OpenTurbineCoDe:
         # initializatio nof global constants/options
         self.path_to_root = os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
-        # self.model_schema = self.path_to_root #TODO
+        self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
         # self.run_schema = self.path_to_root #TODO
         self.path_to_case = ""
 
         # parse input arguments
         self.parse_args(args)
 
-        # parse run params
+        # parse run params (only if modeling options present)
         self.load_run_options()    
 
         # parse turbine_params (only if turbine data present)
         if self.turb_yaml:
             self.load_turbine_case()
+        else:
+            self.turb_data = {}
         
         # parse model params
-        self.load_modeling_options()    
+        if self.model_yaml:
+            self.load_modeling_options()    
+        else:
+            self.modeling_options = {}
 
         self.printv('initilization done')
 
     # ---------------- IO/PARSING FUNCTIONS --------------------------------------
     #parse parameters coming from command line execution
     def parse_args(self,args):
-        self.turb_yaml = (args.turbine) if "turbine" in args else ""
+        self.turb_yaml  = (args.turbine) if "turbine" in args else ""
         self.model_yaml = (args.models) if "models" in args else ""
-        self.run_yaml = (args.runoptions) if "runoptions" in args else ""
+        self.run_yaml   = (args.runoptions) if "runoptions" in args else ""
 
         if self.turb_yaml:
             self.path_to_case = os.path.dirname(self.turb_yaml) 
@@ -66,7 +71,7 @@ class OpenTurbineCoDe:
 
     #import modeling options under the form of a dictionary and making it available as an attribute to this object
     def load_modeling_options(self):
-        self.modeling_options = io.load_yaml(self.model_yaml) #TODO: change for validate_with_defaults
+        self.modeling_options = io.validate_with_defaults(self.model_yaml, self.model_schema)
 
         self.printv('modeling options loaded')
 
