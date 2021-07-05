@@ -3,24 +3,14 @@ import jsonschema as json
 import yaml
     
     
-# def test_IEA_3_4_130_RWT(path2yaml,path2schema):
-#     # Read the input yaml
-#     with open(path2yaml, 'r') as myfile:
-#         inputs = myfile.read()
 
-#     # Read the schema
-#     with open(path2schema, 'r') as myfile:
-#         schema = myfile.read()
-
-#     # Run the validate class from the jsonschema library
-#     test = json.validate(yaml.load(inputs, Loader=yaml.FullLoader), yaml.load(schema, Loader=yaml.FullLoader))
-#     print(test)
-
-#     # Move it to a dictionary called wt_data
-#     wt_data = yaml.load(inputs, Loader=yaml.FullLoader)
-#     print(wt_data)
-
-#     return wt_data 
+#============ Utils ==================================================================
+#making sure that we prepend "./" to a filename if provided in relative path
+def arg_to_path(args,key):
+    path = getattr(args,key) if key in args else ""
+    if path != "" and path[0] != "." and path[0] != os.sep:
+        path = "." + os.sep + path
+    return path
 
 #============= COPY PASTE FROM WEIS validation.py ====================================
 # ---------------------
@@ -99,4 +89,5 @@ if __name__ == '__main__':
     
     # out2 = validate_with_defaults(path2yaml,path2schema)
     # print(out2)
+
 

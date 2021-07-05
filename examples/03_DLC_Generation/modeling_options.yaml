@@ -12,35 +12,3 @@ OpenTurbineCoDe:
         n_seeds: 1 #number of seeds for every probabilistic wind
         TMax: 1. #[s] duration of generated wind 
 
-
-    Geometry:
-        PGL:
-            writeFiles: False
-        BB3D:
-            writeFiles: False
-
-    Meshing:
-        Aero:
-            PGL:
-                run: False
-                planform_file: planform.dat
-                bypass_script: /path/to/script #if this is not empty, we use this script instead of the generic one
-                meshName: 2Dmesh
-
-            PyHyp:
-                run: False
-                bypass_script: /path/to/script #if this is not empty, we use this script instead of the generic one
-                meshName: 3Dmesh
-
-    Aerodynamics:
-        flag: False
-        bypass_script: /path/to/script #if this is not empty, we use this script instead of the generic one
-
-    Structure:
-        flag: False
-
-    Aerostructural: 
-        flag: False
-        
-    CoDesign:
-        flag: False
