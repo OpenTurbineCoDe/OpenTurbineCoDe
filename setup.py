@@ -39,6 +39,7 @@ setuptools.setup(
         "openturbinecode.prepro",
         "openturbinecode.structure",
         "openturbinecode.utils",
+        "openturbinecode.DLC_manager",
     ],
     python_requires=">=3.6",
 )
