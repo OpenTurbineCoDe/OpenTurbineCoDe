@@ -79,6 +79,16 @@ class OpenTurbineCoDe:
         
         self.printv('modeling options loaded')
 
+    #save turbine data
+    def save_turbine_case(self):
+        self.turb_yaml = self.path_to_case + os.sep + os.path.basename(self.turb_yaml)
+        print(self.turb_yaml)
+        io.write_yaml(self.turb_data,self.turb_yaml)
+        
+        self.printv('turbine case saved')
+
+    #TODO: write modeling option file
+
     # ---------------- UTILITY FUNCTIONS --------------------------------------
     #print function for non-essential/informative messages (wont be printed if the code is not set to verbose)
     def printv(self,str):
@@ -89,6 +99,20 @@ class OpenTurbineCoDe:
 
     #=====  MAIN FUNCTIONS ===============================================
         
+    def update_MainParams(self, PRated, nblade, D, HubD, HubHeight, Vin, Vout, Overhang, Tilt, Precone):
+        self.turb_data["assembly"]["rated_power"] = PRated 
+        self.turb_data["assembly"]["number_of_blades"] = nblade 
+        self.turb_data["assembly"]["rotor_diameter"] = D 
+        self.turb_data["assembly"]["hub_height"] = HubHeight 
+        
+        self.turb_data["components"]["hub"]["diameter"] = HubD 
+        self.turb_data["components"]["hub"]["cone_angle"] = Precone 
+        self.turb_data["components"]["nacelle"]["outer_shape_bem"]["overhang"] = Overhang 
+        self.turb_data["components"]["nacelle"]["outer_shape_bem"]["uptilt_angle"] = Tilt 
+
+        self.turb_data["control"]["supervisory"]["Vin"]   = Vin     
+        self.turb_data["control"]["supervisory"]["Vout"]  = Vout  
+
     #...
 
     #TODO: move the definition of this function to IO?

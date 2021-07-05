@@ -30,6 +30,10 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         
         #=====  MAIN OPTIONS ===============================================
         
+        self.Main_set_PathToCaseButton.clicked.connect(self.set_path_to_case)
+
+        self.Main_set_SaveCaseButton.clicked.connect(self.save_all_options)
+
         #...
 
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
@@ -88,7 +92,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         # ===================================
         # FILL THE GUI WITH PRELOADED DATA:
         # ===================================
-        self.disp_Case()
+        self.disp_case()
 
 
 
@@ -97,31 +101,79 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
     #*******************************************************************
 
 
-    #=====  MAIN OPTIONS ===============================================
+    #=====  GENERAL FUNCTIONS, USED FOR THE ENTIRE GUI ===============================================
 
-    #set the case path
-    def caller_loadCase(self):
-        pass 
-    
     # unpack all options and fill the UI
-    def disp_Case(self):
+    def disp_case(self):
 
-        DLC_list = []
-
-        if "DLC" in self.OTCD.modeling_options["OpenTurbineCoDe"]: 
-            DLC_list = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["DLC_list"]
-            n_ws     = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_ws"]    
-            n_seeds  = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_seeds"] 
-            TMax     = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["TMax"]    
-            Vrated   = 0
-
-        if self.OTCD.turb_data:
-            # ...
-            Vrated   = self.OTCD.turb_data["control"]["supervisory"]["Vrated"]
+        #display path to case
+        self.Main_set_PathToCase.setText(self.OTCD.path_to_case)
 
         #update parameters with the current texts in the fields
         if "DLC" in self.OTCD.modeling_options["OpenTurbineCoDe"]: 
-            self.disp_DLC_options(DLC_list, n_ws, n_seeds , TMax    , Vrated  )
+            self.disp_DLC_options()
+
+        if self.OTCD.turb_data:
+            self.disp_main_params()
+        
+
+    #=====  MAIN OPTIONS ===============================================
+
+    #set the case path
+    def set_path_to_case(self):
+        self.OTCD.path_to_case = self.Main_set_PathToCase.text()
+        
+        # Shall we do the following then ?
+        # # reload turbine data
+        # self.OTCD.load_turbine_case()
+
+
+    def save_MainParams_options(self):
+        PRated    = float(self.Main_para_PRated.text())
+        nblade    = float(self.Main_para_nblade.text())
+        D         = float(self.Main_para_D.text())
+        HubD      = float(self.Main_para_HubD.text())
+        HubHeight = float(self.Main_para_HubHeight.text())
+        Vin       = float(self.Main_para_Vin.text())
+        Vout      = float(self.Main_para_Vout.text())
+        Overhang  = float(self.Main_para_Overhang.text())
+        Tilt      = float(self.Main_para_Tilt.text())
+        Precone   = float(self.Main_para_Precone.text())
+        # Prebend = float(self.Main_para_Prebend.text())
+        
+        self.OTCD.update_MainParams(PRated, nblade, D, HubD, HubHeight, Vin, Vout, Overhang, Tilt, Precone)
+
+    # from UI to internal DLC options
+    def disp_main_params(self):
+        self.Main_para_PRated.setText( str( self.OTCD.turb_data["assembly"]["rated_power"] ))
+        self.Main_para_nblade.setText( str( self.OTCD.turb_data["assembly"]["number_of_blades"] ))
+        self.Main_para_D.setText( str( self.OTCD.turb_data["assembly"]["rotor_diameter"] ))
+        self.Main_para_HubHeight.setText( str( self.OTCD.turb_data["assembly"]["hub_height"] ))
+        
+        self.Main_para_HubD.setText( str( self.OTCD.turb_data["components"]["hub"]["diameter"] ))
+        self.Main_para_Precone.setText( str( self.OTCD.turb_data["components"]["hub"]["cone_angle"] ))
+        self.Main_para_Overhang.setText( str( self.OTCD.turb_data["components"]["nacelle"]["outer_shape_bem"]["overhang"] ))
+        self.Main_para_Tilt.setText( str( self.OTCD.turb_data["components"]["nacelle"]["outer_shape_bem"]["uptilt_angle"] ))
+
+        self.Main_para_Vin.setText( str( self.OTCD.turb_data["control"]["supervisory"]["Vin"] ))
+        self.Main_para_Vout.setText( str( self.OTCD.turb_data["control"]["supervisory"]["Vout"] ))
+
+    #...
+
+    #Collect all informations in the GUI, write them in our data structure, and then write yaml files
+    def save_all_options(self):
+        self.set_path_to_case()
+
+        # ................... Main turbine params ..................
+        self.save_MainParams_options()
+
+        # ................... DLCs ...................
+        self.save_DLC_options()
+
+        # ------------------- write the yaml ---------------------------
+        self.OTCD.save_turbine_case()
+        #TODO: should also save modeling options!
+
 
     #...
 
@@ -141,23 +193,33 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.OTCD.update_DLCoptions(DLC_list, n_ws    , n_seeds , Tmax    , Vrated  ) 
 
     # from internal DLC options to UI
-    def disp_DLC_options(self, DLC_list, n_ws, n_seeds, Tmax, Vrated ):
+    def disp_DLC_options(self):
+        
+        DLC_list = []
+        DLC_list = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["DLC_list"]
+        n_ws     = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_ws"]    
+        n_seeds  = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_seeds"] 
+        TMax     = self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["TMax"]    
+        Vrated   = 0
+
+        if self.OTCD.turb_data:
+            Vrated   = self.OTCD.turb_data["control"]["supervisory"]["Vrated"]
+
         # Prepare DLC list as str
         DLC_str = ""
         for dlc in DLC_list:
             DLC_str += str(dlc) + ", "
+        if DLC_str:
+            DLC_str = DLC_str[0:-3] # remove the last ", "
         
         self.Main_DLC_listDlc.setText(DLC_str)
         self.Main_DLC_nws.setText(str(n_ws))
         self.Main_DLC_nseeds.setText(str(n_seeds))
-        self.Main_DLC_TMax.setText(str(Tmax))
+        self.Main_DLC_TMax.setText(str(TMax))
         self.Main_DLC_VRated.setText(str(Vrated))
 
     #...
 
-    def save_all_options(self):
-        # ................... DLCs ...................
-        self.save_DLC_options()
 
 
 
