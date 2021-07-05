@@ -75,15 +75,46 @@ class OpenTurbineCoDe:
     def printv(self,str):
         if(self.verbose):
             print(str)
-
-
+    
+    def printMes(self, mes):
+        self.MessageBox.append(mes)
+        self.cursot = self.MessageBox.textCursor()
+        self.MessageBox.moveCursor(self.cursot.End)
 
     #=====  MAIN FUNCTIONS ===============================================
         
     #...
 
     #=====  GEOMETRY FUNCTIONS ===============================================
-    
+    def loadGeom(self):
+        self.printMes('The AeroDyn blade file is located at ' + self.AeroDynBladeFileName.text())
+        with open(self.AeroDynBladeFileName.text(), 'r') as f:
+            next(f)
+            next(f)
+            next(f)
+            next(f)
+            next(f)
+            next(f)
+            content = [x.strip().split()[0:] for x in f]
+        NoSec = len(content)
+        self.Geom_Table.setRowCount(NoSec)
+        for i in range(0, NoSec-1):
+            self.Geom_Table.setItem(i, 0, self.QtWidgets.QTableWidgetItem(content[i][0]))
+            self.Geom_Table.setItem(i, 1, self.QtWidgets.QTableWidgetItem(content[i][4]))
+            self.Geom_Table.setItem(i, 2, self.QtWidgets.QTableWidgetItem(content[i][5]))
+            self.Geom_Table.setItem(i, 3, self.QtWidgets.QTableWidgetItem(content[i][6]))
+            self.Geom_Table.setItem(i, 4, self.QtWidgets.QTableWidgetItem(str(0.125)))
+            self.Geom_Table.setItem(i, 5, self.QtWidgets.QTableWidgetItem(str(0.25)))
+            #self.Geom_Table.setItem(i, 6, self.QtWidgets.QTableWidgetItem(content[i][6]))
+        self.printMes('Finished loading AeroDyn blade file')
+
+        
+
+    def openFileDialogue(self):
+        self.solverFolder, _filter = str(self.QtWidgets.QFileDialog.getOpenFileName(None, "Open AeroDyn blade file", '.', "(*)"))
+        self.AeroDynBladeFileName.setText(self.solverFolder)
+
+
     #...
 
     #=====  MESHING FUNCTIONS ===============================================
