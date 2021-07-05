@@ -41,6 +41,7 @@ class OpenTurbineCoDe:
             self.load_modeling_options()    
         else:
             self.modeling_options = {}
+            self.modeling_options["OpenTurbineCoDe"] = {}
 
         self.printv('initilization done. \n\n')
 
@@ -199,8 +200,9 @@ if __name__ == '__main__':
             print('I did not find any data in your turbine yaml file... Exiting')
             sys.exit(0)
 
-        if not OTCD.modeling_options:
-            print('You did not provide a modeling option file. I don''t know what to do. Exiting.')
+        #If no file, file is empty or non-existent
+        if not OTCD.modeling_options or "OpenTurbineCoDe" not in OTCD.modeling_options or not OTCD.modeling_options["OpenTurbineCoDe"]:
+            print('You did not provide a valid modeling option file. I don''t know what to do. Exiting.')
             sys.exit(0)
 
         # --- From here on, we are going to run whatever was specified in the run/modeling option files ---
