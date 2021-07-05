@@ -4,6 +4,14 @@ import yaml
     
     
 
+#============ Utils ==================================================================
+#making sure that we prepend "./" to a filename if provided in relative path
+def arg_to_path(args,key):
+    path = getattr(args,key) if key in args else ""
+    if path != "" and path[0] != "." and path[0] != os.sep:
+        path = "." + os.sep + path
+    return path
+
 #============= COPY PASTE FROM WEIS validation.py ====================================
 # ---------------------
 def load_yaml(fname_input):
@@ -81,4 +89,5 @@ if __name__ == '__main__':
     
     # out2 = validate_with_defaults(path2yaml,path2schema)
     # print(out2)
+
 

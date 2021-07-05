@@ -43,12 +43,13 @@ class OpenTurbineCoDe:
         self.printv('initilization done')
 
     # ---------------- IO/PARSING FUNCTIONS --------------------------------------
+
     #parse parameters coming from command line execution
     def parse_args(self,args):
-        self.turb_yaml  = (args.turbine) if "turbine" in args else ""
-        self.model_yaml = (args.models) if "models" in args else ""
-        self.run_yaml   = (args.runoptions) if "runoptions" in args else ""
-
+        self.turb_yaml  = io.arg_to_path(args,"turbine") #(args.turbine) if "turbine" in args else ""
+        self.model_yaml = io.arg_to_path(args,"models") #(args.models) if "models" in args else ""
+        self.run_yaml   = io.arg_to_path(args,"runoptions") #(args.runoptions) if "runoptions" in args else ""
+        print(self.turb_yaml)
         if self.turb_yaml:
             self.path_to_case = os.path.dirname(self.turb_yaml) 
 
