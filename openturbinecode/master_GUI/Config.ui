@@ -72,7 +72,7 @@
          <string>Load previous case</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_32">
+       <widget class="QPushButton" name="Main_set_SaveCaseButton">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -100,7 +100,7 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <widget class="QPushButton" name="pushButton_33">
+        <widget class="QPushButton" name="Main_set_PathToCaseButton">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -113,7 +113,7 @@
           <string>Set working folder</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit">
+        <widget class="QLineEdit" name="Main_set_PathToCase">
          <property name="geometry">
           <rect>
            <x>190</x>
@@ -189,7 +189,7 @@
           <string>Rated power</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_13">
+        <widget class="QLineEdit" name="Main_para_PRated">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -199,7 +199,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_14">
+        <widget class="QLineEdit" name="Main_para_nblade">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -222,7 +222,7 @@
           <string>Blade number</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_55">
+        <widget class="QLineEdit" name="Main_para_D">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -232,7 +232,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_56">
+        <widget class="QLineEdit" name="Main_para_HubD">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -242,7 +242,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_57">
+        <widget class="QLineEdit" name="Main_para_HubHeight">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -252,7 +252,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_58">
+        <widget class="QLineEdit" name="Main_para_Vin">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -262,7 +262,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_59">
+        <widget class="QLineEdit" name="Main_para_Vout">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -272,7 +272,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_60">
+        <widget class="QLineEdit" name="Main_para_Overhang">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -282,7 +282,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_61">
+        <widget class="QLineEdit" name="Main_para_Tilt">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -292,7 +292,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_62">
+        <widget class="QLineEdit" name="Main_para_Precone">
          <property name="geometry">
           <rect>
            <x>150</x>
@@ -419,7 +419,7 @@
           <string>Pre-bend</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit_63">
+        <widget class="QLineEdit" name="Main_para_Prebend">
          <property name="geometry">
           <rect>
            <x>150</x>
