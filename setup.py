@@ -31,7 +31,8 @@ setuptools.setup(
         # "low-fidelity": [],
     },
     package_data = {"openturbinecode": ["*.json"],
-    "openturbinecode.master_GUI": ["Config.ui"]},
+    "openturbinecode.master_GUI": ["Config.ui"],
+    "openturbinecode.controls": ["ConfigControl_v3.ui"]},
     packages=[
         "openturbinecode",
         "openturbinecode.aerodynamics",
