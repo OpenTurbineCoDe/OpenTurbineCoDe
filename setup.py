@@ -27,7 +27,8 @@ setuptools.setup(
             "multipoint"
         ],
         "gui": ["PyQt5", "pyqtgraph"],
-        "meshing": ["PGL"]
+        "meshing": ["PGL"],
+        "controls": ["scp", "pandas"]
         # "low-fidelity": [],
     },
     package_data = {"openturbinecode": ["*.json"],
