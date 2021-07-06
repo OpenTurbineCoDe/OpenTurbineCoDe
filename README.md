@@ -15,7 +15,7 @@ Make sure you `pip installed` the following dependencies:
 - mpi4py
 - ...
 
-If `openfast` and `aerodyn` are not already in your path, you may adapt `config.json` to specify the path to your executables. They are usualy located respectively under `/path/to/openfast/build/glue-codes/openfast/openfast` and `/path/to/openfast/build/modules/aerodyn/aerodyn_driver`.
+If `openfast` and `aerodyn` are not already in your path, you may adapt `openturbinecode/config.json` to specify the path to your executables. They are usually located respectively under `/path/to/openfast/build/glue-codes/openfast/openfast` and `/path/to/openfast/build/modules/aerodyn/aerodyn_driver`.
 :warning: we currently only support OpenFAST v2.4.
 
 To install this package, run 
@@ -27,6 +27,18 @@ If you need to use the GUI, ensure that you have all the requirements by install
 ```
 pip3 install -e .[gui]
 ```
+
+Some part of [WEIS](https://github.com/WISDEM/WEIS/tree/master/weis) are required to enable all the functionalities of this package. 
+We recommend using the guidelines provided in WEIS documentation for the full install.
+However, since only some parts of WEIS are necessary (mainly `AeroelasticSE`), a light install should be sufficient:
+```
+export PYTHONPATH=$PYTHONPATH:/path/to/WEIS
+cd /path/to/WEIS/ROSCO_toolbox
+python3 install -e .
+cd /path/to/WEIS/pCrunch
+python3 install -e .
+```
+Some dependencies of `AeroelasticSE` might need to be installed manually, e.g. `ruamel_yaml`.
 ## Quick start guide
 
 From the root of the folder, execute
@@ -103,12 +115,12 @@ The `OpenTurbineCoDe` class defines its own `print` function. Please use it to d
 
 ### GUI
 
-**Naming conventions**: When designing the UI with Qt tools, be very carefull to **give a name** to every graphical object you create. For instance, if you add a line object, it will automatically be named something like `lineEdit_XX`. Please change this to a name meaningful to your module, e.g. `struct_line_YoungModulus`. This is to make sure that, when we develop the UI in parallel, there will be no duplicates in the named objects.
+**Naming conventions**: When designing the UI with Qt tools, be very careful to **give a name** to every graphical object you create. For instance, if you add a line object, it will automatically be named something like `lineEdit_XX`. Please change this to a name meaningful to your module, e.g. `struct_line_YoungModulus`. This is to make sure that, when we develop the UI in parallel, there will be no duplicates in the named objects.
 
 ### Single modules
 
-**Dependencies**: specific external python modules should ideally not be hard requirements. Ideally, the code should be able to run a specific module with only the related dependancies, and without the dependancies of all the other modules. This means that we guarantee standalone execution of each module. 
-For example, to run the low-fidelity aerodynamics, I don't need to have `adflow` installed. See how this is managed at the top of `Wrapped_hifi_Analysis.py`. If you need to add external dependancies, please also amend the `./openturbinecode/__init__.py` file so that the user gets a warning on all the modules he needs to install.
+**Dependencies**: specific external python modules should ideally not be hard requirements. Ideally, the code should be able to run a specific module with only the related dependencies, and without the dependencies of all the other modules. This means that we guarantee standalone execution of each module. 
+For example, to run the low-fidelity aerodynamics, I don't need to have `adflow` installed. See how this is managed at the top of `Wrapped_hifi_Analysis.py`. If you need to add external dependencies, please also amend the `./openturbinecode/__init__.py` file so that the user gets a warning on all the modules he needs to install.
 
 <!-- ------------------------------------------------------------------------------ -->
 
