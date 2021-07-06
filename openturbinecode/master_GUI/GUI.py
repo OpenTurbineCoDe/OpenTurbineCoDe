@@ -16,6 +16,13 @@ UIrepresentation = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) 
 
 
 class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
+
+    #=====  GEOMETRY CALLER FUNCTIONS  =====================================   
+    #def call_Geo_loadGeom(self):
+    #    self.OTCD.loadGeom(self.fName)
+    
+
+
     def __init__(self,  OTCD_, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
@@ -29,6 +36,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         # You can get inspiration from sample code below, or other resources/tutorials on Qt stuff.
         
         #=====  MAIN OPTIONS ===============================================
+        self.OTCD.MessageBox = self.textBrowser
+        self.OTCD.QtWidgets = QtWidgets
         
         self.Main_set_PathToCaseButton.clicked.connect(self.set_path_to_case)
 
@@ -39,8 +48,17 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
         #=====  GEOMETRY ===============================================
-        
-        #...
+        self.Geo_LineEdit1.setText("/home/kz/Desktop/Geometry/AeroDynCase/blade.dat")
+        self.OTCD.AeroDynBladeFileName = self.Geo_LineEdit1  
+        self.OTCD.Geom_Table1 = self.Geo_Table1
+        self.Geo_Button1.clicked.connect(self.OTCD.loadGeom)
+        self.Geo_Button1.setToolTip('Load blade geometry from an AeroDyn file')
+        self.Geo_toolButton1.clicked.connect(self.OTCD.openFileDialogue)
+        self.Geo_toolButton1.setToolTip('Click here to select AeroDyn blade file')
+ 
+
+
+
 
         #=====  MESHING ===============================================
         
