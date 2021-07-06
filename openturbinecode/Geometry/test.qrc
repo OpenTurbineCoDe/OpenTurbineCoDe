@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>Graphic_offshore-floating-wind_NREL_web.jpg</file>
+  </qresource>
+</RCC>
