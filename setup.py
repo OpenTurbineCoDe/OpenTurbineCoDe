@@ -30,6 +30,8 @@ setuptools.setup(
         "meshing": ["PGL"]
         # "low-fidelity": [],
     },
+    package_data = {"openturbinecode": ["*.json"],
+    "openturbinecode.master_GUI": ["Config.ui"]},
     packages=[
         "openturbinecode",
         "openturbinecode.aerodynamics",
@@ -39,6 +41,9 @@ setuptools.setup(
         "openturbinecode.prepro",
         "openturbinecode.structure",
         "openturbinecode.utils",
+        "openturbinecode.DLC_manager",
+        "openturbinecode.meshing",
+        "openturbinecode.sample_module",
     ],
     python_requires=">=3.6",
 )

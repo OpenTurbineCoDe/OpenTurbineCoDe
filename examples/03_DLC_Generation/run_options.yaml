@@ -6,7 +6,7 @@ General:
 
     
 Parametric study:
-    General:
+    Ganeral:
             flag: False
             
     Variable:
@@ -14,6 +14,6 @@ Parametric study:
         Values: [85.0, 86.0, 87.0] 
 
 Optimiation:
-    General:
+    Ganeral:
         flag: False
     
