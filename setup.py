@@ -27,9 +27,13 @@ setuptools.setup(
             "multipoint"
         ],
         "gui": ["PyQt5", "pyqtgraph"],
-        "meshing": ["PGL"]
+        "meshing": ["PGL"],
+        "controls": ["scp", "pandas"]
         # "low-fidelity": [],
     },
+    package_data = {"openturbinecode": ["*.json"],
+    "openturbinecode.master_GUI": ["Config.ui"],
+    "openturbinecode.controls": ["ConfigControl_v3.ui"]},
     packages=[
         "openturbinecode",
         "openturbinecode.aerodynamics",
@@ -39,6 +43,9 @@ setuptools.setup(
         "openturbinecode.prepro",
         "openturbinecode.structure",
         "openturbinecode.utils",
+        "openturbinecode.DLC_manager",
+        "openturbinecode.meshing",
+        "openturbinecode.sample_module",
     ],
     python_requires=">=3.6",
 )

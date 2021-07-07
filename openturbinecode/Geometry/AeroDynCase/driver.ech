@@ -1,0 +1,29 @@
+Echo of Input File:
+ "driver.dvr                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              "
+Generated on: 16-Jan-2021 at 11:44:19.
+-----  AeroDyn Driver v1.00.x Input File  --------------------------------------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+DTU 10.0 MW onshore baseline                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+-----  Input Configuration  ----------------------------------------------------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+            T  Echo           - Echo input parameters to "rootname.ech"?
+               AD_InputFile   - Name of the AeroDyn input file
+  "input.dat"
+
+            3  NumBlades      - Number of blades
+   2.8000E+00  HubRad         - Hub radius (m)
+   1.1900E+02  HubHt          - Hub height (m)
+  -7.7000E+00  Overhang       - Overhang (m)
+   0.0000E+00  ShftTilt       - Shaft tilt (deg)
+  -2.5000E+00  Precone        - Precone (deg)
+
+               OutFileRoot    - Root name for any output files
+  "Test014"
+            T  TabDel         - Make output tab-delimited (fixed-width otherwise)?
+               OutFmt         - Format used for text tabular output (except time).  Resulting field should be 10 characters. (-)
+  "ES10.3E2"
+            T  Beep           - Beep on exit?
+
+            1  NumCases       - Number of cases to run
+
+
+               InpCase        - parameters for Case #1.
+   8.0000E+00   0.0000E+00   2.0000E+01   0.0000E+00   0.0000E+00   1.0000E-01   2.0000E+00

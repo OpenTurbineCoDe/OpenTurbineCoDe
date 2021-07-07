@@ -18,10 +18,9 @@ def WT_performance(V, span, A, rho, tsr, torque):
 
 
 def read_config():
+    current_dir = os.path.dirname(__file__)
 
-    rootDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) #root dir to OpenTurbineCoDe
-
-    with open(rootDir + os.sep + 'config.json') as file:
+    with open(os.path.join(current_dir, '../config.json')) as file:
         config = json.load(file)
 
     return config

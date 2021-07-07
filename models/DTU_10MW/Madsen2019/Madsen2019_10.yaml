@@ -649,6 +649,14 @@ airfoils:
 
 
 
+
+control:
+    supervisory:
+        Vin: 4
+        Vout: 25
+        Vrated: 9.
+        
+
 environment:
     air_density: 1.225
     air_dyn_viscosity: 1.81e-5
