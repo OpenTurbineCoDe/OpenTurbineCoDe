@@ -8,7 +8,7 @@ from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import pyqtgraph as pg
-
+from openturbinecode.aerostructural import aerostructGUI as asGui
 #NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
 #       Later, we should replace this by a static load when everybody is done editing the GUI.
 #       See also https://realpython.com/qt-designer-python/
@@ -72,9 +72,10 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         
         #...
 
-        #=====  AERO-STrUCTURE ===============================================
+        #=====  AERO-STRUCTURE ===============================================
         
-        #...
+        aerostructGUI_ui = asGui.Mapper(OTCD=self.OTCD,parent=self)
+        self.SampleModule.addTab(aerostructGUI_ui,"Aerostructural")
 
         #=====  CCD ===============================================
         
