@@ -223,10 +223,10 @@ class OpenTurbineCoDe:
 
     #=====  SAMPLE MODULE ===============================================
 
-    def sample_hello_world(self):
-        print("Hello, running from " + self.path_to_root)
-        sample.hello_from_sample()
-        sample.new_function()
+    # def sample_hello_world(self):
+    #     print("Hello, running from " + self.path_to_root)
+    #     sample.hello_from_sample()
+    #     sample.new_function()
 
 
 
