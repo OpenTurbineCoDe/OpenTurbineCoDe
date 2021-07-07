@@ -19,9 +19,11 @@ import pandas as pd
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) +os.sep+ "ConfigControl_v3.ui")[0]  # Load the UI
 
 class Mapper(QtWidgets.QMainWindow, form_class):
-    def __init__(self,  parent=None):
+    def __init__(self, OTCD=None, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
+
+        self.OTCD = OTCD #make the framework available if passed as argument
               
         #set placeholder default text for parametric sweep
         self.lineEdit_32.setText("0.2")
@@ -95,6 +97,12 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         #self.QMessageBox .clicked.connect(self.Message)
         # Optimization
         self.PushRunCCD.clicked.connect(self.RunCCD)
+
+        if self.OTCD:
+            self.test_framework.clicked.connect(self.OTCD.sample_hello_world)
+        else:
+            print("I did not connect the test button because you did not initialize me with an OTCD object.")
+        
         
     def setyamlWorkingDir(self):   #load the control parameters txt file
         #self.ctrldir = str(QtWidgets.QFileDialog.getExistingDirectory())
