@@ -29,7 +29,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--output", help="Output directory (relative to case files)", type=str, default="outputs")
 parser.add_argument("--configuration", help="WT Configuration", type=str, default="NREL_PhaseVI_UAE", choices=["NREL_PhaseVI_UAE","DTU_10MW"])
     #-> meant to disappear when the hardcoded parameters will instead be passed in a case file
-parser.add_argument("--fidelities", help="fidelities to be included [AeroDyn, (OpenFAST,) ADflow]", type=str, default=["AeroDyn","ADflow"], nargs="+")
+parser.add_argument("--fidelities", help="fidelities to be included [AeroDyn, (OpenFAST,) ADflow, (turbinesFoam)]", type=str, default=["AeroDyn","ADflow"], nargs="+")
 parser.add_argument("--path_to_case", help="path where the case files are and where we will dump outputs", type=str, default=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'case_aero_standalone' ))
 parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
 parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0], nargs="+")
@@ -223,6 +223,11 @@ if 'OpenFAST' in args.fidelities:
 if 'AeroDyn' in args.fidelities:
     AD_torque, AD_thrust, AD_cp = OTCDaw.aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, "AeroDyn", options, path_to_case)
 
+# ================================================
+# Medium fidelity
+# ================================================
+if 'turbinesFoam' in args.fidelities:
+    AD_torque, AD_thrust, AD_cp = OTCDaw.aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, "turbinesFoam", options, path_to_case)
 
 # ================================================
 # External Low-Fidelity data 

@@ -105,8 +105,9 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
         spanRef = R # used for moment normalisation
         outputDirectory = os.path.join(path_to_case, "ADflow", output)
 
-        if not os.path.exists(outputDirectory):
-            os.mkdir(outputDirectory, exist_ok=True)
+        if MPI.COMM_WORLD.rank == 0:
+            if not os.path.exists(outputDirectory):
+                os.mkdir(outputDirectory, exist_ok=True)
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i] * rotsign # Caution: tsr is signed!
             Vel = Vlist[i]
@@ -149,9 +150,9 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
         # omlist  
         # rpmlist ...
 
-        if not os.path.exists(outputDirectory):
-            os.mkdir(outputDirectory)
         if MPI.COMM_WORLD.rank == 0:
+            if not os.path.exists(outputDirectory):
+                os.mkdir(outputDirectory)
             for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
@@ -183,9 +184,10 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
 
         config["lofi"]["lofi_code"] = "AeroDyn"
         config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["ADfileList"]
-        if not os.path.exists(outputDirectory):
-            os.mkdir(outputDirectory)
+        
         if MPI.COMM_WORLD.rank == 0:
+            if not os.path.exists(outputDirectory):
+                os.mkdir(outputDirectory)
             #TODO: use a single drive file with multiple inflow velocities instead
             for i in range(len(Vlist)):
                 tsr = tsrlist[i]
@@ -211,10 +213,11 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
 
     elif 'turbinesFoam' in fidelity:
         almFolder = os.path.join(path_to_case, "turbinesFoam")
-        if not os.path.exists(almFolder):
-            os.mkdir(almFolder)
+        if MPI.COMM_WORLD.rank == 0:
+            if not os.path.exists(almFolder):
+                os.mkdir(almFolder)
 
-        for i in range(len(tsrList)):
+        for i in range(len(tsrlist)):
             #params
             tsr = tsrlist[i]
             Vel = Vlist[i]
@@ -230,34 +233,35 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
             #file handling
             caseName = "tsr" + str(i)
             caseFolder = almFolder + os.sep + caseName
-            if not os.path.exists(almFolder):
-                os.mkdir(almFolder)
+            if MPI.COMM_WORLD.rank == 0:
+                if not os.path.exists(almFolder):
+                    os.mkdir(almFolder)
             
-            # shutil.copy('source', caseName) #TODO manage the copy of this
-            
-            subfolder = caseFolder + os.sep + '0' + os.sep + 'include'
-            os.mkdirs(subfolder,exist_ok=True)
+                # shutil.copy('source', caseName) #TODO manage the copy of this
+                
+                subfolder = caseFolder + os.sep + '0' + os.sep + 'include'
+                os.makedirs(subfolder,exist_ok=True)
 
-            fname = open(subfolder + os.sep + 'initialConditions', 'w')
-            fname.write("/*--------------------------------*- C++ -*----------------------------------*\ \n")
-            fname.write("| =========                 |                                                 | \n")
-            fname.write("| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | \n")
-            fname.write("|  \\    /   O peration     | Version:  4.x                                   | \n")
-            fname.write("|   \\  /    A nd           | Web:      www.OpenFOAM.org                      | \n")
-            fname.write("|    \\/     M anipulation  |                                                 | \n")
-            fname.write("\*---------------------------------------------------------------------------*/ \n")
+                fname = open(subfolder + os.sep + 'initialConditions', 'w')
+                fname.write("/*--------------------------------*- C++ -*----------------------------------*\ \n")
+                fname.write("| =========                 |                                                 | \n")
+                fname.write("| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | \n")
+                fname.write("|  \\    /   O peration     | Version:  4.x                                   | \n")
+                fname.write("|   \\  /    A nd           | Web:      www.OpenFOAM.org                      | \n")
+                fname.write("|    \\/     M anipulation  |                                                 | \n")
+                fname.write("\*---------------------------------------------------------------------------*/ \n")
 
-            fname.write("WndVel \t" + str(Vel) + ';\n')
-            fname.write("TSR \t" + str(tsr) + ';\n')
-            fname.write("BldPitchAng \t" + str(pitch) + ';\n')
-            fname.write("Yaw \t" + str(yaw) + ';\n')
+                fname.write("WndVel \t" + str(Vel) + ';\n')
+                fname.write("TSR \t" + str(tsr) + ';\n')
+                fname.write("BldPitchAng \t" + str(pitch) + ';\n')
+                fname.write("Yaw \t" + str(yaw) + ';\n')
 
-            fname.write("EndTime \t" + str(EndTime) + ';\n')
-            fname.write("WriteInterval \t" + WriteInterval + ';\n')
-            fname.write("DynamicStall \t" + DynamicStall + ';\n')
-            fname.write("EndEffectsModel \t" + EndEffectsModel + ';\n')
-            fname.write("Processors \t" + str(MPI.COMM_WORLD.Get_size())  + ';\n')
-            fname.close()   
+                fname.write("EndTime \t" + str(EndTime) + ';\n')
+                fname.write("WriteInterval \t" + WriteInterval + ';\n')
+                fname.write("DynamicStall \t" + DynamicStall + ';\n')
+                fname.write("EndEffectsModel \t" + EndEffectsModel + ';\n')
+                fname.write("Processors \t" + str(MPI.COMM_WORLD.Get_size())  + ';\n')
+                fname.close()   
 
             #TODO: enable this in a safer way:
             # subprocess.run(["of4x"])
