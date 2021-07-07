@@ -9,6 +9,8 @@ from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import pyqtgraph as pg
 
+from openturbinecode.controls import DU_ROSCO_v3 as ctrl
+
 #NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
 #       Later, we should replace this by a static load when everybody is done editing the GUI.
 #       See also https://realpython.com/qt-designer-python/
@@ -83,6 +85,9 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         #=====  SAMPLE MODULE ===============================================
         
         # self.sample_button1.clicked.connect(self.OTCD.sample_hello_world)
+
+        control_ui = ctrl.Mapper()
+        self.Master_tabs.addTab(control_ui,"Controls")
 
         # ===================================
         # SAMPLE CODE:

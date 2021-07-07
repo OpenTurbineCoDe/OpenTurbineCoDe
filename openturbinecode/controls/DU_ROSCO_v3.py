@@ -16,7 +16,7 @@ import subprocess
 import scp
 import pandas as pd
 
-form_class = uic.loadUiType("ConfigControl_v3.ui")[0]  # Load the UI
+form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) +os.sep+ "ConfigControl_v3.ui")[0]  # Load the UI
 
 class Mapper(QtWidgets.QMainWindow, form_class):
     def __init__(self,  parent=None):
@@ -49,7 +49,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.lineEdit_28.setText("1e-6")
     
         #Get user inputs data
-        self.Baselinemodel = self.ModelSelection.text()
+        # self.Baselinemodel = self.ModelSelection.text() #no text function
         self.ROSCOR2Omega = self.lineEdit_32.text()
         self.ROSCOR2Zeta = self.lineEdit_31.text()
         self.ROSCOR3Omega = self.lineEdit_35.text()
@@ -58,9 +58,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.PlatformP2 = self.lineEdit_38.text()
         #self.SimulinkP1 = self.lineEdit_.text()
         #self.SimulinkP2 = self.lineEdit_.text()
-        self.ControlSelection = self.comboBox_3.text()
+        # self.ControlSelection = self.comboBox_3.text() #no text function
         # Run Simulation
-        self.DLC = self.comboBox.text()
+        # self.DLC = self.comboBox.text() #no text function
         self.DLCVelocity = self.lineEdit_39.text()
         # Run on HPC
         self.Username = self.lineEdit_27.text()
@@ -71,17 +71,17 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.FSTwistStations = self.lineEdit_45.text()
         self.FSThickStations = self.lineEdit_40.text()
         self.FSLimits = self.lineEdit_30.text()
-        self.FSObjective = self.comboBox_4.text()
+        # self.FSObjective = self.comboBox_4.text() #no text function
         # Parameterization TACS
         self.TSChordStations = self.lineEdit_43.text()
         self.TSTwistStations = self.lineEdit_46.text()
         self.TSThickStations = self.lineEdit_42.text()
         self.TSLimits = self.lineEdit_41.text()
-        self.TSObjective = self.comboBox_5.text()
+        # self.TSObjective = self.comboBox_5.text() #no text function
         # Optimization
-        self.Optimizer = self.comboBox_2.text()
+        # self.Optimizer = self.comboBox_2.text() #no text function
         self.Iterations = self.lineEdit_23.text()
-        self.Display = self.comboBox_6.text()
+        # self.Display = self.comboBox_6.text() #no text function
         self.Tolerane = self.lineEdit_28.text()
         
         # Bind the event handlers to the buttons using a function
