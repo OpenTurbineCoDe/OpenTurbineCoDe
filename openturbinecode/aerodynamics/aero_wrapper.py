@@ -7,6 +7,7 @@ authors: Denis-Gabriel Caprace, Marco Mangano
 # ================================================
 # External python imports
 # ================================================
+from math import nan
 import numpy as np
 import os
 import sys
@@ -56,6 +57,8 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
 
     omlist = tsrlist * Vlist / R #absolute value of the rotation rate
     rpmlist = omlist / (2 * np.pi) * 60
+
+    pitchlist = np.zeros(np.size(omlist)) #TODO: handle this feature
 
     areaRef = np.pi*R**2
 
@@ -208,12 +211,34 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
 
     elif 'turbinesFoam' in fidelity:
         almFolder = os.path.join(path_to_case, "turbinesFoam")
-        os.chdir(almFolder)
+        if not os.path.exists(almFolder):
+            os.mkdir(almFolder)
+
         for i in range(len(tsrList)):
+            #params
+            tsr = tsrlist[i]
+            Vel = Vlist[i]
+            rpm = rpmlist[i]
+            pitch = pitchlist[i]
+            yaw = 0.0
+
+            EndTime = 1.0 #TODO
+            WriteInterval = "???" #TODO
+            DynamicStall = "???" #TODO
+            EndEffectsModel = "???" #TODO
+
+            #file handling
             caseName = "tsr" + str(i)
-            shutil.copy('source', caseName)
-            os.chdir(caseName)
-            fname = open('0/include/initialConditions', 'w')
+            caseFolder = almFolder + os.sep + caseName
+            if not os.path.exists(almFolder):
+                os.mkdir(almFolder)
+            
+            # shutil.copy('source', caseName) #TODO manage the copy of this
+            
+            subfolder = caseFolder + os.sep + '0' + os.sep + 'include'
+            os.mkdirs(subfolder,exist_ok=True)
+
+            fname = open(subfolder + os.sep + 'initialConditions', 'w')
             fname.write("/*--------------------------------*- C++ -*----------------------------------*\ \n")
             fname.write("| =========                 |                                                 | \n")
             fname.write("| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | \n")
@@ -222,22 +247,26 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
             fname.write("|    \\/     M anipulation  |                                                 | \n")
             fname.write("\*---------------------------------------------------------------------------*/ \n")
 
-            fname.write("WndVel		" + self.lineEdit_7.text() + ';\n')
-            fname.write("TSR		" + str(tsr) + ';\n')
-            fname.write("BldPitchAng	" + self.lineEdit_3.text() + ';\n')
-            fname.write("Yaw		" + self.lineEdit_4.text() + ';\n')
+            fname.write("WndVel \t" + str(Vel) + ';\n')
+            fname.write("TSR \t" + str(tsr) + ';\n')
+            fname.write("BldPitchAng \t" + str(pitch) + ';\n')
+            fname.write("Yaw \t" + str(yaw) + ';\n')
 
-            fname.write("EndTime		" + self.lineEdit_11.text() + ';\n')
-            fname.write("WriteInterval		" + self.lineEdit_5.text() + ';\n')
-            fname.write("DynamicStall	" + self.comboBox_11.currentText() + ';\n');
-            fname.write("EndEffectsModel	" + self.comboBox_10.currentText() + ';\n');
-            fname.write("Processors" + self.comBox_11.currentText() + ';\n');
+            fname.write("EndTime \t" + str(EndTime) + ';\n')
+            fname.write("WriteInterval \t" + WriteInterval + ';\n')
+            fname.write("DynamicStall \t" + DynamicStall + ';\n')
+            fname.write("EndEffectsModel \t" + EndEffectsModel + ';\n')
+            fname.write("Processors \t" + str(MPI.COMM_WORLD.Get_size())  + ';\n')
             fname.close()   
 
-            subprocess.run(["of4x"])
-            subprocess.run(["mpirun -np " + self.comBox_11.currentText() + "pimpleFoam -parallel > log&" ])
-            os.chdir("..")  
-        os.chdir("..")      
+            #TODO: enable this in a safer way:
+            # subprocess.run(["of4x"])
+            # subprocess.run(["mpirun -np " + self.comBox_11.currentText() + " pimpleFoam -parallel > log&" ])
+        
+        #TODO: manage post-processing
+        torque.append(nan)
+        thrust.append(nan)
+        cp.append(nan)
 
 
     return torque, thrust, cp
