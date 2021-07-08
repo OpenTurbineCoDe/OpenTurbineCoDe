@@ -18,7 +18,6 @@ class Aerostructural:
         self.setDefaultValues()
 
     def setDefaultValues(self):
-        print("setting stuff")
 
         # Initialization of attributes
         if self.turb_data and self.models:
