@@ -12,21 +12,27 @@ import openturbinecode.sample_module.sample_script as sample
 import openturbinecode.DLC_manager.dump_IECcase as DLC_manager
 
 
+# import openturbinecode.aerodynamics.aerodynamics_module as aero
+# import openturbinecode.structure.structure_module as struc
+import openturbinecode.controls.control_module as ctrl
+# ...
+
 class OpenTurbineCoDe:
 
     def __init__(self, args):
         print('Hello, this is OpenTurbineCoDe.')
 
-        # initializatio nof global constants/options
+        # --- initialization of global constants/options ---
         self.path_to_root = os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
         self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
         # self.run_schema = self.path_to_root #TODO
         self.path_to_case = ""
 
-        # parse input arguments
+        # --- parse input arguments ---
         self.parse_args(args)
 
+        # --- managing IO / loading files if needed ---
         # parse run params (only if modeling options present)
         self.load_run_options()    
 
@@ -42,6 +48,13 @@ class OpenTurbineCoDe:
         else:
             self.modeling_options = {}
             self.modeling_options["OpenTurbineCoDe"] = {}
+
+        # --- initializing submodules ---
+
+        # self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        # self.myStruc = struc.Structure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        # self.myAeroStruc = struc.AeroStructure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
 
         self.printv('initilization done. \n\n')
 
@@ -202,31 +215,6 @@ class OpenTurbineCoDe:
         mesh_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["meshName"]
         planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
         pgl.generateSurfMesh(R0, R, self.path_to_case, planform_file, airfoil_list, blend_var, mesh_file)
-
-
-    #=====  AERODYNAMICS ===============================================
-    
-    #...
-    # example changes that need to be merged.
-
-    #=====  STRUCTURE ===============================================
-    
-    #...
-
-    #=====  AERO-STrUCTURE ===============================================
-    
-    #...
-
-    #=====  CCD ===============================================
-    
-    #...
-
-    #=====  SAMPLE MODULE ===============================================
-
-    def sample_hello_world(self):
-        print("Hello, running from " + self.path_to_root)
-        sample.hello_from_sample()
-        sample.new_function()
 
 
 
