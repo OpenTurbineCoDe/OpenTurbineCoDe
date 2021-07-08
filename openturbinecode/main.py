@@ -15,6 +15,7 @@ import openturbinecode.DLC_manager.dump_IECcase as DLC_manager
 # import openturbinecode.aerodynamics.aerodynamics_module as aero
 # import openturbinecode.structure.structure_module as struc
 import openturbinecode.controls.control_module as ctrl
+import openturbinecode.geometry.geometry_module as geom
 # ...
 
 class OpenTurbineCoDe:
@@ -55,7 +56,7 @@ class OpenTurbineCoDe:
         # self.myStruc = struc.Structure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         # self.myAeroStruc = struc.AeroStructure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
-
+        self.myGeom = geom.Geometry(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
         self.printv('initilization done. \n\n')
 
     # ---------------- IO/PARSING FUNCTIONS --------------------------------------
@@ -108,10 +109,10 @@ class OpenTurbineCoDe:
         if(self.verbose):
             print(str)
     
-    def printMes(self, mes):
-        self.MessageBox.append(mes)
-        self.cursot = self.MessageBox.textCursor()
-        self.MessageBox.moveCursor(self.cursot.End)
+    #def printMes(self, mes):
+    #    self.MessageBox.append(mes)
+    #    self.cursot = self.MessageBox.textCursor()
+    #    self.MessageBox.moveCursor(self.cursot.End)
 
     #=====  MAIN FUNCTIONS ===============================================
         
@@ -155,45 +156,7 @@ class OpenTurbineCoDe:
         DLC_manager.generateDLC(OTCD.path_to_case, OTCD.turb_data, DLC_list, n_ws, n_seeds, TMax)
 
     #=====  GEOMETRY FUNCTIONS ===============================================
-    def loadGeom(self):
-        self.printMes('The AeroDyn blade file is located at ' + self.AeroDynBladeFileName.text())
-        with open(self.AeroDynBladeFileName.text(), 'r') as f:
-            next(f)
-            next(f)
-            next(f)
-            next(f)
-            next(f)
-            next(f)
-            content = [x.strip().split()[0:] for x in f]
-        NoSec = len(content)
-        self.Geom_Table1.setRowCount(NoSec)
-        for i in range(0, NoSec-1):
-            self.Geom_Table1.setItem(i, 0, self.QtWidgets.QTableWidgetItem(content[i][0]))
-            self.Geom_Table1.setItem(i, 1, self.QtWidgets.QTableWidgetItem(content[i][4]))
-            self.Geom_Table1.setItem(i, 2, self.QtWidgets.QTableWidgetItem(content[i][5]))
-            self.Geom_Table1.setItem(i, 3, self.QtWidgets.QTableWidgetItem(content[i][6]))
-            self.Geom_Table1.setItem(i, 4, self.QtWidgets.QTableWidgetItem(str(0.125)))
-            self.Geom_Table1.setItem(i, 5, self.QtWidgets.QTableWidgetItem(str(0.25)))
-            #self.Geom_Table.setItem(i, 6, self.QtWidgets.QTableWidgetItem(content[i][6]))
-        self.printMes('Finished loading AeroDyn blade file')
 
-        
-
-    def openFileDialogue(self):
-        self.solverFolder, _filter = str(self.QtWidgets.QFileDialog.getOpenFileName(None, "Open AeroDyn blade file", '.', "(*)"))
-        self.AeroDynBladeFileName.setText(self.solverFolder)
-
-    def Geo_showSolverSetup(self):
-        if self.Geo_comboBox.currentText() == "AeroDyn blade file":
-            self.Geo_stackedWidget.setCurrentIndex(0)
-        elif self.Geo_comboBox.currentText() == "turbinesFoam file":
-            self.Geo_stackedWidget.setCurrentIndex(1)
-        elif self.Geo_comboBox.currentText() == "BB3D":
-            self.Geo_stackedWidget.setCurrentIndex(2)
-        elif self.Geo_comboBox.currentText() == "PGL":
-            self.Geo_stackedWidget.setCurrentIndex(3)
-        elif self.Geo_comboBox.currentText() == "Salome":
-            self.Geo_stackedWidget.setCurrentIndex(4)       
     #...
 
     #=====  MESHING FUNCTIONS ===============================================
@@ -280,4 +243,3 @@ if __name__ == '__main__':
             OTCD.printv('...done.')
         
     OTCD.printv('Done, byebye')
-    
