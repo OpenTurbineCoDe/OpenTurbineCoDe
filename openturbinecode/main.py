@@ -51,10 +51,10 @@ class OpenTurbineCoDe:
 
         # --- initializing submodules ---
 
-        # self.myAero = aero.Aerodynamics(turb_data=self.turb_data,models=self.modeling_options)
-        # self.myStruc = struc.Structure(turb_data=self.turb_data,models=self.modeling_options)
-        # self.myAeroStruc = struc.AeroStructure(turb_data=self.turb_data,models=self.modeling_options)
-        self.myCtrl = ctrl.Control(turb_data=self.turb_data,models=self.modeling_options)
+        # self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        # self.myStruc = struc.Structure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        # self.myAeroStruc = struc.AeroStructure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
 
         self.printv('initilization done. \n\n')
 
@@ -215,6 +215,7 @@ class OpenTurbineCoDe:
         mesh_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["meshName"]
         planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
         pgl.generateSurfMesh(R0, R, self.path_to_case, planform_file, airfoil_list, blend_var, mesh_file)
+
 
 
 if __name__ == '__main__':

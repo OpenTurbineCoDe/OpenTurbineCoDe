@@ -162,14 +162,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myCtrl.RunCCD()
 
         
-    # ============== Functions that we will only need in the GUI, so we do not need to have them explicitely in the control module =================
     def caller_SendToHPCf(self):
         #read parameters if needed
         self.readFromUI()
         orig = "dummy" #TODO
         
         #Call the function:
-        myCtrl.SendToHPCf(self,orig)
+        self.myCtrl.SendToHPCf(self,orig)
         
     def caller_HPCloadf(self):
         #read parameters if needed
@@ -177,14 +176,16 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         orig = "dummy" #TODO
         
         #Call the function:
-        myCtrl.HPCloadf(self,orig)
+        self.myCtrl.HPCloadf(self,orig)
 
 
 if __name__=='__main__':
     app = QtWidgets.QApplication(sys.argv)
     
+    path_to_case = "./"
+    
     #empty control object
-    myCtrl = ctrl.Control()
+    myCtrl = ctrl.Control(path_to_case)
 
     myWindow = Mapper(myCtrl)
     myWindow.show()

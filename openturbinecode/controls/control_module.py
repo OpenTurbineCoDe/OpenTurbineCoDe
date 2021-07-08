@@ -11,10 +11,12 @@ import pandas as pd
 
 
 class Control:
-    def __init__(self, turb_data=None, models=None):
+    def __init__(self, path_to_case, turb_data=None, models=None):
         
         self.turb_data = turb_data
         self.models = models
+        self.path_to_case = path_to_case
+
         self.setDefaultValues()
 
 
