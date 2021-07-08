@@ -12,7 +12,7 @@ import pyqtgraph as pg
 # from openturbinecode.aerodynamics import aerosdynamics_gui as aero
 # from openturbinecode.structure import structure_gui as struc
 # from openturbinecode.aerostructural import aerostructure_gui as aerostruc
-from openturbinecode.controls import DU_ROSCO_v3 as ctrl
+from openturbinecode.controls import control_gui as ctrl
 
 #NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
 #       Later, we should replace this by a static load when everybody is done editing the GUI.
