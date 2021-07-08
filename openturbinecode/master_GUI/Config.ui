@@ -2199,34 +2199,6 @@
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_10">
-     <attribute name="title">
-      <string>Control  co-design</string>
-     </attribute>
-     <widget class="QTabWidget" name="tabWidget_4">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>210</y>
-        <width>971</width>
-        <height>541</height>
-       </rect>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="tab_19">
-       <attribute name="title">
-        <string>Parametric sweep</string>
-       </attribute>
-      </widget>
-      <widget class="QWidget" name="tab_20">
-       <attribute name="title">
-        <string>Optimization</string>
-       </attribute>
-      </widget>
-     </widget>
-    </widget>
    </widget>
    <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
