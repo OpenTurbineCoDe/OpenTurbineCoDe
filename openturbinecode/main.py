@@ -27,7 +27,7 @@ class OpenTurbineCoDe:
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
         self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
         # self.run_schema = self.path_to_root #TODO
-        self.path_to_case = ""
+        self.path_to_case = "."
 
         # --- parse input arguments ---
         self.parse_args(args)
@@ -235,7 +235,7 @@ if __name__ == '__main__':
         GUI.run(OTCD)
         # ============================================
     else:
-        if not OTCD.path_to_case:
+        if not OTCD.turb_yaml:
             print('You did not provide a turbine case. I will not be able to do anything. Exiting.')
             sys.exit(0)
 

@@ -174,7 +174,9 @@ def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outp
     # ======================================================================
     #         Run OpenFAST / AeroDyn
     # ======================================================================
-
+    
+    #change to workdir and run
+    cwd = os.getcwd()
     os.chdir(workingDirectory)
 
     flag = os.system(run_cmd)
@@ -182,6 +184,9 @@ def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outp
     if flag!=0:
         print("ERROR - Execution failed during call to %s"%config["lofi_code"])
         exit(1)
+    
+    #go back to where we were
+    os.chdir(cwd)
 
     #Copy the results into the ouput file
     fromdir = os.path.join(workingDirectory, outFile)
