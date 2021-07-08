@@ -55,7 +55,9 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Geo_Button1.setToolTip('Load blade geometry from an AeroDyn file')
         self.Geo_toolButton1.clicked.connect(self.OTCD.openFileDialogue)
         self.Geo_toolButton1.setToolTip('Click here to select AeroDyn blade file')
- 
+        self.OTCD.Geo_comboBox = self.Geo_comboBox
+        self.OTCD.Geo_stackedWidget = self.Geo_stackedWidget
+        self.Geo_comboBox.activated.connect(self.OTCD.Geo_showSolverSetup)
 
 
 

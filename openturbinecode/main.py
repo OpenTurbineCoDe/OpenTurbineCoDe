@@ -170,7 +170,17 @@ class OpenTurbineCoDe:
         self.solverFolder, _filter = str(self.QtWidgets.QFileDialog.getOpenFileName(None, "Open AeroDyn blade file", '.', "(*)"))
         self.AeroDynBladeFileName.setText(self.solverFolder)
 
-
+    def Geo_showSolverSetup(self):
+        if self.Geo_comboBox.currentText() == "AeroDyn blade file":
+            self.Geo_stackedWidget.setCurrentIndex(0)
+        elif self.Geo_comboBox.currentText() == "turbinesFoam file":
+            self.Geo_stackedWidget.setCurrentIndex(1)
+        elif self.Geo_comboBox.currentText() == "BB3D":
+            self.Geo_stackedWidget.setCurrentIndex(2)
+        elif self.Geo_comboBox.currentText() == "PGL":
+            self.Geo_stackedWidget.setCurrentIndex(3)
+        elif self.Geo_comboBox.currentText() == "Salome":
+            self.Geo_stackedWidget.setCurrentIndex(4)       
     #...
 
     #=====  MESHING FUNCTIONS ===============================================
