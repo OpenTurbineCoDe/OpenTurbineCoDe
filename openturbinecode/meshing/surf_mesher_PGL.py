@@ -15,7 +15,7 @@ except ImportError as err:
 else:
     _has_pgl = True
 
-import utils.convert_fXYZ_to_uXYZ as conv
+import openturbinecode.utils.convert_fXYZ_to_uXYZ as conv
 
 
 """

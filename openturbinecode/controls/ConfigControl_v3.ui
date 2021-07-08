@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1258</width>
-    <height>752</height>
+    <height>723</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -33,7 +33,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="ParametricSweep">
      <attribute name="title">
@@ -76,62 +76,12 @@
        <property name="title">
         <string>Run simulation</string>
        </property>
-       <widget class="QLabel" name="label_11">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>30</y>
-          <width>131</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>DLC mean velocity</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit_52">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>52</y>
-          <width>171</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_12">
-        <property name="geometry">
-         <rect>
-          <x>201</x>
-          <y>55</y>
-          <width>31</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>m/s</string>
-        </property>
-       </widget>
        <widget class="QPushButton" name="PushRun">
         <property name="geometry">
          <rect>
-          <x>17</x>
+          <x>409</x>
           <y>90</y>
-          <width>611</width>
+          <width>221</width>
           <height>28</height>
          </rect>
         </property>
@@ -148,9 +98,9 @@
        <widget class="QLineEdit" name="lineEdit_54">
         <property name="geometry">
          <rect>
-          <x>241</x>
+          <x>21</x>
           <y>50</y>
-          <width>311</width>
+          <width>531</width>
           <height>25</height>
          </rect>
         </property>
@@ -173,7 +123,7 @@
          <rect>
           <x>240</x>
           <y>30</y>
-          <width>271</width>
+          <width>281</width>
           <height>16</height>
          </rect>
         </property>
@@ -185,7 +135,26 @@
          </font>
         </property>
         <property name="text">
-         <string>Output directory (cover yaml definition)</string>
+         <string>Output directory (Cover definition in yaml)</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="WritoutModel">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>90</y>
+          <width>221</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Save The Current Configuration</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>1</number>
+        </property>
+        <property name="text">
+         <string>Write Out</string>
         </property>
        </widget>
       </widget>
@@ -506,7 +475,7 @@
          </font>
         </property>
         <property name="title">
-         <string>LF_OpenFAST_NonLinear (Local)</string>
+         <string>Design parameters</string>
         </property>
         <widget class="QLabel" name="label_15">
          <property name="geometry">
@@ -740,7 +709,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
          </rect>
         </property>
         <property name="title">
-         <string>Optimization</string>
+         <string>Optimization configuration</string>
         </property>
         <widget class="QComboBox" name="comboBox_2">
          <property name="geometry">
@@ -1058,7 +1027,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        <x>10</x>
        <y>30</y>
        <width>461</width>
-       <height>111</height>
+       <height>131</height>
       </rect>
      </property>
      <property name="font">
@@ -1072,9 +1041,9 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
      <widget class="QComboBox" name="ModelSelection">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>40</y>
-        <width>441</width>
+        <x>150</x>
+        <y>32</y>
+        <width>301</width>
         <height>30</height>
        </rect>
       </property>
@@ -1106,6 +1075,70 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
       <item>
        <property name="text">
         <string>External_model</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QToolButton" name="toolButton_8">
+      <property name="geometry">
+       <rect>
+        <x>400</x>
+        <y>90</y>
+        <width>51</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>...</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_55">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>90</y>
+        <width>371</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="F_LPFDamping_9">
+      <property name="geometry">
+       <rect>
+        <x>11</x>
+        <y>69</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Nirmala UI</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>User File</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="ModelSelection_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>32</y>
+        <width>121</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>Low Fidelity</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>High Fidelity</string>
        </property>
       </item>
      </widget>
@@ -1264,7 +1297,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        </rect>
       </property>
       <property name="text">
-       <string>Platform feedback gain Kp</string>
+       <string>Platform feedback gain(Kp)</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_45">
@@ -1305,7 +1338,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
      <widget class="QLabel" name="label_52">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>18</x>
         <y>30</y>
         <width>71</width>
         <height>21</height>
@@ -1325,7 +1358,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
      <widget class="QComboBox" name="comboBox_10">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>18</x>
         <y>55</y>
         <width>161</width>
         <height>25</height>
@@ -1345,8 +1378,8 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
      <widget class="QLabel" name="label_10">
       <property name="geometry">
        <rect>
-        <x>213</x>
-        <y>30</y>
+        <x>203</x>
+        <y>34</y>
         <width>60</width>
         <height>16</height>
        </rect>
@@ -1365,9 +1398,9 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
      <widget class="QComboBox" name="comboBox">
       <property name="geometry">
        <rect>
-        <x>210</x>
-        <y>52</y>
-        <width>231</width>
+        <x>200</x>
+        <y>55</y>
+        <width>111</width>
         <height>25</height>
        </rect>
       </property>
@@ -1417,6 +1450,56 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        </property>
       </item>
      </widget>
+     <widget class="QLabel" name="label_11">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>36</y>
+        <width>91</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Mean velocity</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_52">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>55</y>
+        <width>91</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_12">
+      <property name="geometry">
+       <rect>
+        <x>428</x>
+        <y>58</y>
+        <width>31</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>m/s</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QGroupBox" name="postGroupBox_13">
@@ -1425,7 +1508,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
       <x>20</x>
       <y>620</y>
       <width>1231</width>
-      <height>101</height>
+      <height>81</height>
      </rect>
     </property>
     <property name="font">
@@ -1444,7 +1527,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        <x>0</x>
        <y>20</y>
        <width>1231</width>
-       <height>81</height>
+       <height>61</height>
       </rect>
      </property>
     </widget>
