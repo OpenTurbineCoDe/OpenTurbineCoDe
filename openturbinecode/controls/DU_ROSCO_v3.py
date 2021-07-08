@@ -16,14 +16,16 @@ import subprocess
 import scp
 import pandas as pd
 
+import openturbinecode.main as main
+
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) +os.sep+ "ConfigControl_v3.ui")[0]  # Load the UI
 
 class Mapper(QtWidgets.QMainWindow, form_class):
-    def __init__(self, OTCD=None, parent=None):
+    def __init__(self, OTCD, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
-        self.OTCD = OTCD #make the framework available if passed as argument
+        self.OTCD = OTCD #make the framework available
               
         #set placeholder default text for parametric sweep
         self.lineEdit_32.setText("0.2")
@@ -98,19 +100,20 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # Optimization
         self.PushRunCCD.clicked.connect(self.RunCCD)
 
-        if self.OTCD:
-            self.test_framework.clicked.connect(self.OTCD.sample_hello_world)
-        else:
-            print("I did not connect the test button because you did not initialize me with an OTCD object.")
+        # ---- TEST BUTTON ---
+        self.test_framework.clicked.connect(self.OTCD.sample_hello_world)
         
-        
+    
     def setyamlWorkingDir(self):   #load the control parameters txt file
         #self.ctrldir = str(QtWidgets.QFileDialog.getExistingDirectory())
         (filePath, fileType) = QtWidgets.QFileDialog.getOpenFileName()
         self.lineEdit_25.setText(str(filePath))
         self.YamlFile=filePath
 
+    # ============== Caller functions: gather params from the GUI and calls specific function ==================
     def RunRoscoTune(self):
+        #TODO: call functions through the OTCD object
+
         # Function to tune the controller and write to specific lcation in yaml
         if self.ControlSelection == "ROSCO":
             self.YamlFile
@@ -124,10 +127,23 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             self.textBrowser.append(str("TypeError: Controller should be specified."))
             
     def LocalRun(self):
-        # Local run the case for parametric study
-        subprocess.run(["openfast", self.lineEdit_16.text()+"/5MW_Land_BD_DLL_WTurb.fst"])
-
         
+        #read params from the GUI (TENTATIVELY USING VELOCITY FIELD FOR THE DEMO):
+        folder = self.lineEdit_39.text()
+
+        #execute function through the OTCD object
+        self.OTCD.ctrl_LocalRun( folder + "/5MW_Land_BD_DLL_WTurb.fst")
+
+
+    def RunCCD(self):
+        print('abc')
+        # Collect information
+        # construct the OPT path
+        # CCD based on AutoCCD
+        # Show to progress bar
+        #self.progressBar.setValue(idx/nTotal*100)  #used in the CCD function
+        
+    # ============== Functions that we will only need in the GUI, so we do not need to have them explicitely in the control module =================
     def SendToHPCf(self):
         # Send to HPC for running
         subprocess.run(["scp", self.lineEdit_16.text()+'/Rosco_tuning/DISCON.IN',self.lineEdit_13.text()+"@"+self.lineEdit_14.text()+":"+self.lineEdit_15.text()+'/5MW_Land_BD_DLL_WTurb/Rosco_tuning'])
@@ -136,17 +152,15 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # Load retults from HPC
         subprocess.run(["scp", self.lineEdit_13.text()+"@"+self.lineEdit_14.text()+":"+self.lineEdit_15.text()+"/5MW_Land_BD_DLL_WTurb/5MW_Land_BD_DLL_WTurb.out",self.lineEdit_16.text()])
         
-    def RunCCD(self):
-        print('abc')
-        # Collect information
-        # construct the OPT path
-        # CCD based on AutoCCD
-        # Show to progress bar
-        #self.progressBar.setValue(idx/nTotal*100)  #used in the CCD function
+
 
 if __name__=='__main__':
     app = QtWidgets.QApplication(sys.argv)
-    myWindow = Mapper()
+    
+    fakeArgs =  {}
+    OTCD = main.OpenTurbineCoDe(fakeArgs)
+
+    myWindow = Mapper(OTCD)
     myWindow.show()
     app.exec_()
 

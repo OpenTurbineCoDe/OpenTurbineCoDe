@@ -17,16 +17,17 @@ class OpenTurbineCoDe:
     def __init__(self, args):
         print('Hello, this is OpenTurbineCoDe.')
 
-        # initializatio nof global constants/options
+        # --- initialization of global constants/options ---
         self.path_to_root = os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
         self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
         # self.run_schema = self.path_to_root #TODO
         self.path_to_case = ""
 
-        # parse input arguments
+        # --- parse input arguments ---
         self.parse_args(args)
 
+        # --- managing IO / loading files if needed ---
         # parse run params (only if modeling options present)
         self.load_run_options()    
 
@@ -219,7 +220,12 @@ class OpenTurbineCoDe:
 
     #=====  CCD ===============================================
     
-    #...
+    def ctrl_LocalRun(self, args):
+        # Local run the case for parametric study
+
+        print("I should execute: subprocess.run(\"openfast \" + " + args +")")
+        # subprocess.run("openfast " + args)
+
 
     #=====  SAMPLE MODULE ===============================================
 

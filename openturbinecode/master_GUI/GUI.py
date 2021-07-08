@@ -86,7 +86,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         
         # self.sample_button1.clicked.connect(self.OTCD.sample_hello_world)
 
-        control_ui = ctrl.Mapper(OTCD=self.OTCD,parent=self)
+        control_ui = ctrl.Mapper(self.OTCD,parent=self)
         self.Master_tabs.addTab(control_ui,"Controls")
 
         # ===================================
