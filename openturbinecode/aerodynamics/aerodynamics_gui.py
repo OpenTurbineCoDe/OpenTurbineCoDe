@@ -33,6 +33,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # Bind the event handlers to the buttons using a function
         
         self.runAerodyn.clicked.connect(self.caller_Run)
+        self.plot_cp.clicked.connect(self.myAero.PlotCp)
+        self.plot_thrust.clicked.connect(self.myAero.PlotThrust)               
         
         
 
@@ -68,7 +70,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 if __name__=='__main__':
     app = QtWidgets.QApplication(sys.argv)
 
-    path_to_case = "/Users/dg/Documents/BYU/devel/OpenTurbineCoDe/OpenTurbineCoDe/examples/01_Aerodynamics_demoGUI/"
+    path_to_case = os.getcwd()
     
     #empty aero object
     myAero = aero.Aerodynamics(path_to_case)

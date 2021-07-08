@@ -8,10 +8,8 @@ import yaml
 #making sure that we prepend "./" to a filename if provided in relative path
 def arg_to_path(args,key):
     path = getattr(args,key) if key in args else ""
-    print(path)
     if path and path[0] != "." and path[0] != os.sep:
         path = "." + os.sep + path
-    print(path)
     return path
 
 #============= COPY PASTE FROM WEIS validation.py ====================================

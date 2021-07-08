@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1440</width>
-    <height>800</height>
+    <height>798</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -628,7 +628,7 @@
            </rect>
           </property>
          </widget>
-         <widget class="QPushButton" name="pushButton_6">
+         <widget class="QPushButton" name="plot_cp">
           <property name="geometry">
            <rect>
             <x>190</x>
@@ -715,7 +715,7 @@
            <string>...</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="pushButton_13">
+         <widget class="QPushButton" name="plot_thrust">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -730,7 +730,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Plot Ct</string>
+           <string>Plot Thrust</string>
           </property>
          </widget>
          <widget class="QLineEdit" name="lineEdit_27">
