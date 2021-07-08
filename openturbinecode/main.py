@@ -14,6 +14,7 @@ import openturbinecode.DLC_manager.dump_IECcase as DLC_manager
 
 # import openturbinecode.aerodynamics.aerodynamics_module as aero
 # import openturbinecode.structure.structure_module as struc
+import openturbinecode.aerostructural.aerostructural_module as aerostruct
 import openturbinecode.controls.control_module as ctrl
 # ...
 
@@ -53,7 +54,7 @@ class OpenTurbineCoDe:
 
         # self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         # self.myStruc = struc.Structure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
-        # self.myAeroStruc = struc.AeroStructure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        self.myAeroStruct = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
 
         self.printv('initilization done. \n\n')
