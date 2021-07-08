@@ -8,7 +8,13 @@ from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import pyqtgraph as pg
+
+# from openturbinecode.aerodynamics import aerosdynamics_gui as aero
+# from openturbinecode.structure import structure_gui as struc
 from openturbinecode.aerostructural import aerostructGUI as asGui
+# from openturbinecode.aerostructural import aerostructure_gui as aerostruc
+from openturbinecode.controls import control_gui as ctrl
+
 #NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
 #       Later, we should replace this by a static load when everybody is done editing the GUI.
 #       See also https://realpython.com/qt-designer-python/
@@ -66,25 +72,31 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #=====  AERODYNAMICS ===============================================
         
-        #...
+        # aero_ui = aero.Mapper(self.OTCD.myAero,parent=self)
+        # self.Master_tabs.addTab(aero_ui,"Aerodynamics")
 
         #=====  STRUCTURE ===============================================
         
-        #...
+        # struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self)
+        # self.Master_tabs.addTab(struc_ui,"Structure")
 
         #=====  AERO-STRUCTURE ===============================================
         
-        aerostructGUI_ui = asGui.Mapper(OTCD=self.OTCD,parent=self)
-        self.SampleModule.addTab(aerostructGUI_ui,"Aerostructural")
+        # aerostructGUI_ui = asGui.Mapper(OTCD=self.OTCD,parent=self)
+        # self.SampleModule.addTab(aerostructGUI_ui,"Aerostructural")
+        aerostructGUI_ui = aerostruc.Mapper(self.OTCD.myAeroStruct,parent=self)
+        self.Master_tabs.addTab(aerostructGUI_ui,"AeroStructure")
 
         #=====  CCD ===============================================
         
-        #...
+        control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self)
+        self.Master_tabs.addTab(control_ui,"Controls")
 
         #=====  SAMPLE MODULE ===============================================
         
-        self.sample_button1.clicked.connect(self.OTCD.sample_hello_world)
+        # self.sample_button1.clicked.connect(self.OTCD.sample_hello_world)
 
+        
         # ===================================
         # SAMPLE CODE:
         # ===================================

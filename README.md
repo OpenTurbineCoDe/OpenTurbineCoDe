@@ -41,7 +41,7 @@ python3 install -e .
 Some dependencies of `AeroelasticSE` might need to be installed manually, e.g. `ruamel_yaml`.
 ## Quick start guide
 
-From the root of the folder, execute
+**To run the master GUI**, from the root of the folder, execute
 
     python3 openturbinecode/main.py --GUI
 
@@ -50,6 +50,10 @@ The GUI should pop up. There are other ways to run the main function without the
     python3 openturbinecode/main.py --GUI --turbine ./models/DTU_10MW/Madsen2019/Madsen2019_10.yaml 
 
 More documentation to come...
+
+**To run any standalone GUI**, from the root of the folder, execute (*replace MODULE with the specific module you want):
+
+python3 openturbinecode/MODULE/MODULE_gui.py 
 
 ## TODO
  - [ ] license
