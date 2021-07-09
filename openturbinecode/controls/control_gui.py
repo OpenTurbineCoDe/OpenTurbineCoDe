@@ -31,10 +31,14 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # =================== INITIALIZE FIELD VALUES ==============================
         self.myCtrl.setDefaultValues()
         self.writeToUI()
+        
 
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
+        # Model selection
+        self.ModelSelection.activated.connect(self.ModelSelection)
         # Parametric Sweep
+        self.ModelSelection.activated.connect(self.Setuserfile)
         self.toolButton_8.clicked.connect(self.Setuserfile)
         self.toolButton_6.clicked.connect(self.setyamlWorkingDir)
         self.ControlTune.clicked.connect(self.caller_RunRoscoTune)
@@ -42,7 +46,6 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.PushRun.clicked.connect(self.caller_LocalRun)
         self.SendToHPC_2.clicked.connect(self.caller_SendToHPCf)
         self.LoadResults_2.clicked.connect(self.caller_HPCloadf)
-        #self.QMessageBox .clicked.connect(self.Message)
         # Optimization
         self.PushRunCCD.clicked.connect(self.caller_RunCCD)
 
@@ -53,55 +56,41 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     def writeToUI(self):
 
         #Set interface values
-        # self.ModelSelection.setText(str(self.myCtrl.Baselinemodel)) #no text function
         self.lineEdit_32.setText(str(self.myCtrl.ROSCOR2Omega))
         self.lineEdit_31.setText(str(self.myCtrl.ROSCOR2Zeta))
         self.lineEdit_35.setText(str(self.myCtrl.ROSCOR3Omega))
         self.lineEdit_36.setText(str(self.myCtrl.ROSCOR3Zeta))
-        self.lineEdit_37.setText(str(self.myCtrl.PlatformP1))
-        #self.SimulinkP1 = ast.literal_eval(self.lineEdit_.text
-        #self.SimulinkP2 = ast.literal_eval(self.lineEdit_.text
-        # self.comboBox_3.setText(str(self.myCtrl.ControlSelection)) #no text function
+        self.lineEdit_37.setText(str(self.myCtrl.PlatformKp))
         # Run Simulation
-        # self.comboBox.setText(str(self.myCtrl.DLC)) #no text function
         self.lineEdit_52.setText(str(self.myCtrl.DLCVelocity))
         # Run on HPC
         self.lineEdit_27.setText(self.myCtrl.Username)
         self.lineEdit_26.setText(self.myCtrl.Server)
         self.lineEdit_25.setText(self.myCtrl.HPCPath)
-        # Parameterization OpenFAST
-        self.lineEdit_29.setText(str(self.myCtrl.FSChordStations))
-        self.lineEdit_45.setText(str(self.myCtrl.FSTwistStations))
-        self.lineEdit_40.setText(str(self.myCtrl.FSThickStations))
-        self.lineEdit_30.setText(str(self.myCtrl.FSLimits))
-        # self.comboBox_4.setText(str(self.myCtrl.FSObjective)) #no text function
-        # Parameterization TACS
-        # self.comboBox_5.setText(str(self.myCtrl.TSObjective)) #no text function
+        # Parameterization
+        self.lineEdit_29.setText(str(self.myCtrl.ChordStations))
+        self.lineEdit_45.setText(str(self.myCtrl.TwistStations))
+        self.lineEdit_40.setText(str(self.myCtrl.ThickStations))
+        self.lineEdit_30.setText(str(self.myCtrl.Limits))
         # Optimization
-        # self.comboBox_2.setText(str(self.myCtrl.Optimizer)) #no text function
         self.lineEdit_23.setText(str(self.myCtrl.Iterations))
-        # self.comboBox_6.setText(str(self.myCtrl.Display)) #no text function
         self.lineEdit_28.setText(str(self.myCtrl.Tolerane))
-
-        self.lineEdit_25.setText(self.myCtrl.YamlFile)
 
 
 
     def readFromUI(self):
-        #Get user inputs data
+        # Get user inputs data
+        
         # self.myCtrl.Baselinemodel = ast.literal_eval(self.ModelSelection.text()) #no.text function
         self.myCtrl.ROSCOR2Omega = ast.literal_eval(self.lineEdit_32.text())
         self.myCtrl.ROSCOR2Zeta = ast.literal_eval(self.lineEdit_31.text())
         self.myCtrl.ROSCOR3Omega = ast.literal_eval(self.lineEdit_35.text())
         self.myCtrl.ROSCOR3Zeta = ast.literal_eval(self.lineEdit_36.text())
-        self.myCtrl.PlatformP1 = ast.literal_eval(self.lineEdit_37.text())
-        self.myCtrl.PlatformP2 = ast.literal_eval(self.lineEdit_38.text())
-        #self.SimulinkP1 = ast.literal_eval(self.lineEdit_.text())
-        #self.SimulinkP2 = ast.literal_eval(self.lineEdit_.text())
+        self.myCtrl.PlatformKp = ast.literal_eval(self.lineEdit_37.text())
         # self.myCtrl.ControlSelection = ast.literal_eval(self.comboBox_3.text()) #no.text function
         # Run Simulation
         # self.myCtrl.DLC = ast.literal_eval(self.comboBox.text()) #no.text function
-        self.myCtrl.DLCVelocity = ast.literal_eval(self.lineEdit_39.text())
+        self.myCtrl.DLCVelocity = ast.literal_eval(self.lineEdit_52.text())
         # Run on HPC
         self.myCtrl.Username = self.lineEdit_27.text()
         self.myCtrl.Server = self.lineEdit_26.text()
@@ -124,6 +113,12 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # self.myCtrl.Display = ast.literal_eval(self.comboBox_6.text()) #no.text function
         self.myCtrl.Tolerane = ast.literal_eval(self.lineEdit_28.text())
 
+    def ModelSelection(self):
+        print("Current model:"+str(self.ModelSelection.currentText()))
+        if self.comboBox.currentText() == "User Model":
+            self.StackedFIleIO.setCurrentIndex(1)
+        else:
+            self.StackedFIleIO.setCurrentIndex(0)
         
     def setyamlWorkingDir(self):   #load the control parameters txt file
         #self.ctrldir = str(QtWidgets.QFileDialog.getExistingDirectory())

@@ -18,9 +18,7 @@ class Control:
         self.path_to_case = path_to_case
 
         self.setDefaultValues()
-
-
-              
+        
     # ==================== GENERAL FUNCTIONS ==========================================
         
     def setDefaultValues(self):
@@ -45,17 +43,17 @@ class Control:
             self.Server   = "amarel.rutgers.edu"
             self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
             # Optimization
-            self.FSChordStations = [0,0.5,1.0]
-            self.FSTwistStations = [0,0.5,1.0]
-            self.FSThickStations = [0,0.5,1.0]
-            self.FSLimits        = [[[0,-0.5,-0.5],[0,-0.5,-0.5],[0,-0.5,-0.5]],[[0,0.5,0.5],[0,0.5,0.5],[0,0.5,0.5]]]
+            self.ChordStations = [0,0.5,1.0]
+            self.TwistStations = [0,0.5,1.0]
+            self.ThickStations = [0,0.5,1.0]
+            self.Limits        = [[[0,-0.5,-0.5],[0,-0.5,-0.5],[0,-0.5,-0.5]],[[0,0.5,0.5],[0,0.5,0.5],[0,0.5,0.5]]]
             
             # Optimization configuration
             self.Iterations     = 10
             self.Tolerane       = 1e-6
 
-            self.YamlFile=""
-            self.ControlSelection = ""
+            #self.YamlFile=""
+            #self.ControlSelection = ""
 
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================

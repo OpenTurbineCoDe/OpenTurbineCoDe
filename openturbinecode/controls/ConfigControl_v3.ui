@@ -33,7 +33,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="ParametricSweep">
      <attribute name="title">
@@ -464,7 +464,7 @@
           <x>10</x>
           <y>30</y>
           <width>431</width>
-          <height>331</height>
+          <height>341</height>
          </rect>
         </property>
         <property name="font">
@@ -670,9 +670,9 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>376</y>
-          <width>681</width>
-          <height>121</height>
+          <y>388</y>
+          <width>691</width>
+          <height>111</height>
          </rect>
         </property>
         <property name="font">
@@ -688,10 +688,10 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
         <widget class="QProgressBar" name="progressBar">
          <property name="geometry">
           <rect>
-           <x>12</x>
-           <y>40</y>
-           <width>651</width>
-           <height>61</height>
+           <x>10</x>
+           <y>42</y>
+           <width>661</width>
+           <height>51</height>
           </rect>
          </property>
          <property name="value">
@@ -705,7 +705,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
           <x>450</x>
           <y>30</y>
           <width>251</width>
-          <height>331</height>
+          <height>341</height>
          </rect>
         </property>
         <property name="title">
@@ -943,7 +943,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
    <widget class="QGroupBox" name="mapGroupBox_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>21</x>
       <y>30</y>
       <width>481</width>
       <height>591</height>
@@ -1078,50 +1078,6 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        </property>
       </item>
      </widget>
-     <widget class="QToolButton" name="toolButton_8">
-      <property name="geometry">
-       <rect>
-        <x>400</x>
-        <y>90</y>
-        <width>51</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>...</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEdit_55">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>90</y>
-        <width>371</width>
-        <height>25</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="F_LPFDamping_9">
-      <property name="geometry">
-       <rect>
-        <x>11</x>
-        <y>69</y>
-        <width>101</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Nirmala UI</family>
-        <pointsize>10</pointsize>
-        <weight>50</weight>
-        <bold>false</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>User File</string>
-      </property>
-     </widget>
      <widget class="QComboBox" name="ModelSelection_2">
       <property name="geometry">
        <rect>
@@ -1141,6 +1097,115 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
         <string>High Fidelity</string>
        </property>
       </item>
+     </widget>
+     <widget class="QStackedWidget" name="StackedFIleIO">
+      <property name="geometry">
+       <rect>
+        <x>7</x>
+        <y>70</y>
+        <width>451</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="page">
+       <widget class="QLineEdit" name="lineEdit_55">
+        <property name="geometry">
+         <rect>
+          <x>-1</x>
+          <y>21</y>
+          <width>321</width>
+          <height>25</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="PushRunCCD_2">
+        <property name="geometry">
+         <rect>
+          <x>389</x>
+          <y>20</y>
+          <width>51</width>
+          <height>24</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Save The Current Configuration</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>1</number>
+        </property>
+        <property name="text">
+         <string>Load</string>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="toolButton_8">
+        <property name="geometry">
+         <rect>
+          <x>329</x>
+          <y>22</y>
+          <width>51</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="F_LPFDamping_9">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>101</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Nirmala UI</family>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>User File</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_2">
+       <widget class="QPushButton" name="PushRunCCD_3">
+        <property name="geometry">
+         <rect>
+          <x>3</x>
+          <y>18</y>
+          <width>441</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Save The Current Configuration</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>1</number>
+        </property>
+        <property name="text">
+         <string>Load models</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </widget>
     <widget class="QGroupBox" name="ecuGroupBox_7">
