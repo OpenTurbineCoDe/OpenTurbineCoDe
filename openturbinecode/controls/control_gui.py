@@ -35,13 +35,16 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
-        # Model selection
-        self.ModelSelection.activated.connect(self.ModelSelection)
+        # determine the model selection interface
+        self.ModelSelection.activated.connect(self.ModelSelectionUI)
+        # General
+        self.LoadUsrModel.clicked.connect(self.LoadInherentMod)
+        self.toolButton_8.activated.connect(self.Setuserfile)
+        self.LoadUsFile.clicked.connect(self.Loaduserfile)
         # Parametric Sweep
-        self.ModelSelection.activated.connect(self.Setuserfile)
-        self.toolButton_8.clicked.connect(self.Setuserfile)
-        self.toolButton_6.clicked.connect(self.setyamlWorkingDir)
+        self.toolButton_6.clicked.connect(self.caller_setyamlWorkingDir)
         self.ControlTune.clicked.connect(self.caller_RunRoscoTune)
+        self.SetOutDir.clicked.connect(self.caller_SetOutputDir)
         self.WritoutModel.clicked.connect(self.caller_Writeout)
         self.PushRun.clicked.connect(self.caller_LocalRun)
         self.SendToHPC_2.clicked.connect(self.caller_SendToHPCf)
@@ -49,12 +52,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # Optimization
         self.PushRunCCD.clicked.connect(self.caller_RunCCD)
 
-        
-
-    # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
-
+    # ======== Functions to fill the UI, or to retrieve info from the UI =====
     def writeToUI(self):
-
         #Set interface values
         self.lineEdit_32.setText(str(self.myCtrl.ROSCOR2Omega))
         self.lineEdit_31.setText(str(self.myCtrl.ROSCOR2Zeta))
@@ -77,50 +76,23 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.lineEdit_28.setText(str(self.myCtrl.Tolerane))
 
 
-
-    def readFromUI(self):
-        # Get user inputs data
-        
-        # self.myCtrl.Baselinemodel = ast.literal_eval(self.ModelSelection.text()) #no.text function
-        self.myCtrl.ROSCOR2Omega = ast.literal_eval(self.lineEdit_32.text())
-        self.myCtrl.ROSCOR2Zeta = ast.literal_eval(self.lineEdit_31.text())
-        self.myCtrl.ROSCOR3Omega = ast.literal_eval(self.lineEdit_35.text())
-        self.myCtrl.ROSCOR3Zeta = ast.literal_eval(self.lineEdit_36.text())
-        self.myCtrl.PlatformKp = ast.literal_eval(self.lineEdit_37.text())
-        # self.myCtrl.ControlSelection = ast.literal_eval(self.comboBox_3.text()) #no.text function
-        # Run Simulation
-        # self.myCtrl.DLC = ast.literal_eval(self.comboBox.text()) #no.text function
-        self.myCtrl.DLCVelocity = ast.literal_eval(self.lineEdit_52.text())
-        # Run on HPC
-        self.myCtrl.Username = self.lineEdit_27.text()
-        self.myCtrl.Server = self.lineEdit_26.text()
-        self.myCtrl.HPCPath =self.lineEdit_24.text()
-        # Parameterization OpenFAST
-        self.myCtrl.FSChordStations = ast.literal_eval(self.lineEdit_29.text())
-        self.myCtrl.FSTwistStations = ast.literal_eval(self.lineEdit_45.text())
-        self.myCtrl.FSThickStations = ast.literal_eval(self.lineEdit_40.text())
-        self.myCtrl.FSLimits = ast.literal_eval(self.lineEdit_30.text())
-        # self.myCtrl.FSObjective = ast.literal_eval(self.comboBox_4.text()) #no.text function
-        # Parameterization TACS
-        self.myCtrl.TSChordStations = ast.literal_eval(self.lineEdit_43.text())
-        self.myCtrl.TSTwistStations = ast.literal_eval(self.lineEdit_46.text())
-        self.myCtrl.TSThickStations = ast.literal_eval(self.lineEdit_42.text())
-        self.myCtrl.TSLimits = ast.literal_eval(self.lineEdit_41.text())
-        # self.myCtrl.TSObjective = ast.literal_eval(self.comboBox_5.text()) #no.text function
-        # Optimization
-        # self.myCtrl.Optimizer = ast.literal_eval(self.comboBox_2.text()) #no.text function
-        self.myCtrl.Iterations = ast.literal_eval(self.lineEdit_23.text())
-        # self.myCtrl.Display = ast.literal_eval(self.comboBox_6.text()) #no.text function
-        self.myCtrl.Tolerane = ast.literal_eval(self.lineEdit_28.text())
-
-    def ModelSelection(self):
-        print("Current model:"+str(self.ModelSelection.currentText()))
+    def ModelSelectionUI(self):
+        print("Current model:"+str(self.myCtrl.ModelSelected))
         if self.comboBox.currentText() == "User Model":
             self.StackedFIleIO.setCurrentIndex(1)
         else:
             self.StackedFIleIO.setCurrentIndex(0)
+            
+    def LoadInherentMod(self):
         
-    def setyamlWorkingDir(self):   #load the control parameters txt file
+    def Setuserfile(self):
+        pass
+        
+    def Loaduserfile(self):
+        pass
+    
+        
+    def caller_setyamlWorkingDir(self):   #load the control parameters txt file
         #self.ctrldir = str(QtWidgets.QFileDialog.getExistingDirectory())
         (filePath, fileType) = QtWidgets.QFileDialog.getOpenFileName()
         self.lineEdit_25.setText(filePath)
@@ -136,6 +108,12 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         #Call the function:
         self.myCtrl.RunRoscoTune()
         
+    def caller_SetOutputDir(self):
+        
+    def caller_Writeout(self):
+        
+
+        
     def caller_LocalRun(self):
         #read params from the GUI (TENTATIVELY USING VELOCITY FIELD FOR THE DEMO):
         folder = self.lineEdit_39.text()
@@ -144,15 +122,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         #execute function through the control object
         self.myCtrl.LocalRun( folder + "/5MW_Land_BD_DLL_WTurb.fst")
-
-    def caller_RunCCD(self):
-        #read parameters if needed
-        #...
-        # self.readFromUI()
-        #Call the function:
-        self.myCtrl.RunCCD()
-
-        
+    
     def caller_SendToHPCf(self):
         #read parameters if needed
         self.readFromUI()
@@ -168,6 +138,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         
         #Call the function:
         self.myCtrl.HPCloadf(self,orig)
+        
+    def caller_RunCCD(self):
+        #read parameters if needed
+        #...
+        # self.readFromUI()
+        #Call the function:
+        self.myCtrl.RunCCD()
 
 
 if __name__=='__main__':

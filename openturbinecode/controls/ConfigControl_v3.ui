@@ -80,7 +80,7 @@
         <property name="geometry">
          <rect>
           <x>409</x>
-          <y>90</y>
+          <y>95</y>
           <width>221</width>
           <height>28</height>
          </rect>
@@ -99,17 +99,17 @@
         <property name="geometry">
          <rect>
           <x>21</x>
-          <y>50</y>
+          <y>55</y>
           <width>531</width>
           <height>25</height>
          </rect>
         </property>
        </widget>
-       <widget class="QToolButton" name="toolButton_7">
+       <widget class="QToolButton" name="SetOutDir">
         <property name="geometry">
          <rect>
           <x>570</x>
-          <y>50</y>
+          <y>55</y>
           <width>51</width>
           <height>23</height>
          </rect>
@@ -121,8 +121,8 @@
        <widget class="QLabel" name="label_20">
         <property name="geometry">
          <rect>
-          <x>240</x>
-          <y>30</y>
+          <x>20</x>
+          <y>35</y>
           <width>281</width>
           <height>16</height>
          </rect>
@@ -142,7 +142,7 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>90</y>
+          <y>95</y>
           <width>221</width>
           <height>28</height>
          </rect>
@@ -649,20 +649,42 @@
          <property name="geometry">
           <rect>
            <x>250</x>
-           <y>40</y>
+           <y>60</y>
            <width>171</width>
-           <height>281</height>
+           <height>261</height>
           </rect>
          </property>
          <property name="plainText">
-          <string>Chord morph stations: define the location of control points along blade span in [0 1] for chord morphing, e.g. 0.5 means the control point at the middle of blade length;
+          <string>1) The format of control parameters for optimization is &quot;initial value; lower limit, upper limit&quot;, e.g., 0.2; 0.1, 0.4. This means initial value is 0.2 and upper and lower limits are 0.1 and 0.4, respectively.
 
-Twist morph stations: Similar with the Chord but for twist morphing;
+2) Chord morph stations: define the location of control points along blade span in [0 1] for chord morphing, e.g. 0.5 means the control point at the middle of blade length;
 
-Thickness of 9 stations (the only available option currently): Define sacaling factor for 9 pre-defined stations;
+3) Twist morph stations: Similar with the Chord but for twist morphing;
 
-Upper and lower limits: the lower limit of each control points in [0 1]. Format: [[-0.5, 0.5],[-0.5,0.5]] means changing within the 0.5 and 1.5 of original values; A list for each morphing in sequence and seperated by semicolon;
+4) Thickness of 9 stations (the only available option currently): Define sacaling factor for 9 pre-defined stations;
+
+5) Upper and lower limits: the lower limit of each control points in [0 1]. Format: [[-0.5, 0.5],[-0.5,0.5]] means changing within the 0.5 and 1.5 of original values; A list for each morphing in sequence and seperated by semicolon;
 </string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_21">
+         <property name="geometry">
+          <rect>
+           <x>251</x>
+           <y>41</y>
+           <width>101</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Instruction</string>
          </property>
         </widget>
        </widget>
@@ -1020,6 +1042,28 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        </rect>
       </property>
      </widget>
+     <widget class="QLabel" name="label_48">
+      <property name="geometry">
+       <rect>
+        <x>18</x>
+        <y>25</y>
+        <width>161</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>true</italic>
+        <bold>false</bold>
+        <underline>true</underline>
+       </font>
+      </property>
+      <property name="text">
+       <string>See instruction for Opt</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QGroupBox" name="groupBox">
      <property name="geometry">
@@ -1078,7 +1122,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        </property>
       </item>
      </widget>
-     <widget class="QComboBox" name="ModelSelection_2">
+     <widget class="QComboBox" name="Modelfidelity">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -1108,23 +1152,23 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        </rect>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QLineEdit" name="lineEdit_55">
         <property name="geometry">
          <rect>
-          <x>-1</x>
+          <x>1</x>
           <y>21</y>
-          <width>321</width>
+          <width>311</width>
           <height>25</height>
          </rect>
         </property>
        </widget>
-       <widget class="QPushButton" name="PushRunCCD_2">
+       <widget class="QPushButton" name="LoadUsFile">
         <property name="geometry">
          <rect>
-          <x>389</x>
+          <x>391</x>
           <y>20</y>
           <width>51</width>
           <height>24</height>
@@ -1148,8 +1192,8 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        <widget class="QToolButton" name="toolButton_8">
         <property name="geometry">
          <rect>
-          <x>329</x>
-          <y>22</y>
+          <x>326</x>
+          <y>21</y>
           <width>51</width>
           <height>23</height>
          </rect>
@@ -1181,7 +1225,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        </widget>
       </widget>
       <widget class="QWidget" name="page_2">
-       <widget class="QPushButton" name="PushRunCCD_3">
+       <widget class="QPushButton" name="LoadUsrModel">
         <property name="geometry">
          <rect>
           <x>3</x>
@@ -1225,7 +1269,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        <rect>
         <x>40</x>
         <y>67</y>
-        <width>48</width>
+        <width>51</width>
         <height>16</height>
        </rect>
       </property>
@@ -1368,9 +1412,9 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
      <widget class="QLabel" name="label_45">
       <property name="geometry">
        <rect>
-        <x>9</x>
+        <x>5</x>
         <y>24</y>
-        <width>161</width>
+        <width>91</width>
         <height>16</height>
        </rect>
       </property>
@@ -1384,7 +1428,7 @@ Upper and lower limits: the lower limit of each control points in [0 1]. Format:
        </font>
       </property>
       <property name="text">
-       <string>Check for Optimization</string>
+       <string>Check for Opt</string>
       </property>
      </widget>
     </widget>

@@ -66,7 +66,7 @@ class Control:
         elif self.ControlSelection == "Legacy":
             # Only applicable to simulink
             self.YamlFile
-            function(SimulinkLegacyTUning)
+            # function(SimulinkLegacyTUning)
         else:
             raise TypeError("Controller should be specified.")
             self.textBrowser.append(str("TypeError: Controller should be specified."))
