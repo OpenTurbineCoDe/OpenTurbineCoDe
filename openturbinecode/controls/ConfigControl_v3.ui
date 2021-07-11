@@ -57,107 +57,6 @@
       <property name="title">
        <string>Model Runing</string>
       </property>
-      <widget class="QGroupBox" name="postGroupBox_2">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>190</y>
-         <width>651</width>
-         <height>141</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="title">
-        <string>Run simulation</string>
-       </property>
-       <widget class="QPushButton" name="PushRun">
-        <property name="geometry">
-         <rect>
-          <x>409</x>
-          <y>95</y>
-          <width>221</width>
-          <height>28</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>Save The Current Configuration</string>
-        </property>
-        <property name="toolTipDuration">
-         <number>1</number>
-        </property>
-        <property name="text">
-         <string>Local run</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit_54">
-        <property name="geometry">
-         <rect>
-          <x>21</x>
-          <y>55</y>
-          <width>531</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QToolButton" name="SetOutDir">
-        <property name="geometry">
-         <rect>
-          <x>570</x>
-          <y>55</y>
-          <width>51</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_20">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>35</y>
-          <width>281</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Output directory (Cover definition in yaml)</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="WritoutModel">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>95</y>
-          <width>221</width>
-          <height>28</height>
-         </rect>
-        </property>
-        <property name="toolTip">
-         <string>Save The Current Configuration</string>
-        </property>
-        <property name="toolTipDuration">
-         <number>1</number>
-        </property>
-        <property name="text">
-         <string>Write Out</string>
-        </property>
-       </widget>
-      </widget>
       <widget class="QGroupBox" name="postGroupBox_12">
        <property name="geometry">
         <rect>
@@ -338,7 +237,7 @@
          <x>10</x>
          <y>30</y>
          <width>651</width>
-         <height>141</height>
+         <height>281</height>
         </rect>
        </property>
        <property name="font">
@@ -349,14 +248,14 @@
         </font>
        </property>
        <property name="title">
-        <string>Control tuning</string>
+        <string>Control tuning and simulation</string>
        </property>
        <widget class="QPushButton" name="ControlTune">
         <property name="geometry">
          <rect>
           <x>17</x>
-          <y>96</y>
-          <width>611</width>
+          <y>100</y>
+          <width>151</width>
           <height>28</height>
          </rect>
         </property>
@@ -367,7 +266,7 @@
          <number>1</number>
         </property>
         <property name="text">
-         <string>Control turning</string>
+         <string>Load</string>
         </property>
        </widget>
        <widget class="QLabel" name="F_LPFDamping_8">
@@ -412,6 +311,106 @@
         </property>
         <property name="text">
          <string>...</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="ControlTune_2">
+        <property name="geometry">
+         <rect>
+          <x>475</x>
+          <y>100</y>
+          <width>151</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Save The Current Configuration</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>1</number>
+        </property>
+        <property name="text">
+         <string>Tune controller</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="PushRun">
+        <property name="geometry">
+         <rect>
+          <x>400</x>
+          <y>230</y>
+          <width>221</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Save The Current Configuration</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>1</number>
+        </property>
+        <property name="text">
+         <string>Local run</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_20">
+        <property name="geometry">
+         <rect>
+          <x>18</x>
+          <y>160</y>
+          <width>281</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Output directory (Cover definition in yaml)</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_54">
+        <property name="geometry">
+         <rect>
+          <x>18</x>
+          <y>180</y>
+          <width>531</width>
+          <height>25</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QToolButton" name="SetOutDir">
+        <property name="geometry">
+         <rect>
+          <x>570</x>
+          <y>180</y>
+          <width>51</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="WritoutModel">
+        <property name="geometry">
+         <rect>
+          <x>18</x>
+          <y>230</y>
+          <width>221</width>
+          <height>28</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Save The Current Configuration</string>
+        </property>
+        <property name="toolTipDuration">
+         <number>1</number>
+        </property>
+        <property name="text">
+         <string>Write Out Controller</string>
         </property>
        </widget>
       </widget>
@@ -1085,9 +1084,9 @@
      <widget class="QComboBox" name="ModelSelection">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>10</x>
         <y>32</y>
-        <width>301</width>
+        <width>441</width>
         <height>30</height>
        </rect>
       </property>
@@ -1113,32 +1112,12 @@
       </item>
       <item>
        <property name="text">
-        <string>User Model</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
         <string>External_model</string>
        </property>
       </item>
-     </widget>
-     <widget class="QComboBox" name="Modelfidelity">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>32</y>
-        <width>121</width>
-        <height>30</height>
-       </rect>
-      </property>
       <item>
        <property name="text">
-        <string>Low Fidelity</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>High Fidelity</string>
+        <string>User-specified Model</string>
        </property>
       </item>
      </widget>

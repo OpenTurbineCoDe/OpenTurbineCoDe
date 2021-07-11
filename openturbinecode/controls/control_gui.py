@@ -31,8 +31,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # =================== INITIALIZE FIELD VALUES ==============================
         self.myCtrl.setDefaultValues()
         self.writeToUI()
-        
-
+ 
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
         # determine the model selection interface
@@ -42,8 +41,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.toolButton_8.activated.connect(self.Setuserfile)
         self.LoadUsFile.clicked.connect(self.Loaduserfile)
         # Parametric Sweep
-        self.toolButton_6.clicked.connect(self.caller_setyamlWorkingDir)
-        self.ControlTune.clicked.connect(self.caller_RunRoscoTune)
+        self.toolButton_6.clicked.connect(self.setyamlfile)
+        self.Loadyaml.clicked.connect(self.loadyamlfile)
+        self.ControlTune.clicked.connect(self.caller_ControlTune)
         self.SetOutDir.clicked.connect(self.caller_SetOutputDir)
         self.WritoutModel.clicked.connect(self.caller_Writeout)
         self.PushRun.clicked.connect(self.caller_LocalRun)
@@ -74,33 +74,84 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # Optimization
         self.lineEdit_23.setText(str(self.myCtrl.Iterations))
         self.lineEdit_28.setText(str(self.myCtrl.Tolerane))
+        
+    def readFromUI(self):
+        #Get user inputs data
+        self.myCtrl.ModelSelected = ast.literal_eval(self.ModelSelection.currentText()) #no.text function
+        # Control params
+        self.myCtrl.ROSCOR2Omega = ast.literal_eval(self.lineEdit_32.text())
+        self.myCtrl.ROSCOR2Zeta = ast.literal_eval(self.lineEdit_31.text())
+        self.myCtrl.ROSCOR3Omega = ast.literal_eval(self.lineEdit_35.text())
+        self.myCtrl.ROSCOR3Zeta = ast.literal_eval(self.lineEdit_36.text())
+        self.myCtrl.PlatformKp = ast.literal_eval(self.lineEdit_37.text())
+
+        # Run Simulation
+        self.myCtrl.Controller = ast.literal_eval(self.comboBox_10.currentText()) #no.text function
+        self.myCtrl.DLC = ast.literal_eval(self.comboBox.currentText()) #no.text function
+        self.myCtrl.DLCVelocity = ast.literal_eval(self.lineEdit_52.text())
+        # Run on HPC
+        self.myCtrl.Username = self.lineEdit_27.text()
+        self.myCtrl.Server = self.lineEdit_26.text()
+        self.myCtrl.HPCPath =self.lineEdit_25.text()
+        # Parameterization OpenFAST
+        self.myCtrl.ChordStations = ast.literal_eval(self.lineEdit_29.text())
+        self.myCtrl.TwistStations = ast.literal_eval(self.lineEdit_45.text())
+        self.myCtrl.ThickStations = ast.literal_eval(self.lineEdit_40.text())
+        self.myCtrl.Limits = ast.literal_eval(self.lineEdit_30.text())
+        self.myCtrl.Objective = ast.literal_eval(self.comboBox_4.currentText())
+        # Optimization
+        self.myCtrl.Optimizer = ast.literal_eval(self.comboBox_2.currentText()) 
+        self.myCtrl.Iterations = ast.literal_eval(self.lineEdit_23.text())
+        self.myCtrl.Display = ast.literal_eval(self.comboBox_6.currentText()) 
+        self.myCtrl.Tolerane = ast.literal_eval(self.lineEdit_28.text())
 
 
     def ModelSelectionUI(self):
+        self.readFromUI()
         print("Current model:"+str(self.myCtrl.ModelSelected))
-        if self.comboBox.currentText() == "User Model":
+        if self.comboBox.currentText() == "User-specified Model":
             self.StackedFIleIO.setCurrentIndex(1)
         else:
             self.StackedFIleIO.setCurrentIndex(0)
             
     def LoadInherentMod(self):
+        self.readFromUI()
+        if self.myCtrl.ModelSelected == "LF_OpenFAST_DTU10MW (Local)":
+            self.myCtrl.workingmodel == "DTU10MW/"                               # path for DTU10MW model
+        if self.myCtrl.ModelSelected == "LF_OpenFAST_NREL5MW (Local)":
+            self.myCtrl.workingmodel == "DTU10MW/"                               # path for DTU10MW model
+        if self.myCtrl.ModelSelected == "HF_TACS_DTU10MW (Local)":
+            self.myCtrl.workingmodel == "DTU10MW/"                               # path for DTU10MW model
+        if self.myCtrl.ModelSelected == "HF_TACS_NREL5MW (Local) (Not available Now)":
+            print("ERROR: This model is not available now.")
+        if self.myCtrl.ModelSelected == "External_model":
+            pass # not implemented: function for receiving model path from other module
         
     def Setuserfile(self):
-        pass
+        self.readFromUI()
+        (filePath, fileType) = QtWidgets.QFileDialog.getOpenFileName()
+        self.lineEdit_55.setText(str(filePath))
         
     def Loaduserfile(self):
-        pass
+        self.readFromUI()
+        self.myCtrl.workingmodel=ast.literal_eval(self.lineEdit_55.text())
+        print("Loaded file  "+self.myCtrl.workingmodel)
     
         
-    def caller_setyamlWorkingDir(self):   #load the control parameters txt file
-        #self.ctrldir = str(QtWidgets.QFileDialog.getExistingDirectory())
+    def setyamlfile(self):   #load the control parameters txt file
+        self.readFromUI()
         (filePath, fileType) = QtWidgets.QFileDialog.getOpenFileName()
-        self.lineEdit_25.setText(filePath)
+        self.lineEdit_53.setText(filePath)
+        print("Yaml file selected: "+filePath)
+        
+    def loadyamlfile(self):   #load the control parameters txt file
         self.myCtrl.YamlFile=filePath
+        print("Yaml file loaded: "+filePath)
 
     # ============== Caller functions: gather params from the GUI and calls specific function ==================
-    def caller_RunRoscoTune(self):
-        #read parameters if needed
+    def caller_ControlTune(self):
+        self.readFromUI()
+        #if 
         #...
         #alternativly, re-read the entire GUI information if you define the readFromUI function:
         # self.readFromUI()
