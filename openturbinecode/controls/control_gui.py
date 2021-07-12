@@ -45,7 +45,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.toolButton_6.clicked.connect(self.setyamlfile)
         self.Loadyaml.clicked.connect(self.loadyamlfile)
         self.ControlTune.clicked.connect(self.caller_ControlTune)
-        self.SetOutDir.clicked.connect(self.caller_SetOutputDir)
+        self.SetOutDir.clicked.connect(self.SetOutputDir)
         self.WritoutModel.clicked.connect(self.caller_Writeout)
         self.PushRun.clicked.connect(self.caller_LocalRun)
         self.SendToHPC_2.clicked.connect(self.caller_SendToHPCf)
@@ -166,8 +166,11 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         else:
             raise ValueError("The selected controller is not implemented for the model.")
         
-    def caller_SetOutputDir(self):
+    def SetOutputDir(self):
         self.readFromUI()
+        WrkPath = QtWidgets.QFileDialog.getExistingDirectory()
+        self.lineEdit_54.setText(WrkPath)
+        self.myCtrl.OutputDir = str(WrkPath)
         print("Output directory: "+self.myCtrl.OutputDir)
         
     def caller_Writeout(self):
