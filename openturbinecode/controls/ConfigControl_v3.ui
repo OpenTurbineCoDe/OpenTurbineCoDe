@@ -250,7 +250,7 @@
        <property name="title">
         <string>Control tuning and simulation</string>
        </property>
-       <widget class="QPushButton" name="ControlTune">
+       <widget class="QPushButton" name="Loadyaml">
         <property name="geometry">
          <rect>
           <x>17</x>
@@ -313,7 +313,7 @@
          <string>...</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="ControlTune_2">
+       <widget class="QPushButton" name="ControlTune">
         <property name="geometry">
          <rect>
           <x>475</x>
@@ -356,7 +356,7 @@
          <rect>
           <x>18</x>
           <y>160</y>
-          <width>281</width>
+          <width>351</width>
           <height>16</height>
          </rect>
         </property>
@@ -368,7 +368,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Output directory (Cover definition in yaml)</string>
+         <string>Output directory (Optional: Cover definition in yaml)</string>
         </property>
        </widget>
        <widget class="QLineEdit" name="lineEdit_54">
@@ -1092,22 +1092,22 @@
       </property>
       <item>
        <property name="text">
-        <string>LF_OpenFAST_DTU10MW (Local)</string>
+        <string>LF_OpenFAST_DTU10MW(Local)</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>LF_OpenFAST_NREL5MW (Local)</string>
+        <string>LF_OpenFAST_NREL5MW(Local)</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>HF_TACS_DTU10MW (Local)</string>
+        <string>HF_TACS_DTU10MW(Local)</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>HF_TACS_NREL5MW (Local) (Not available Now)</string>
+        <string>HF_TACS_NREL5MW(Local_NotAvailable)</string>
        </property>
       </item>
       <item>
@@ -1117,7 +1117,7 @@
       </item>
       <item>
        <property name="text">
-        <string>User-specified Model</string>
+        <string>UserModel</string>
        </property>
       </item>
      </widget>
@@ -1131,7 +1131,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <widget class="QLineEdit" name="lineEdit_55">
