@@ -328,6 +328,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 sweep = np.arange(float(self.myCtrl.ROSCOR2OmegaL),float(self.myCtrl.ROSCOR2OmegaU),float(self.myCtrl.ROSCOR2OmegaSTP))
                 for i in range(len(sweep)):
                     self.myCtrl.ROSCOR2OmegaCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
                     self.myCtrl.RunRoscoTune()
                     self.myCtrl.Writeout()
                     self.myCtrl.LocalRun()
@@ -338,6 +339,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 sweep = np.arange(float(self.myCtrl.ROSCOR2ZetaL),float(self.myCtrl.ROSCOR2ZetaU),float(self.myCtrl.ROSCOR2ZetaSTP))
                 for i in range(len(sweep)):
                     self.myCtrl.ROSCOR2ZetaCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
                     self.myCtrl.RunRoscoTune()
                     self.myCtrl.Writeout()
                     self.myCtrl.LocalRun()
@@ -348,6 +350,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 sweep = np.arange(float(self.myCtrl.ROSCOR3OmegaL),float(self.myCtrl.ROSCOR3OmegaU),float(self.myCtrl.ROSCOR3OmegaSTP))
                 for i in range(len(sweep)):
                     self.myCtrl.ROSCOR3OmegaCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
                     self.myCtrl.RunRoscoTune()
                     self.myCtrl.Writeout()
                     self.myCtrl.LocalRun()
@@ -358,6 +361,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 sweep = np.arange(float(self.myCtrl.ROSCOR3ZetaL),float(self.myCtrl.ROSCOR3ZetaU),float(self.myCtrl.ROSCOR3ZetaSTP))
                 for i in range(len(sweep)):
                     self.myCtrl.ROSCOR3ZetaCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
                     self.myCtrl.RunRoscoTune()
                     self.myCtrl.Writeout()
                     self.myCtrl.LocalRun()
@@ -383,6 +387,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         self.myCtrl.sweep = sweep
     def caller_Postplot(self):
+        self.readFromUI()
         #self.myCtrl.postprocessOpenFAST()
         if self.myCtrl.Objective == "RotThrust_max":
              plt.plot(self.myCtrl.sweep,self.myCtrl.Ft_max,'r-s')

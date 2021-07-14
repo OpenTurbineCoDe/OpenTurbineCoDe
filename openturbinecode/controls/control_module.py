@@ -98,12 +98,12 @@ class Control:
             self.ROSCOR3OmegaU = 0.4
             self.ROSCOR3OmegaSTP = 0.1
             
-            self.ROSCOR3Zeta  = self.ROSCOR3Zeta = 0.7
+            self.ROSCOR3Zeta  = self.ROSCOR3ZetaCV = 0.7
             self.ROSCOR3ZetaL  = 0.5
             self.ROSCOR3ZetaU  = 0.9
             self.ROSCOR3ZetaSTP  = 0.2
             
-            self.PlatformKp   = self.PlatformKp = 0.0
+            self.PlatformKp   = self.PlatformKpCV = 0.0
             self.PlatformKpL   = 0.0
             self.PlatformKpU   = 0.0
             self.PlatformKpSTP   = 0.0
@@ -135,7 +135,7 @@ class Control:
         Elastodynpath               = os.path.join(self.Path,FASTFile['EDFile'].strip('"'))
         ElastoFile                  = FASTInputFile(Elastodynpath)
         ElastoFile['ShftTilt']      = self.TiltAngleCV
-        ElastoFile.write(ElastoFile)
+        ElastoFile.write()
     def RunRoscoTune(self):   # Tune the rosco controller
         # self.YamlFile       = kwargs['YamlFile']
         #---------------------------------- Using the ROSCO_toolbox--------------------------------#
