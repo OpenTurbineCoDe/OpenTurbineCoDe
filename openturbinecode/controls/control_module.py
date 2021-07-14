@@ -18,12 +18,13 @@ import openmdao.api as om
 import numpy as np
 import subprocess
 from datetime import date
+import pandas as pd
 # import matlab.engine
 # my codes
 #from BladeMode import fun_mode_tracking   # self cuntion
 #from fastpost import multipostprocessing   # self cuntion
 
-
+#%%
 
 class Control:
     def __init__(self, path_to_case, turb_data=None, models=None):
@@ -33,8 +34,9 @@ class Control:
         self.path_to_case       = path_to_case
         self.DTU10MWOpenFAST    = "DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
         self.DTU10MWTACS        = "tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
-        self.NREL5MWOpenFAST    = "./"
-        self.workingmodel       = 'DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst'
+        self.NREL5MWOpenFAST    = ""
+        self.workingmodelOpenFAST       = self.DTU10MWOpenFAST
+        self.workingmodelTACS       = self.DTU10MWTACS
 
         self.setDefaultValues()
         
@@ -48,42 +50,96 @@ class Control:
             #... TODO
             pass
         else:
+            # system: FAST
+            self.ChordF = self.ChordFCV = 0.0 # Also define a current value variable for model update
+            self.ChordFL = -0.5
+            self.ChordFU = 0.5
+            self.ChordFSTP = 0.5
+            
+            self.TwistF = self.TwistFCV = 0.0
+            self.TwistFL = -0.5
+            self.TwistFU = 0.5
+            self.TwistFSTP = 0.5
+            
+            self.TiltAngle = self.TiltAngleCV = -5 # (deg)
+            self.TiltAngleL = -8. # (deg)
+            self.TiltAngleU = -2. # (deg)
+            self.TiltAngleSTP = 3. # (deg)
+            
+            # system: TACS based ROM
+            self.BldFpK = self.BldFpKCV = 806463. # N/m
+            self.BldFpKL = 706463.
+            self.BldFpKU = 906463.
+            self.BldFpKSTP = 100000.
+            
+            self.BldEdK = self.BldEdKCV = 1814541.
+            self.BldEdKL = 1614541.
+            self.BldEdKU = 2014541.
+            self.BldEdKSTP = 200000.
+            
+            self.RtInertia = self.RtInertiaCV = 156348032. # kg*m^2
+            self.RtInertiaL = 136348032. 
+            self.RtInertiaU = 176348032.
+            self.RtInertiaSTP = 20000000.
+            
             #set default text for general parameters
-            self.ROSCOR2Omega = 0.2
-            self.ROSCOR2Zeta  = 0.7
-            self.ROSCOR3Omega = 0.3
-            self.ROSCOR3Zeta  = 0.7
-            self.PlatformKp   = 0.0
-            self.DLCVelocity = 11.4
+            self.ROSCOR2Omega = self.ROSCOR2OmegaCV = 0.2
+            self.ROSCOR2OmegaL = 0.1
+            self.ROSCOR2OmegaU = 0.3
+            self.ROSCOR2OmegaSTP = 0.1
+            
+            self.ROSCOR2Zeta  = self.ROSCOR2ZetaCV = 0.7
+            self.ROSCOR2ZetaL  = 0.5
+            self.ROSCOR2ZetaU  = 0.9
+            self.ROSCOR2ZetaSTP  = 0.2
+            
+            self.ROSCOR3Omega = self.ROSCOR3OmegaCV = 0.3
+            self.ROSCOR3OmegaL = 0.2
+            self.ROSCOR3OmegaU = 0.4
+            self.ROSCOR3OmegaSTP = 0.1
+            
+            self.ROSCOR3Zeta  = self.ROSCOR3Zeta = 0.7
+            self.ROSCOR3ZetaL  = 0.5
+            self.ROSCOR3ZetaU  = 0.9
+            self.ROSCOR3ZetaSTP  = 0.2
+            
+            self.PlatformKp   = self.PlatformKp = 0.0
+            self.PlatformKpL   = 0.0
+            self.PlatformKpU   = 0.0
+            self.PlatformKpSTP   = 0.0
+            
+            self.DLCV = 11.4
             # Parametric sweep in GUI
             # self.yaml=""
             # self.output=""
             self.Username = "xd101"
             self.Server   = "amarel.rutgers.edu"
             self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
-            # Optimization
-            self.ChordStations = [0,0.5,1.0]
-            self.TwistStations = [0,0.5,1.0]
-            self.ThickStations = [0,0.5,1.0]
-            self.Limits        = [[[0,-0.5,-0.5],[0,-0.5,-0.5],[0,-0.5,-0.5]],[[0,0.5,0.5],[0,0.5,0.5],[0,0.5,0.5]]]
+            
             
             # Optimization configuration
             self.Iterations     = 10
             self.Tolerane       = 1e-6
 
-            #self.YamlFile=""
-            #self.ControlSelection = ""
+            # Set objectives
+            self.Ft_max = []
+            self.Tq_max = []
 
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
-
+    def RunModelUpdate_OpenFAST(self):
+        self.yaml                   = yaml.safe_load(open(self.YamlFile))
+        self.path_params            = self.yaml['path_params']
+        self.Path                   = self.path_params['FAST_directory']
+        FASTFile                    = FASTInputFile(self.workingmodelOpenFAST)
+        Elastodynpath               = os.path.join(self.Path,FASTFile['EDFile'].strip('"'))
+        ElastoFile                  = FASTInputFile(Elastodynpath)
+        ElastoFile['ShftTilt']      = self.TiltAngleCV
+        ElastoFile.write(ElastoFile)
     def RunRoscoTune(self):   # Tune the rosco controller
         # self.YamlFile       = kwargs['YamlFile']
-        self.yaml                   = yaml.safe_load(open(self.YamlFile))
         #---------------------------------- Using the ROSCO_toolbox--------------------------------#
         self.controller_params      = self.yaml['controller_params']
-        self.path_params            = self.yaml['path_params']
-        
         self.turbine_params         = self.yaml['turbine_params']
         self.turbine                     = ROSCO_turbine.Turbine(self.turbine_params)
         self.path_params            = self.yaml['path_params']
@@ -96,11 +152,11 @@ class Control:
         # Instantiate controller tuning and tune controller
         self.controller             = ROSCO_controller.Controller(self.controller_params)
         # define design varaibles
-        self.controller.omega_vs    = float(self.ROSCOR2Omega)
-        self.controller.zeta_vs     = float(self.ROSCOR2Zeta)
-        self.controller.omega_pc    = float(self.ROSCOR3Omega)
-        self.controller.zeta_pc     = float(self.ROSCOR3Zeta)
-        # self.controller.zeta_pc     = self.ROSCOR3Zeta
+        self.controller.omega_vs    = self.ROSCOR2OmegaCV
+        self.controller.zeta_vs     = self.ROSCOR2ZetaCV
+        self.controller.omega_pc    = self.ROSCOR3OmegaCV
+        self.controller.zeta_pc     = self.ROSCOR3ZetaCV
+        # self.controller.Kp     = self.ROSCOR3Zeta
         # tune controller
         self.controller.tune_controller(self.turbine)
 
@@ -128,9 +184,13 @@ class Control:
     
     def LocalRun(self):
         # Local run the case for parametric study
-        print("Running:" + self.workingmodel)
-        subprocess.run(["openfast", self.workingmodel])
-        
+        print("Running:" + self.workingmodelOpenFAST)
+        subprocess.run(["openfast", self.workingmodelOpenFAST])
+    def postprocessOpenFAST(self):
+        FASTout = FASTOutputFile(os.path.splitext(self.workingmodelOpenFAST)[0]+".out").toDataFrame()
+        FASTouts=FASTout.to_numpy()
+        self.Ft_max.append(FASTouts[69].max())
+        self.Tq_max.append(FASTouts[70].max())
     def RunCCD(self):
         print('abc')
         # Collect information

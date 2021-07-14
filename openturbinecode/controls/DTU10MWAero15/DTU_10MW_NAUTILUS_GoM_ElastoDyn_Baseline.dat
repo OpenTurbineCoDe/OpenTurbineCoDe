@@ -3,7 +3,7 @@ LIFES50+      NAUTILUS      - Semi-Sub Gulf of Maine Public Design with DTU 10MW
 ---------------------- SIMULATION CONTROL --------------------------------------
 False         Echo          - Echo input data to "<RootName>.ech" (flag)
 3             Method        - Integration method: {1: RK4, 2: AB4, or 3: ABM4} (-)
-DEFAULT         DT            - Integration time step (s)
+DEFAULT       DT            - Integration time step (s)
 ---------------------- ENVIRONMENTAL CONDITION ---------------------------------
 9.80665       Gravity       - Gravitational acceleration (m/s^2)
 ---------------------- DEGREES OF FREEDOM --------------------------------------
@@ -11,13 +11,13 @@ True          FlapDOF1      - First flapwise blade mode DOF (flag)
 True          FlapDOF2      - Second flapwise blade mode DOF (flag)
 True          EdgeDOF       - First edgewise blade mode DOF (flag)
 False         TeetDOF       - Rotor-teeter DOF (flag) [unused for 3 blades]
-False          DrTrDOF       - Drivetrain rotational-flexibility DOF (flag)
+False         DrTrDOF       - Drivetrain rotational-flexibility DOF (flag)
 True          GenDOF        - Generator DOF (flag)
 False         YawDOF        - Yaw DOF (flag)
-True         TwFADOF1      - First fore-aft tower bending-mode DOF (flag)
-True         TwFADOF2      - Second fore-aft tower bending-mode DOF (flag)
-True         TwSSDOF1      - First side-to-side tower bending-mode DOF (flag)
-True         TwSSDOF2      - Second side-to-side tower bending-mode DOF (flag)
+True          TwFADOF1      - First fore-aft tower bending-mode DOF (flag)
+True          TwFADOF2      - Second fore-aft tower bending-mode DOF (flag)
+True          TwSSDOF1      - First side-to-side tower bending-mode DOF (flag)
+True          TwSSDOF2      - Second side-to-side tower bending-mode DOF (flag)
 False         PtfmSgDOF     - Platform horizontal surge translation DOF (flag)
 False         PtfmSwDOF     - Platform horizontal sway translation DOF (flag)
 False         PtfmHvDOF     - Platform vertical heave translation DOF (flag)
@@ -109,7 +109,7 @@ False         Furling       - Read in additional model properties for furling tu
 79            TwrNodes      - Number of tower nodes used for analysis (-)
 "./DTU_10MW_NAUTILUS_GoM_ElastoDyn_Tower.dat" TwrFile       - Name of file containing tower properties (quoted string)
 ---------------------- OUTPUT --------------------------------------------------
-True         SumPrint      - Print summary data to "<RootName>.sum" (flag)
+True          SumPrint      - Print summary data to "<RootName>.sum" (flag)
 1             OutFile       - Switch to determine where output will be placed: {1: in module output file only; 2: in glue code output file only; 3: both} (currently unused)
 True          TabDelim      - Use tab delimiters in text tabular output file? (flag) (currently unused)
 "Default"     OutFmt        - Format used for text tabular output (except time). Resulting field should be 10 characters. (quoted string) [not checked for validity!] (currently unused)
