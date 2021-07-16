@@ -282,24 +282,6 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         print("Yaml file loaded: "+self.myCtrl.YamlFile)
 
     # # ============== Caller functions: gather params from the GUI and calls specific function ==================
-    # def caller_ControlTune(self):
-    #     self.readFromUI()
-    #     if self.myCtrl.Controller == "ROSCO" and "LF" in self.myCtrl.ModelSelected:
-    #         self.Controller = self.myCtrl.RunRoscoTune()
-    #     elif self.myCtrl.Controller == "ROSCO_Adv (Hinf_RefGov)" and "HF" in self.myCtrl.ModelSelected:
-    #         self.Controller=self.myCtrl.ROSCOTune_Adv()
-    #     else:
-    #         raise ValueError("The selected controller is not implemented for the model.")
-        
-    # def SetOutputDir(self):
-    #     self.readFromUI()
-    #     WrkPath = QtWidgets.QFileDialog.getExistingDirectory()
-    #     self.lineEdit_54.setText(WrkPath)
-    #     self.myCtrl.OutputDir = str(WrkPath)
-    #     print("Output directory: "+self.myCtrl.OutputDir)
-        
-    # def caller_Writeout(self):
-    #     self.myCtrl.Writeout()    #write out controller
     def caller_LocalRun(self):
         self.readFromUI()
         if self.myCtrl.Modelfidelity == "OpenFAST":
@@ -442,9 +424,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         
     def caller_RunCCD(self):
         #read parameters if needed
-        #...
-        # self.readFromUI()
-        #Call the function:
+        #Finishing this week to implement the CCD and clean the CCD framework simple version
         self.myCtrl.RunCCD()
 
 

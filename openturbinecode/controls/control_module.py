@@ -5,6 +5,7 @@
 
 import yaml 
 import os
+import math
 this_dir            = os.path.dirname(__file__) 
 # Import ROSCO_toolbox modules 
 from ROSCO_toolbox import controller as ROSCO_controller
@@ -146,10 +147,17 @@ class Control:
         InflowFilePath              = os.path.join(self.Path,FASTFile['InflowFile'].strip('"'))
         InflowFile                  = FASTInputFile(InflowFilePath)
         if self.DLCs == "Uniform_wind":
-            ElastoFile['ShftTilt']      = self.DLCV
-        ElastoFile['ShftTilt']      = self.TiltAngleCV
-        ElastoFile['ShftTilt']      = self.TiltAngleCV
-        ElastoFile['ShftTilt']      = self.TiltAngleCV
+            InflowFile['WindType']      = 1
+            InflowFile['HWindSpeed']      = self.DLCV
+            InflowFile.write()
+        if self.DLCs == "DLC 1.1" or self.DLCs == "DLC 1.2":
+            InflowFile['WindType']      = 3
+            windfile = "DTU10_NTW_DLC1.2_v"+str(math.ceil(self.DLCV))+".bts"
+            InflowFile['FileName_BTS']      = os.path.join(os.path.split(InflowFile['FileName_BTS'])[0],windfile)
+            InflowFile.write()
+        else:
+            pass
+
     def RunRoscoTune(self):   # Tune the rosco controller
         # self.YamlFile       = kwargs['YamlFile']
         #---------------------------------- Using the ROSCO_toolbox--------------------------------#
