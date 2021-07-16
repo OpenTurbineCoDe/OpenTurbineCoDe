@@ -53,6 +53,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.Postplot.clicked.connect(self.caller_Postplot)
         self.SendToHPC_2.clicked.connect(self.caller_SendToHPCf)
         self.LoadResults_2.clicked.connect(self.caller_HPCloadf)
+        # Constraints
+        self.C1.activated.connect(self.C1set)
+        self.C2.activated.connect(self.C2set)
         # Optimization
         self.PushRunCCD.clicked.connect(self.caller_RunCCD)
 
@@ -71,10 +74,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.CHD2.setText(str(self.myCtrl.ChordFL))
         self.CHD3.setText(str(self.myCtrl.ChordFU))
         self.CHD4.setText(str(self.myCtrl.ChordFSTP))
-        self.TWST1.setText(str(self.myCtrl.TwistF))
-        self.TWST2.setText(str(self.myCtrl.TwistFL))
-        self.TWST3.setText(str(self.myCtrl.TwistFU))
-        self.TWST4.setText(str(self.myCtrl.TwistFSTP))
+        self.Thick1.setText(str(self.myCtrl.ThickF))
+        self.Thick2.setText(str(self.myCtrl.ThickFL))
+        self.Thick3.setText(str(self.myCtrl.ThickFU))
+        self.Thick4.setText(str(self.myCtrl.ThickFSTP))
         self.TILT1.setText(str(self.myCtrl.TiltAngle))
         self.TILT2.setText(str(self.myCtrl.TiltAngleL))
         self.TILT3.setText(str(self.myCtrl.TiltAngleU))
@@ -85,10 +88,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.FlpK2.setText(str(self.myCtrl.BldFpKL))
         self.FlpK3.setText(str(self.myCtrl.BldFpKU))
         self.FlpK4.setText(str(self.myCtrl.BldFpKSTP))
-        self.Edg1.setText(str(self.myCtrl.BldEdK))
-        self.Edg2.setText(str(self.myCtrl.BldEdKL))
-        self.Edg3.setText(str(self.myCtrl.BldEdKU))
-        self.Edg4.setText(str(self.myCtrl.BldEdKSTP))
+        self.ThickL1.setText(str(self.myCtrl.ThickL))
+        self.ThickL2.setText(str(self.myCtrl.ThickLL))
+        self.ThickL3.setText(str(self.myCtrl.ThickLU))
+        self.ThickL4.setText(str(self.myCtrl.ThickLSTP))
         self.RtIner1.setText(str(self.myCtrl.RtInertia))
         self.RtIner2.setText(str(self.myCtrl.RtInertiaL))
         self.RtIner3.setText(str(self.myCtrl.RtInertiaU))
@@ -127,6 +130,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.lineEdit_27.setText(self.myCtrl.Username)
         self.lineEdit_26.setText(self.myCtrl.Server)
         self.lineEdit_25.setText(self.myCtrl.HPCPath)
+        # Constraints: using 0.0 and will initiate later
+        self.CV1.setText(str(0.0))
+        self.CV2.setText(str(0.0))
         # Optimization
         self.Iterations.setText(str(self.myCtrl.Iterations))
         self.Tolerane.setText(str(self.myCtrl.Tolerane))
@@ -141,10 +147,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myCtrl.ChordFU         = self.CHD3.text()
         self.myCtrl.ChordFSTP       = self.CHD4.text()
         
-        self.myCtrl.TwistF          = self.TWST1.text()
-        self.myCtrl.TwistFL         = self.TWST2.text()
-        self.myCtrl.TwistFU         = self.TWST3.text()
-        self.myCtrl.TwistFSTP       = self.TWST4.text()
+        self.myCtrl.ThickF          = self.Thick1.text()
+        self.myCtrl.ThickFL         = self.Thick2.text()
+        self.myCtrl.ThickFU         = self.Thick3.text()
+        self.myCtrl.ThickFSTP       = self.Thick4.text()
         
         self.myCtrl.TiltAngle       = self.TILT1.text()
         self.myCtrl.TiltAngleL      = self.TILT2.text() # (deg)
@@ -157,10 +163,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myCtrl.BldFpKR         = self.FlpK3.text()
         self.myCtrl.BldFpKSTP       = self.FlpK4.text()
         
-        self.myCtrl.BldEdK          = self.Edg1.text()
-        self.myCtrl.BldEdKL         = self.Edg2.text()
-        self.myCtrl.BldEdKU         = self.Edg3.text()
-        self.myCtrl.BldEdKSTP       = self.Edg4.text()
+        self.myCtrl.ThickL          = self.ThickL1.text()
+        self.myCtrl.ThickLL         = self.ThickL2.text()
+        self.myCtrl.ThickLU         = self.ThickL3.text()
+        self.myCtrl.ThickLSTP       = self.ThickL4.text()
         
         self.myCtrl.RtInertia       = self.RtIner1.text() # kg*m^2
         self.myCtrl.RtInertiaL      = self.RtIner2.text() 
@@ -212,6 +218,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myCtrl.Username        = "xd101"
         self.myCtrl.Server          = "amarel.rutgers.edu"
         self.myCtrl.HPCPath         = "/scratch/xd101/Subroutine-ROSCODemo"
+        
         # Optimization configuration
         self.myCtrl.Optimizer       = self.Optimizer.currentText()
         self.myCtrl.Display         = self.Display.currentText() 
@@ -223,7 +230,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.readFromUI()
         fidelity = str(self.myCtrl.Modelfidelity)
         print("Current model type:"+fidelity)
-        if fidelity == "LF_OpenFAST":
+        if fidelity == "OpenFAST":
             self.StackedSysIo.setCurrentIndex(0)          
         else:
             self.StackedSysIo.setCurrentIndex(1)  
@@ -239,17 +246,17 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             
     def LoadInherentMod(self):
         self.readFromUI()
-        if self.myCtrl.ModelSelected == "DTU10MW(Local)" and self.myCtrl.Modelfidelity == "LF_OpenFAST":
+        if self.myCtrl.ModelSelected == "DTU10MW(Local)" and self.myCtrl.Modelfidelity == "OpenFAST":
             self.myCtrl.workingmodelOpenFAST == self.myCtrl.DTU10MWOpenFAST                    # should from yaml         
             print("DTU10MW OpenFAST model loaded from library for CCD: "+ self.myCtrl.workingmodelOpenFAST)
-        if self.myCtrl.ModelSelected == "DTU10MW(Local)" and self.myCtrl.Modelfidelity == "HF_ROM_OpenFAST":
+        if self.myCtrl.ModelSelected == "DTU10MW(Local)" and self.myCtrl.Modelfidelity == "ROM_OpenFAST":
             self.myCtrl.workingmodelTACS == self.myCtrl.DTU10MWTACS
             self.myCtrl.workingmodelOpenFAST == self.myCtrl.DTU10MWOpenFAST                              
             print("DTU10MW OpenFAST model loaded from library for ROM  and ROM-based CCD: "+self.myCtrl.workingmodelOpenFAST)
-        if self.myCtrl.ModelSelected == "DTU10MW(Local)" and self.myCtrl.Modelfidelity == "HF_ROM_TACS+OpenFAST":
+        if self.myCtrl.ModelSelected == "DTU10MW(Local)" and self.myCtrl.Modelfidelity == "ROM_TACS+OpenFAST":
             self.myCtrl.workingmodel == self.myCtrl.DTU10MWTACS  
             print("DTU10MW TACS model and OpenFAST model are loaded from library for ROM and ROM-based CCD: "+ self.myCtrl.workingmodelTACS+" and "+self.myCtrl.workingmodelOpenFAST)                            
-        if self.myCtrl.ModelSelected == "User_Model" and self.myCtrl.Modelfidelity == "HF_ROM_TACS+OpenFAST":
+        if self.myCtrl.ModelSelected == "User_Model" and self.myCtrl.Modelfidelity == "ROM_TACS+OpenFAST":
             print("ERROR: This model is not available now.")
         if self.myCtrl.ModelSelected == "External_model":
             pass # not implemented: function for receiving model path from other module
@@ -295,7 +302,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     #     self.myCtrl.Writeout()    #write out controller
     def caller_LocalRun(self):
         self.readFromUI()
-        if "LF" in self.myCtrl.Modelfidelity:
+        if self.myCtrl.Modelfidelity == "OpenFAST":
             # FAST running
             if self.RB112.isChecked():
                 sweep = np.arange(float(self.myCtrl.ChordFL),float(self.myCtrl.ChordFU),float(self.myCtrl.ChordFSTP))
@@ -307,13 +314,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 self.myCtrl.ChordFCV = self.myCtrl.ChordF
                 
             if self.RB122.isChecked():
-                sweep = np.arange(float(self.myCtrl.TwistFL),float(self.myCtrl.TwistFU),float(self.myCtrl.TwistFSTP))
+                sweep = np.arange(float(self.myCtrl.ThickFL),float(self.myCtrl.ThickFU),float(self.myCtrl.ThickFSTP))
                 for i in range(len(sweep)):
-                    self.myCtrl.TwistFCV = sweep[i]
+                    self.myCtrl.ThickFCV = sweep[i]
                     self.myCtrl.RunModelUpdate_OpenFAST()
                     self.myCtrl.LocalRun()
                     self.myCtrl.postprocessOpenFAST()
-                self.myCtrl.TwistFCV = self.myCtrl.TwistF
+                self.myCtrl.ThickFCV = self.myCtrl.ThickF
                 
             if self.RB132.isChecked():
                 sweep = np.arange(float(self.myCtrl.TiltAngleL),float(self.myCtrl.TiltAngleU),float(self.myCtrl.TiltAngleSTP))
@@ -404,6 +411,34 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         #read parameters if needed
         self.readFromUI()
         self.myCtrl.HPCloadf()
+    def C1set(self):
+        self.readFromUI()
+        if self.myCtrl.C1 == "Mr":
+            self.CV1.setText(str(self.myCtrl.Constraint_Mr))
+        if self.myCtrl.C1 == "DEL_Mbr":
+            self.CV1.setText(str(self.myCtrl.Constraint_DEL_Mbr))
+        if self.myCtrl.C1 == "DEL_Mtwr":
+            self.CV1.setText(str(self.myCtrl.Constraint_DEL_Mtwr))
+        if self.myCtrl.C1 == "DEL_Fbr":
+            self.CV1.setText(str(self.myCtrl.Constraint_DEL_Fbr))
+        if self.myCtrl.C1 == "DEL_Ftwr":
+            self.CV1.setText(str(self.myCtrl.Constraint_DEL_Ftwr))
+        if self.myCtrl.C1 == "None":
+            self.CV1.setText(str(" "))
+    def C2set(self):
+        self.readFromUI()
+        if self.myCtrl.C2 == "Mr":
+            self.CV2.setText(str(self.myCtrl.Constraint_Mr))
+        if self.myCtrl.C2 == "DEL_Mbr":
+            self.CV2.setText(str(self.myCtrl.Constraint_DEL_Mbr))
+        if self.myCtrl.C2 == "DEL_Mtwr":
+            self.CV2.setText(str(self.myCtrl.Constraint_DEL_Mtwr))
+        if self.myCtrl.C2 == "DEL_Fbr":
+            self.CV2.setText(str(self.myCtrl.Constraint_DEL_Fbr))
+        if self.myCtrl.C2 == "DEL_Ftwr":
+            self.CV2.setText(str(self.myCtrl.Constraint_DEL_Ftwr))
+        if self.myCtrl.C2 == "None":
+            self.CV2.setText(str(" "))
         
     def caller_RunCCD(self):
         #read parameters if needed

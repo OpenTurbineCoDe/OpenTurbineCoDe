@@ -56,10 +56,10 @@ class Control:
             self.ChordFU = 0.5
             self.ChordFSTP = 0.5
             
-            self.TwistF = self.TwistFCV = 0.0
-            self.TwistFL = -0.5
-            self.TwistFU = 0.5
-            self.TwistFSTP = 0.5
+            self.ThickF = self.ThickFCV = 0.0
+            self.ThickFL = -0.5
+            self.ThickFU = 0.5
+            self.ThickFSTP = 0.5
             
             self.TiltAngle = self.TiltAngleCV = -5 # (deg)
             self.TiltAngleL = -8. # (deg)
@@ -72,10 +72,10 @@ class Control:
             self.BldFpKU = 906463.
             self.BldFpKSTP = 100000.
             
-            self.BldEdK = self.BldEdKCV = 1814541.
-            self.BldEdKL = 1614541.
-            self.BldEdKU = 2014541.
-            self.BldEdKSTP = 200000.
+            self.ThickL = self.ThickLCV = 1814541.
+            self.ThickLL = 1614541.
+            self.ThickLU = 2014541.
+            self.ThickLSTP = 200000.
             
             self.RtInertia = self.RtInertiaCV = 156348032. # kg*m^2
             self.RtInertiaL = 136348032. 
@@ -115,13 +115,19 @@ class Control:
             self.Username = "xd101"
             self.Server   = "amarel.rutgers.edu"
             self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
-            
+            # Optimization constraints: baseline model values
+            self.Constraint_Mr             = 41738.8      # rotor mass kg
+            self.Constraint_DEL_Mbr        = 399250.1
+            self.Constraint_DEL_Mtwr       = 1055163.2
+            self.Constraint_DEL_Fbr        = 7234.7
+            self.Constraint_DEL_Ftwr       = 19152.7
             
             # Optimization configuration
             self.Iterations     = 10
             self.Tolerane       = 1e-6
 
             # Set objectives
+            self.AEP = []
             self.Ft_max = []
             self.Tq_max = []
 
@@ -136,6 +142,14 @@ class Control:
         ElastoFile                  = FASTInputFile(Elastodynpath)
         ElastoFile['ShftTilt']      = self.TiltAngleCV
         ElastoFile.write()
+        # wind write out
+        InflowFilePath              = os.path.join(self.Path,FASTFile['InflowFile'].strip('"'))
+        InflowFile                  = FASTInputFile(InflowFilePath)
+        if self.DLCs == "Uniform_wind":
+            ElastoFile['ShftTilt']      = self.DLCV
+        ElastoFile['ShftTilt']      = self.TiltAngleCV
+        ElastoFile['ShftTilt']      = self.TiltAngleCV
+        ElastoFile['ShftTilt']      = self.TiltAngleCV
     def RunRoscoTune(self):   # Tune the rosco controller
         # self.YamlFile       = kwargs['YamlFile']
         #---------------------------------- Using the ROSCO_toolbox--------------------------------#
