@@ -31,36 +31,36 @@ class Control:
             #... TODO
             pass
         else:
+            pass
 
+        #set placeholder default text for parametric sweep
+        self.ROSCOR2Omega = 0.2
+        self.ROSCOR2Zeta  = 0.7
+        self.ROSCOR3Omega = 0.3
+        self.ROSCOR3Zeta  = 0.7
+        self.PlatformP1   = 0.7
+        self.PlatformP2   = 0.7
+        
+        self.DLCVelocity = 11.4
+        self.Username = "xd101"
+        self.Server   = "amarel.rutgers.edu"
+        self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
+        # Optimization: FAST
+        self.FSChordStations = [0,0.5,1.0]
+        self.FSTwistStations = [0,0.5,1.0]
+        self.FSThickStations = [0,0.5,1.0]
+        self.FSLimits        = [[[0,-0.5,-0.5],[0,-0.5,-0.5],[0,-0.5,-0.5]],[[0,0.5,0.5],[0,0.5,0.5],[0,0.5,0.5]]]
+        # Optimization: TACS
+        self.TSChordStations = [0,0.5,1.0]
+        self.TSTwistStations = [0,0.5,1.0]
+        self.TSThickStations = [0,0.5,1.0]
+        self.TSLimits        = [[[0,-0.5,-0.5],[0,-0.5,-0.5],[0,-0.5,-0.5]],[[0,0.5,0.5],[0,0.5,0.5],[0,0.5,0.5]]]
+        # Optimization configuration
+        self.Iterations     = 10
+        self.Tolerane       = 1e-6
 
-            #set placeholder default text for parametric sweep
-            self.ROSCOR2Omega = 0.2
-            self.ROSCOR2Zeta  = 0.7
-            self.ROSCOR3Omega = 0.3
-            self.ROSCOR3Zeta  = 0.7
-            self.PlatformP1   = 0.7
-            self.PlatformP2   = 0.7
-            
-            self.DLCVelocity = 11.4
-            self.Username = "xd101"
-            self.Server   = "amarel.rutgers.edu"
-            self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
-            # Optimization: FAST
-            self.FSChordStations = [0,0.5,1.0]
-            self.FSTwistStations = [0,0.5,1.0]
-            self.FSThickStations = [0,0.5,1.0]
-            self.FSLimits        = [[[0,-0.5,-0.5],[0,-0.5,-0.5],[0,-0.5,-0.5]],[[0,0.5,0.5],[0,0.5,0.5],[0,0.5,0.5]]]
-            # Optimization: TACS
-            self.TSChordStations = [0,0.5,1.0]
-            self.TSTwistStations = [0,0.5,1.0]
-            self.TSThickStations = [0,0.5,1.0]
-            self.TSLimits        = [[[0,-0.5,-0.5],[0,-0.5,-0.5],[0,-0.5,-0.5]],[[0,0.5,0.5],[0,0.5,0.5],[0,0.5,0.5]]]
-            # Optimization configuration
-            self.Iterations     = 10
-            self.Tolerane       = 1e-6
-
-            self.YamlFile=""
-            self.ControlSelection = ""
+        self.YamlFile=""
+        self.ControlSelection = ""
 
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
