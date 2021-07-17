@@ -51,7 +51,7 @@ class OpenTurbineCoDe:
 
         # --- initializing submodules ---
 
-        self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options, plotonly=args.plotonly)
         # self.myStruc = struc.Structure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         # self.myAeroStruc = struc.AeroStructure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
@@ -225,6 +225,7 @@ if __name__ == '__main__':
     parser.add_argument("--models", help="Path to the modeling options file (e.g. modeling_options.yaml)", type=str, default="")
     parser.add_argument("--runoptions", help="Path to the run options file (e.g. run_options.yaml)", type=str, default="")
     parser.add_argument("--GUI", action='store_true', help="Run PyTurbineCoDe with the GUI")
+    parser.add_argument("--plotonly", action='store_true', help="Do not compute anything")
     args = parser.parse_args()
 
     OTCD = OpenTurbineCoDe(args) #initialize me

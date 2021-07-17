@@ -10,7 +10,7 @@ import sys
 import os
 import ast
 import numpy as np
-# import matplotlib.pyplot as plt
+import argparse
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 
@@ -47,14 +47,16 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.rotorPath.setText(self.myAero.path_to_case)
         self.windSpeed.setText(str(self.myAero.Vlist))
         self.TSR.setText(str(self.myAero.tsrlist))
-        
+
+        # self.solver_list.setCurrentIndex( XX ) self.myAero.fidelity
 
     def readFromUI(self):
         #Get user inputs data
         self.myAero.path_to_case = self.rotorPath.text()
         self.myAero.Vlist = np.array( ast.literal_eval(self.windSpeed.text()) )
         self.myAero.tsrlist = np.array( ast.literal_eval(self.TSR.text()) )
-        
+
+        self.myAero.fidelity = self.solver_list.currentText()
 
     # ============== Caller functions: gather params from the GUI and calls specific function ==================
     def caller_Run(self):
@@ -70,10 +72,14 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 if __name__=='__main__':
     app = QtWidgets.QApplication(sys.argv)
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--plotonly", action='store_true', help="Do not compute anything")
+    args = parser.parse_args()
+
     path_to_case = os.getcwd()
     
     #empty aero object
-    myAero = aero.Aerodynamics(path_to_case)
+    myAero = aero.Aerodynamics(path_to_case, plotonly=args.plotonly)
 
     myWindow = Mapper(myAero)
     myWindow.show()

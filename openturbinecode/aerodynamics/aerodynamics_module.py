@@ -9,7 +9,7 @@ from openturbinecode.aerodynamics.aero_wrapper import aero_Wrapper
 import openturbinecode.utils.io as io
 
 class Aerodynamics:
-    def __init__(self, path_to_case, turb_data=None, models=None):
+    def __init__(self, path_to_case, turb_data=None, models=None, plotonly=False):
         
         self.turb_data = turb_data
         self.models = models
@@ -17,6 +17,7 @@ class Aerodynamics:
 
         self.setDefaultValues()
 
+        self.plotonly = plotonly
               
     # ==================== GENERAL FUNCTIONS ==========================================
         
@@ -65,11 +66,12 @@ class Aerodynamics:
 
         options = {} #TODO:  fill that with whatever is needed...
 
-        options["spanDir"] = "y"
-        options["rotsign"] = 1
+        options["spanDir"] = "y" #TODO: this should come from turbine definition
+        options["rotsign"] = 1 #TODO: this should come from turbine definition
         # options["hifimesh"] = args.hifimesh
         # options["output"] = args.output
-        # options["plotonly"] = args.plotonly
+
+        options["plotonly"] = self.plotonly
 
 
         torque, thrust, cp = aero_Wrapper(self.args, self.tsrlist, self.Vlist, T, rho, R0, R, Nblade, self.fidelity, options, self.path_to_case)
