@@ -74,16 +74,6 @@
       </item>
       <item>
        <property name="text">
-        <string>NREL Phase VI</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>NREL 5 MW</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
         <string>Edited geometry</string>
        </property>
       </item>
@@ -210,19 +200,12 @@
         <height>31</height>
        </rect>
       </property>
+      <property name="editable">
+       <bool>false</bool>
+      </property>
       <item>
        <property name="text">
         <string>Uniform flow</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>DLC 1.1</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>DLC 2.2</string>
        </property>
       </item>
      </widget>
@@ -584,27 +567,6 @@
          <property name="frameShadow">
           <enum>QFrame::Plain</enum>
          </property>
-         <widget class="QLabel" name="label_40">
-          <property name="geometry">
-           <rect>
-            <x>190</x>
-            <y>220</y>
-            <width>221</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-            <weight>50</weight>
-            <italic>true</italic>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Enter save file name below</string>
-          </property>
-         </widget>
          <widget class="QProgressBar" name="progressBar_2">
           <property name="geometry">
            <rect>
@@ -616,16 +578,6 @@
           </property>
           <property name="value">
            <number>24</number>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_25">
-          <property name="geometry">
-           <rect>
-            <x>150</x>
-            <y>60</y>
-            <width>261</width>
-            <height>20</height>
-           </rect>
           </property>
          </widget>
          <widget class="QPushButton" name="plot_cp">
@@ -646,44 +598,6 @@
            <string>Plot Cp</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="pushButton_11">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>230</y>
-            <width>151</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Save Data</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_41">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>60</y>
-            <width>131</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Set solver folder</string>
-          </property>
-         </widget>
          <widget class="QPushButton" name="runAerodyn">
           <property name="geometry">
            <rect>
@@ -699,20 +613,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Run AeroDyn</string>
-          </property>
-         </widget>
-         <widget class="QToolButton" name="toolButton_4">
-          <property name="geometry">
-           <rect>
-            <x>430</x>
-            <y>60</y>
-            <width>31</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>...</string>
+           <string>Run simulation</string>
           </property>
          </widget>
          <widget class="QPushButton" name="plot_thrust">
@@ -731,40 +632,6 @@
           </property>
           <property name="text">
            <string>Plot Thrust</string>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_27">
-          <property name="geometry">
-           <rect>
-            <x>190</x>
-            <y>240</y>
-            <width>271</width>
-            <height>31</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_43">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>30</y>
-            <width>311</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-            <underline>true</underline>
-           </font>
-          </property>
-          <property name="text">
-           <string>AeroDyn simulation</string>
           </property>
          </widget>
         </widget>
