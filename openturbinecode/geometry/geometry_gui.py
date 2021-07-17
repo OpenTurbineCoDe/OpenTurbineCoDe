@@ -2,7 +2,8 @@ import sys
 import os
 import ast
 import matplotlib.pyplot as plt
-import shutil, tempfile, math, numpy, string
+import shutil, tempfile, math, string
+import numpy as np
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 import subprocess
@@ -42,17 +43,39 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
     def writeToUI(self):
         #Set interface values
-        self.Geo_LineEdit1.setText("/home/kz/Desktop/Geometry/AeroDynCase/blade.dat")
+        self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDynCase" + os.sep + "blade.dat")
+
+        if self.myGeom.turb_data:
+            R0 = self.myGeom.turb_data["components"]["hub"]["diameter"] / 2
+            R  = self.myGeom.turb_data["assembly"]["rotor_diameter"] / 2
+
+            r =  self.myGeom.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]  
+            chord = self.myGeom.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["values"]
+            twist = self.myGeom.turb_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"]
+
+            table = self.Geo_Table1
+            table.setRowCount(len(r))
+            for i in range(len(r)):
+                table.setItem(i, 0, QtWidgets.QTableWidgetItem(str(r[i] * (R-R0) + R0 )))
+                table.setItem(i, 1, QtWidgets.QTableWidgetItem(str(chord[i])))
+                table.setItem(i, 2, QtWidgets.QTableWidgetItem(str(twist[i] * 180. / np.pi)))
+                table.setItem(i, 3, QtWidgets.QTableWidgetItem(self.myGeom.AFlist[i]))
+
+            for i in range(0, self.myGeom.afNum):
+                self.Geo_comboBox_2.addItem(str(i+1))
 
     def readFromUI(self):
         #Get user inputs data
         self.myGeom.AeroDynFileName = self.Geo_LineEdit1.text() #no.text function
+
+        #TODO: FILL IN INTERNAL STRUCTURE WITH DATA IN THE TABLE!!
 
   
     # ============== Caller functions: gather params from the GUI and calls specific function ==================
     def caller_loadGeom(self):
         self.readFromUI()
         self.myGeom.loadGeom(self.myGeom.AeroDynFileName, self.Geo_Table1, QtWidgets, self.Geo_comboBox_2)
+        self.writeToUI()
     
     def caller_openFileDialogue(self):
         self.readFromUI()
@@ -79,6 +102,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myGeom.Geo_setSalome(self.Geo_lineEdit_4, QtWidgets)
 
     def caller_Geo_generateGeom(self):
+        self.readFromUI()
         self.myGeom.Geo_generateGeom(self.Geo_comboBox, self.Geo_Table1, self.Geo_Table2, self.Geo_lineEdit_3)
 
     def caller_Geo_setLofts(self):

@@ -1,11 +1,15 @@
 import sys
 import os
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np 
 import subprocess
 import scp
 import pandas as pd
 
+import openturbinecode.meshing.surf_mesher_PGL as pgl
+
+def afid_to_afpos(afid,aflist):
+    return afpos
 class Geometry:
     def __init__(self, path_to_case, turb_data=None, models=None):
         self.turb_data = turb_data
@@ -18,17 +22,47 @@ class Geometry:
         
     def setDefaultValues(self):
 
+        self.afNum = 0
+        self.AFID = []
+        self.AFlist = []
+
         # Initialization of attributes
         if self.turb_data and self.models:
             #use turbine data and model data passed as argument to initialize this object
             #... TODO
-            pass
+
+            r_nodes = self.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]
+
+            r_af = self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["grid"]
+            i_af = range(len(r_af))
+            label_af = self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"]
+
+            self.afNum = len(label_af)
+            
+            #translating af ids for aerodyn file #TODO: this is not very elegant
+            self.AFlist = [ str(int(np.round(np.interp(r,r_af,i_af)))) for r in r_nodes ]
+            # self.AFID = [label_af[int(i)] for i in self.AFlist]
+            self.AFID = label_af
         else:
+            #generate our internal structure a minima #TODO: create a function for this
+            self.turb_data = {}
+
+            self.turb_data["assembly"] = {"rotor_diameter": 0. }
+            
+            self.turb_data["components"] = {
+                "hub": { "diameter": 0. },
+                "blade": {"outer_shape_bem": {
+                    "chord": {"grid" : [], "values" : [] },
+                    "twist": {"values" : [] },
+                    "rthick": {"values" : [] },
+                    "pitch_axis": {"values" : [] },
+                    "airfoil_position": {"grid": [], "values": [] },
+            }}} 
+
+            self.turb_data["airfoils"] = {}
 
 
-            #set placeholder default text for parametric sweep
-            self.ROSCOR2Omega = 0.2
-        
+    
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
     def loadGeom(self, fn, table, QtWidgets, comboBox):
@@ -41,20 +75,32 @@ class Geometry:
             next(f)
             next(f)
             content = [x.strip().split()[0:] for x in f]
-        NoSec = len(content)
-        table.setRowCount(NoSec)
-        for i in range(0, NoSec):
-            table.setItem(i, 0, QtWidgets.QTableWidgetItem(content[i][0]))
-            table.setItem(i, 1, QtWidgets.QTableWidgetItem(content[i][4]))
-            table.setItem(i, 2, QtWidgets.QTableWidgetItem(content[i][5]))
-            table.setItem(i, 3, QtWidgets.QTableWidgetItem(content[i][6]))
+        
+        # translate the AeroDyn formatted info into our internal data structure
+        
+        #TODO: these two should be specified independently!!
+        R = float(content[-1][0])
+        R0 = float(content[0][0])
+        self.turb_data["components"]["hub"]["diameter"] = 2 * R
+        self.turb_data["assembly"]["rotor_diameter"] = 2 * R0
+
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]   = [(float(el[0])-R0)/(R-R0) for el in content]
+        # reference_axis y...
+        # reference_axis z...
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"] = [float(el[4]) * np.pi / 180 for el in content]
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["values"] = [float(el[5]) for el in content]
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["pitch_axis"]["values"] = .25 * np.ones(len(content)) # this info is not contained in AeroDyn files
+
+
+        self.AFlist = [el[6] for el in content] 
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["grid"] = self.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"] 
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"] = self.AFlist #TODO: should actually be the string of that airfoil...
+
         # set the items in comboBox according to the airfoil numbers
         # currently using the data in the original aerodyn file
         # TODO: read data from the table to allow edits
-        self.afNum = content[-1][-1]
-        for i in range(0, int(self.afNum)):
-            comboBox.addItem(str(i+1))
-        self.AFID = ["" for x in range(int(self.afNum))]    # initial AFID to store airfoil ID
+        self.afNum = int(content[-1][-1])
+        self.AFID = ["" for x in range(self.afNum)]    # initial AFID to store airfoil ID
 
     def openFileDialogue(self, fn, QtWidgets):
         fn_ = QtWidgets.QFileDialog.getOpenFileName(None, "Open AeroDyn blade file", "", "(*)")[0]
@@ -86,14 +132,19 @@ class Geometry:
         lineEdit.setText(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "lib_airfoils" + os.sep + comboBox2.currentText() + '.dat')
         print('AF ID ' + comboBox1.currentText() + ': ' + comboBox2.currentText())
         self.AFID[int(comboBox1.currentText())-1] = lineEdit.text() 
+        #TODO: read airfoil coordinates and populate self.turb_data["aifroils"]
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"] = self.AFlist
         print(self.AFID[0])
         
     def Geo_loadExternalAF(self, toolButton, lineEdit, QtWidgets, comboBox2):
         fn_ = QtWidgets.QFileDialog.getOpenFileName(None, "Open airfoil coordinate file", "", "(*)")[0]
         lineEdit.setText(str(fn_))
         self.AFID[int(comboBox2.currentText())-1] = lineEdit.text() 
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"] = self.AFlist
+        #TODO: read airfoil coordinates and populate self.turb_data["aifroils"]
         print('AF ID ' + comboBox2.currentText() + ': ' + lineEdit.text())
 
+    # ==================== AERODYN - SALOME GEOM ==========================================
     def Geo_openSalomeD(self, comboBox, radioButton, button):
         if comboBox.currentText() == 'Salome' and radioButton.isChecked():
             #TODO: replace by input from GUI
@@ -146,9 +197,52 @@ class Geometry:
             af.write(str(table.item(row,3).text())+'\n')
         print("Done writing turbinesFoam blade file. The file is stored at /home/kz/Desktop/turbFoam.dat and AF.dat")
 
+    
+    #=====  PGL FUNCTIONS ===============================================
+    
     def Geo_runPGL(self, table):
         print("run PGL")
+        self.call_writePGLinputs()
+        self.call_generateSurfMesh()
+        
+    #write all the geometry files required by PGL, from global turbine data 
+    def call_writePGLinputs(self):
+        if self.models and self.models["OpenTurbineCoDe"]:
+            planform_file = self.models["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
+        else:
+            planform_file = 'planform.dat'
+        pgl.writePGLinputs(self.turb_data, self.path_to_case, planform_file)
+    
+    #generate and write aerodynamic surface mesh with PGL
+    def call_generateSurfMesh(self):
+        R = self.turb_data["assembly"]["rotor_diameter"] / 2.
+        R0 = self.turb_data["components"]["hub"]["diameter"] / 2.
+        
+        #determine the blending parameter, basically corresponding to the relative thickness of each airfoil
+        
+        afs = self.turb_data["airfoils"]
+        blend_var = np.zeros(len(afs))
+        airfoil_list = []
+        i = 0
+        for af in afs:
+            blend_var[i] = af["relative_thickness"]
+            airfoil_list.append(af["name"])
+            i+=1
+            
+        print(airfoil_list)
+        print(blend_var)
 
+        #Call the function:
+        if self.models and self.models["OpenTurbineCoDe"]:
+            mesh_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["meshName"]
+            planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
+        else:
+            mesh_file = '2Dmesh'
+            planform_file = 'planform.dat'
+        pgl.generateSurfMesh(R0, R, self.path_to_case, planform_file, airfoil_list, blend_var, mesh_file)
+
+
+    # ==================== BB3D GEOM ==========================================
     ## BB3D stuff begins from here    
     def Geo_setLofts(self, lineEdit, table, QtWidgets):
         self.lofts = int(lineEdit.text())

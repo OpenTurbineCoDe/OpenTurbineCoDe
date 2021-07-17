@@ -4,7 +4,6 @@ import sys
 import os
 import numpy as np
 
-import openturbinecode.meshing.surf_mesher_PGL as pgl
 import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
 import openturbinecode.master_GUI.GUI as GUI
@@ -154,40 +153,6 @@ class OpenTurbineCoDe:
 
         #TODO: pass info on Omega and pitch, to avoid NaN in test matrix (AeroDyn, Elastodyn)
         DLC_manager.generateDLC(OTCD.path_to_case, OTCD.turb_data, DLC_list, n_ws, n_seeds, TMax)
-
-    #=====  GEOMETRY FUNCTIONS ===============================================
-
-    #...
-
-    #=====  MESHING FUNCTIONS ===============================================
-    #write all the geometry files required by PGL, from global turbine data 
-    def call_writePGLinputs(self):
-        planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
-        pgl.writePGLinputs(self.turb_data, self.path_to_case, planform_file)
-    
-    #generate and write aerodynamic surface mesh with PGL
-    def call_generateSurfMesh(self):
-        R = self.turb_data["assembly"]["rotor_diameter"] / 2.
-        R0 = self.turb_data["components"]["hub"]["diameter"] / 2.
-        
-        #determine the blending parameter, basically corresponding to the relative thickness of each airfoil
-        
-        afs = self.turb_data["airfoils"]
-        blend_var = np.zeros(len(afs))
-        airfoil_list = []
-        i = 0
-        for af in afs:
-            blend_var[i] = af["relative_thickness"]
-            airfoil_list.append(af["name"])
-            i+=1
-            
-        print(airfoil_list)
-        print(blend_var)
-
-        #Call the function:
-        mesh_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["meshName"]
-        planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
-        pgl.generateSurfMesh(R0, R, self.path_to_case, planform_file, airfoil_list, blend_var, mesh_file)
 
 
 
