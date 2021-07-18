@@ -34,13 +34,19 @@ class Aerodynamics:
             
         from types import SimpleNamespace
         self.args = SimpleNamespace()
-        self.args.configuration = "DTU_10MW"
+        self.args.configuration = "DTU_10MW" #TODO: this should be done differently
             
+        # global parameters
         self.fidelity = "AeroDyn"  #TODO: read from models
+        self.mesh_level = "2" #TODO: read from models
 
         #parameters for sweep:
-        self.tsrlist = np.array([9.6]) #TODO: read from models
-        self.Vlist = np.array([8.]) #TODO: read from models
+        # self.tsrlist = np.array([9.6]) #TODO: read from models
+        # self.Vlist = np.array([8.]) #TODO: read from models
+        # self.pitchlist = np.array([0.]) #TODO: read from models
+        self.tsrlist = np.array([9.34,7.81,7.81,7.47]) #TODO: read from models
+        self.Vlist = np.array([6.,8.,10.,12.]) #TODO: read from models
+        self.pitchlist = np.array([0.,0.,0.,0.]) #TODO: read from models
 
         #results
         self.torque = np.nan*self.Vlist
@@ -68,7 +74,7 @@ class Aerodynamics:
 
         options["spanDir"] = "y" #TODO: this should come from turbine definition
         options["rotsign"] = 1 #TODO: this should come from turbine definition
-        # options["hifimesh"] = args.hifimesh
+        options["hifimesh"] = self.mesh_level
         # options["output"] = args.output
 
         options["plotonly"] = self.plotonly
@@ -82,10 +88,12 @@ class Aerodynamics:
 
 
     def PlotCp(self):
+        plt.ion()
         #TODO: call a proper postpro function, common with aero_compute_standalone
-        f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
+        # f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
+        f = plt.figure(num=1,figsize=(10, 7.5)) #(8, 3.2)
     
-        plt.plot(self.Vlist, self.cp, label='Results', marker="+")
+        plt.plot(self.Vlist, self.cp, label=self.fidelity, marker="+")
 
         plt.xlabel(r"$V \: [m/s]$", fontsize=16)
         plt.ylabel(r"$C_p$", fontsize=16)
@@ -97,10 +105,13 @@ class Aerodynamics:
         plt.show()
 
     def PlotThrust(self):
+        plt.ion()
+
         #TODO: call a proper postpro function, common with aero_compute_standalone
-        f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
+        # f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
+        f = plt.figure(num=2,figsize=(10, 7.5)) #(8, 3.2)
     
-        plt.plot(self.Vlist, self.thrust / 1.e6, label='Results', marker="+")
+        plt.plot(self.Vlist, self.thrust / 1.e6, label=self.fidelity, marker="+")
 
         plt.xlabel(r"$V \: [m/s]$", fontsize=16)
         plt.ylabel(r"Thrust [MW]", fontsize=16)
@@ -111,6 +122,23 @@ class Aerodynamics:
 
         plt.show()
 
+    def PlotTorque(self):
+        plt.ion()
+
+        #TODO: call a proper postpro function, common with aero_compute_standalone
+        # f, ax = plt.subplots(figsize=(10, 7.5)) 
+        f = plt.figure(num=3,figsize=(10, 7.5)) #(8, 3.2)
+    
+        plt.plot(self.Vlist, self.torque / 1.e6, label=self.fidelity, marker="+")
+
+        plt.xlabel(r"$V \: [m/s]$", fontsize=16)
+        plt.ylabel(r"Torque [MNm]", fontsize=16)
+        plt.grid()
+        plt.tick_params(axis="both", labelsize=16)
+        plt.legend(fontsize=16)
+        f.tight_layout()
+
+        plt.show()
 
 if __name__=='__main__':
 

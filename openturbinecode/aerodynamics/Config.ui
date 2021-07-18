@@ -17,7 +17,7 @@
    <widget class="QFrame" name="frame_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>30</x>
       <y>40</y>
       <width>1101</width>
       <height>601</height>
@@ -35,7 +35,7 @@
        <x>10</x>
        <y>60</y>
        <width>481</width>
-       <height>81</height>
+       <height>121</height>
       </rect>
      </property>
      <widget class="QLabel" name="label_3">
@@ -58,11 +58,11 @@
        <string>Rotor geometry</string>
       </property>
      </widget>
-     <widget class="QComboBox" name="comboBox">
+     <widget class="QComboBox" name="model_list">
       <property name="geometry">
        <rect>
-        <x>300</x>
-        <y>4</y>
+        <x>140</x>
+        <y>10</y>
         <width>171</width>
         <height>31</height>
        </rect>
@@ -72,27 +72,12 @@
         <string>DTU 10 MW</string>
        </property>
       </item>
-      <item>
-       <property name="text">
-        <string>Edited geometry</string>
-       </property>
-      </item>
-     </widget>
-     <widget class="QLineEdit" name="rotorPath">
-      <property name="geometry">
-       <rect>
-        <x>300</x>
-        <y>47</y>
-        <width>171</width>
-        <height>27</height>
-       </rect>
-      </property>
      </widget>
      <widget class="QPushButton" name="loadRotor">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>45</y>
+        <x>320</x>
+        <y>10</y>
         <width>151</width>
         <height>31</height>
        </rect>
@@ -104,6 +89,86 @@
       </property>
       <property name="text">
        <string>Load rotor</string>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_18">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>50</y>
+        <width>151</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>High fidelity mesh level</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="mesh_list">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>50</y>
+        <width>171</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
+      </property>
+      <item>
+       <property name="text">
+        <string>2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>0</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QLabel" name="label_19">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>50</y>
+        <width>16</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>L</string>
       </property>
      </widget>
     </widget>
@@ -166,7 +231,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>150</y>
+       <y>190</y>
        <width>481</width>
        <height>41</height>
       </rect>
@@ -214,7 +279,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>200</y>
+       <y>250</y>
        <width>481</width>
        <height>111</height>
       </rect>
@@ -583,7 +648,7 @@
          <widget class="QPushButton" name="plot_cp">
           <property name="geometry">
            <rect>
-            <x>190</x>
+            <x>310</x>
             <y>160</y>
             <width>151</width>
             <height>41</height>
@@ -632,6 +697,24 @@
           </property>
           <property name="text">
            <string>Plot Thrust</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="plot_torque">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>160</y>
+            <width>151</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Plot Torque</string>
           </property>
          </widget>
         </widget>

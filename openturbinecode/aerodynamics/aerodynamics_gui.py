@@ -19,7 +19,7 @@ import openturbinecode.aerodynamics.aerodynamics_module as aero
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) +os.sep+ "Config.ui")[0]  # Load the UI
 
 class Mapper(QtWidgets.QMainWindow, form_class):
-    def __init__(self, myAero, parent=None):
+    def __init__(self, myAero, parent=None, withMasterGUI=False):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
@@ -29,12 +29,20 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myAero.setDefaultValues()
         self.writeToUI()
 
+        # =================== FORCE INTERNAL VALUES WHEN RUNNING WITH MASTER ==============================
+        if withMasterGUI:
+            #TODO
+            pass
+
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
         
+        self.loadRotor.clicked.connect(self.load_case)
+
         self.runAerodyn.clicked.connect(self.caller_Run)
         self.plot_cp.clicked.connect(self.myAero.PlotCp)
         self.plot_thrust.clicked.connect(self.myAero.PlotThrust)               
+        self.plot_torque.clicked.connect(self.myAero.PlotTorque)               
         
         
 
@@ -43,22 +51,33 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     def writeToUI(self):
 
         #Set interface values
-        # self.ModelSelection.setText(str(self.myAero.Baselinemodel)) #no text function
-        self.rotorPath.setText(self.myAero.path_to_case)
-        self.windSpeed.setText(str(self.myAero.Vlist))
-        self.TSR.setText(str(self.myAero.tsrlist))
+        # model list
+        # self.rotorPath.setText(self.myAero.path_to_case)
+
+        self.windSpeed.setText(', '.join([str(el) for el in self.myAero.Vlist]))
+        self.TSR.setText(', '.join([str(el) for el in self.myAero.tsrlist]))
+        # self.pitchAngle.setText(str(self.myAero.pitchlist))
 
         # self.solver_list.setCurrentIndex( XX ) self.myAero.fidelity
 
     def readFromUI(self):
         #Get user inputs data
-        self.myAero.path_to_case = self.rotorPath.text()
+        # self.myAero.XXX = self.model_list.currentText()
+        # self.myAero.path_to_case = self.rotorPath.text()
+
         self.myAero.Vlist = np.array( ast.literal_eval(self.windSpeed.text()) )
         self.myAero.tsrlist = np.array( ast.literal_eval(self.TSR.text()) )
+        # self.myAero.pitchlist = np.array( ast.literal_eval(self.pitchAngle.text()) )
 
         self.myAero.fidelity = self.solver_list.currentText()
+        self.myAero.mesh_level = self.mesh_list.currentText()
 
     # ============== Caller functions: gather params from the GUI and calls specific function ==================
+
+    def load_case(self):
+        pass
+        #TODO
+
     def caller_Run(self):
         #read params from the GUI
         self.readFromUI()
