@@ -28,7 +28,7 @@ class OpenTurbineCoDe:
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
         self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
         # self.run_schema = self.path_to_root #TODO
-        self.path_to_case = "."
+        self.path_to_case = "models/DTU_10MW/Madsen2019/"  # hack to run without specifying a module - we are not reading from yaml yet
 
         # --- parse input arguments ---
         self.parse_args(args)

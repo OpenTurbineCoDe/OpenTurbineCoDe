@@ -104,6 +104,7 @@ if __name__=='__main__':
     args = parser.parse_args()
 
     path_to_case = os.getcwd()
+    path_to_case += "/models/DTU_10MW/Madsen2019" 
     
     #empty aero object
     myAeroStruct = aerostruct.Aerostructural(path_to_case, plotonly=args.plotonly)
