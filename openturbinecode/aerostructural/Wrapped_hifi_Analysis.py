@@ -3,6 +3,7 @@
 # ======================================================================
 import numpy as np
 from mpi4py import MPI
+import pickle
 
 try:
     from baseclasses import AeroProblem
@@ -22,6 +23,16 @@ def requires_adflow(function):  # TODO turn this into requires_MACH
             raise ImportError("adflow is required to do this.")
         function(*args,*kwargs)
     return check_requirement
+
+def pickleWrite(fname, obj, comm=None):  # TODO: move this somewhere more appropriate
+    """
+    Parallel pickle.dump function, only performs operations on the root proc
+    """
+    if (comm is None) or (comm is not None and comm.rank == 0):
+        with open(fname, "wb") as handle:
+            pickle.dump(obj, handle)
+    if comm is not None:
+        comm.barrier()
 
 
 # TODO: add another dictionary for parameter sweeps?
@@ -164,4 +175,11 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options):
     if MPI.COMM_WORLD.rank == 0:
         print(funcs)
 
+    funcs["mx"] = funcs[f"{ap.name}_mx"]
+    funcs["fx"] = funcs[f"{ap.name}_fx"]
+
+    outputdir = options["outputDirectory"]
+
+    pickleWrite(f"{outputdir}/Funcs.pkl", funcs)
+    
     return funcs, ap

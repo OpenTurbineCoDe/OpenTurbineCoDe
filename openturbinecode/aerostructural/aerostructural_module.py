@@ -122,7 +122,7 @@ class Aerostructural:
         plt.legend(fontsize=16)
         f.tight_layout()
 
-        plt.show()
+        plt.show(block=True)
 
     def PlotThrust(self):
         plt.ion()
@@ -140,7 +140,7 @@ class Aerostructural:
         plt.legend(fontsize=16)
         f.tight_layout()
 
-        plt.show()
+        plt.show(block=True)
 
     def PlotTorque(self):
         plt.ion()
@@ -158,7 +158,7 @@ class Aerostructural:
         plt.legend(fontsize=16)
         f.tight_layout()
 
-        plt.show()
+        plt.show(block=True)
 
     #  ========================== DATA HANDLING ========================== #
 
@@ -178,8 +178,9 @@ class Aerostructural:
 if __name__=='__main__':
 
     cwd = os.getcwd()
-    path_to_case = cwd + "/models/DTU_10MW/Madsen2019" 
-    myAeroStruct = Aerostructural(path_to_case)
+    path_to_case = cwd + "/models/DTU_10MW/Madsen2019"
+    plotonly = True 
+    myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly)
     myAeroStruct.setDefaultValues()
     myAeroStruct.Run()
     myAeroStruct.PlotCp()
