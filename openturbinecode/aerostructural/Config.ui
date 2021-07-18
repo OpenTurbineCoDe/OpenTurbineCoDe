@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1050</width>
-    <height>898</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -693,7 +693,7 @@
               <string>Twist</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_17">
+            <widget class="QLineEdit" name="pitchAngle">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -703,7 +703,7 @@
               </rect>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_18">
+            <widget class="QLineEdit" name="twist">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -733,7 +733,7 @@
               <string>Chord</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_19">
+            <widget class="QLineEdit" name="chord">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -763,7 +763,7 @@
               <string>Span</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_44">
+            <widget class="QLineEdit" name="span">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -773,7 +773,7 @@
               </rect>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_45">
+            <widget class="QLineEdit" name="precone">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -823,7 +823,7 @@
               <string>Thickness distribution</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_46">
+            <widget class="QLineEdit" name="thickness">
              <property name="geometry">
               <rect>
                <x>280</x>
