@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import subprocess
 import time
 
-from openturbinecode.aerodynamics.aero_wrapper import aero_Wrapper
+from openturbinecode.aerostructural.aerostruct_wrapper import aerostruct_Wrapper
 import openturbinecode.utils.io as io
 
 class Aerostructural:
@@ -51,7 +51,7 @@ class Aerostructural:
         self.case_tag = "DTU_10MW" #TODO: this should be done differently
             
         # global parameters
-        self.fidelity = "AeroDyn"  #TODO: read from models
+        self.fidelity = "MACH"  #TODO: read from models
         self.mesh_level = "3" #TODO: read from models
 
         #parameters for sweep:
@@ -100,7 +100,7 @@ class Aerostructural:
 
         options["plotonly"] = self.plotonly
 
-        torque, thrust, cp = aero_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options)
+        torque, thrust, cp = aerostruct_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options)
         
         self.torque = np.array(torque)
         self.thrust = np.array(thrust)
@@ -174,3 +174,12 @@ class Aerostructural:
         print("Retrieving from HPC")
         # subprocess.run(["scp", orig, dest])
         print("Download complete")
+
+if __name__=='__main__':
+
+    cwd = os.getcwd()
+    path_to_case = cwd + "/models/DTU_10MW/Madsen2019" 
+    myAeroStruct = Aerostructural(path_to_case)
+    myAeroStruct.setDefaultValues()
+    myAeroStruct.Run()
+    myAeroStruct.PlotCp()

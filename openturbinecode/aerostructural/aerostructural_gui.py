@@ -38,7 +38,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         
         #TODO: connect buttons:
         # # self.loadRotor.clicked.connect(self.load_case)
-        # self.run.clicked.connect(self.caller_Run)
+        self.RunAnalysis.clicked.connect(self.caller_Run)
         # self.plot_cp.clicked.connect(self.myAeroStructPlotCp)
         # self.plot_thrust.clicked.connect(self.myAeroStructPlotThrust)               
         # self.plot_torque.clicked.connect(self.myAeroStructPlotTorque)

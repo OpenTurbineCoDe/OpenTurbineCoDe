@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1050</width>
-    <height>800</height>
+    <width>1236</width>
+    <height>873</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="SetupTab">
           <attribute name="title">
@@ -633,7 +633,7 @@
              <enum>Qt::AutoText</enum>
             </property>
            </widget>
-           <widget class="QPushButton" name="pushButton_26">
+           <widget class="QPushButton" name="RunAnalysis">
             <property name="geometry">
              <rect>
               <x>160</x>
@@ -1129,7 +1129,7 @@
              <enum>Qt::AutoText</enum>
             </property>
            </widget>
-           <widget class="QPushButton" name="pushButton_27">
+           <widget class="QPushButton" name="RunOptimization">
             <property name="geometry">
              <rect>
               <x>140</x>
@@ -1658,7 +1658,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1050</width>
+     <width>1236</width>
      <height>22</height>
     </rect>
    </property>
