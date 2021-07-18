@@ -7,6 +7,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import subprocess
+import time
 
 from openturbinecode.aerodynamics.aero_wrapper import aero_Wrapper
 import openturbinecode.utils.io as io
@@ -40,26 +41,26 @@ class Aerostructural:
             self.turb_data = io.load_yaml(turb_yaml)
 
             # geometric parameters - TODO: read from turb_data
-            self.twist = [0.0, 0.0]
-            self.chord = [1.0, 1.0]
+            self.twist = [0.0] * 7  # Hardcoding vals and number of DVs now
+            self.chord = [1.0] * 7
             self.span = 1.0
             self.precone = 1.0
-            self.thickness = [1.0, 1.0]
+            self.thickness = [1.0] * 7
             
         from types import SimpleNamespace
         self.case_tag = "DTU_10MW" #TODO: this should be done differently
             
         # global parameters
         self.fidelity = "AeroDyn"  #TODO: read from models
-        self.mesh_level = "2" #TODO: read from models
+        self.mesh_level = "3" #TODO: read from models
 
         #parameters for sweep:
         # self.tsrlist = np.array([9.6]) #TODO: read from models
         # self.Vlist = np.array([8.]) #TODO: read from models
         # self.pitchlist = np.array([0.]) #TODO: read from models
-        self.tsrlist = np.array([9.34,7.81,7.81,7.47]) #TODO: read from models
-        self.Vlist = np.array([6.,8.,10.,12.]) #TODO: read from models
-        self.pitchlist = np.array([0.,0.,0.,0.]) #TODO: read from models
+        self.tsrlist = np.array([7.81]) #TODO: read from models
+        self.Vlist = np.array([8.]) #TODO: read from models
+        self.pitchlist = np.array([0.]) #TODO: read from models
 
         #results
         self.torque = np.nan*self.Vlist
@@ -67,9 +68,11 @@ class Aerostructural:
         self.cp     = np.nan*self.Vlist
 
 
-        # self.Username = "xd101"
-        # self.Server   = "amarel.rutgers.edu"
-        # self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
+        self.Username = "xd101"
+        self.Server   = "amarel.rutgers.edu"
+        self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
+
+        self.CaseToHPC = self.path_to_case
 
             
 
@@ -156,3 +159,18 @@ class Aerostructural:
         f.tight_layout()
 
         plt.show()
+
+    #  ========================== DATA HANDLING ========================== #
+
+    def SendToHPC(self, folder):
+        # Send to HPC for running
+        print(f"Sending the content of {folder} to HPC...")
+        time.sleep(3)
+        # subprocess.run(["scp", orig, dest])
+        print("Transfer complete")
+
+    def HPCload(self):
+        # Load retults from HPC
+        print("Retrieving from HPC")
+        # subprocess.run(["scp", orig, dest])
+        print("Download complete")

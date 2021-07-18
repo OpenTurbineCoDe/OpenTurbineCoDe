@@ -41,7 +41,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # self.run.clicked.connect(self.caller_Run)
         # self.plot_cp.clicked.connect(self.myAeroStructPlotCp)
         # self.plot_thrust.clicked.connect(self.myAeroStructPlotThrust)               
-        # self.plot_torque.clicked.connect(self.myAeroStructPlotTorque)               
+        # self.plot_torque.clicked.connect(self.myAeroStructPlotTorque)
+        self.Push_sendtoHPC.clicked.connect(self.caller_SendToHPC)               
         
         
     # --- Setting default values ---
@@ -64,9 +65,11 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.span.setText(str(self.myAeroStruct.span))
         self.precone.setText(str(self.myAeroStruct.precone))
         self.thickness.setText(', '.join([str(el) for el in self.myAeroStruct.thickness]))
+        self.whichHPC.setText(str(self.myAeroStruct.CaseToHPC))
 
     def readFromUI(self):
         #Get user inputs data
+        # TODO: injecting attributes in a class is technically very bad, might want to think about an alternative soon
         # self.myAeroStruct.XXX = self.model_list.currentText()
         # self.myAeroStruct.path_to_case = self.rotorPath.text()
 
@@ -84,6 +87,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myAeroStruct.precone = np.array( ast.literal_eval(self.precone.text()) )
         self.myAeroStruct.thickness = np.array( ast.literal_eval(self.thickness.text()) )
 
+        # --- Data Handling ---
+        self.myAeroStruct.caseToHpc = self.whichHPC.text()
+
 
 
     # --- Executing analysis/optimization (calling OTCD) ---
@@ -94,6 +100,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         #execute function through the control object
         self.myAeroStruct.Run()
+
+    def caller_SendToHPC(self,):
+        #read params from the GUI
+        self.readFromUI()
+
+        self.myAeroStruct.SendToHPC(self.myAeroStruct.caseToHpc)
+        
     
 
 if __name__=='__main__':
