@@ -25,7 +25,9 @@ from .Wrapped_lofi_Analysis import LoFiAero
 
 
 # TODO: add the ability to specify blade pitch
-def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options, path_to_case):
+# TODO: add another dictionary for parameter sweeps?
+def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
+
     # baseDir = os.path.dirname(os.path.abspath(__file__))
     
     # =============================================================
@@ -40,54 +42,66 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     # Turbine data unpacking
     # =============================================================
 
-    # Tag = options["tag"]
     if "spanDir" in options:
         spanDir = options["spanDir"]
     if "rotsign" in options:
         rotsign = options["rotsign"]
     if "hifimesh" in options:
         hifimesh = options["hifimesh"]
+    #TODO: set default values ?
+
+    if not "case_tag" in options:
+        raise ValueError("case_tag missing in options") 
+    if not "path_to_case" in options:
+        raise ValueError("path_to_case missing in options") 
+    if not "fidelity" in options:
+        raise ValueError("fidelity missing in options") 
+
+    path_to_case = options["path_to_case"]
+    case_tag = options["case_tag"]
+
+    plotonly = ("plotonly" in options and options["plotonly"])     
 
     if "output" in options:
         output = options["output"] #output folder
     else:
         output = "outputs"
-    plotonly = ("plotonly" in options and options["plotonly"]) 
-    
+
+    # ========================================
+    # initialization
+    # ========================================
 
     omlist = tsrlist * Vlist / R #absolute value of the rotation rate
     rpmlist = omlist / (2 * np.pi) * 60
 
-    pitchlist = np.zeros(np.size(omlist)) #TODO: handle this feature
-
+    spanRef = R # used for moment normalisation
     areaRef = np.pi*R**2
-
+    options["spanRef"] = spanRef
+    options["areaRef"] = areaRef
+        
     # =============================================================
     # File names for the lofi analysis
     # TODO: use read values instead of HARDCODED VALUES
     # TODO: need a better management of file lists for OF/AD - more uniformity across files, etc.
     # =============================================================
 
-    if args.configuration not in ["NREL_PhaseVI_UAE","DTU_10MW"]:
-        raise ValueError("unknown configuration")
-
-    config["lofi"]["files"]["fstFile"] = args.configuration + ".fst"
-    config["lofi"]["files"]["EDfile"] = args.configuration + "_ED.dat"
-    config["lofi"]["files"]["IWfile"] = args.configuration + "_IW.dat"
-    config["lofi"]["files"]["ADdrvfile"] = args.configuration + "_ADdriver.inp"
+    config["lofi"]["files"]["fstFile"] = case_tag + ".fst"
+    config["lofi"]["files"]["EDfile"] = case_tag + "_ED.dat"
+    config["lofi"]["files"]["IWfile"] = case_tag + "_IW.dat"
+    config["lofi"]["files"]["ADdrvfile"] = case_tag + "_ADdriver.inp"
 
     #TODO: define standard names and look for the proper file instead of hardcoding it
     config["lofi"]["files"]["OFfileList"] = [config["lofi"]["files"]["IWfile"],
-        args.configuration + "_ADBlade.dat",
-        args.configuration + "_AD15.dat",
-        args.configuration + "_EDTower.dat",
-        args.configuration + "_EDBlade.dat",
+        case_tag + "_ADBlade.dat",
+        case_tag + "_AD15.dat",
+        case_tag + "_EDTower.dat",
+        case_tag + "_EDBlade.dat",
         config["lofi"]["files"]["EDfile"],
         config["lofi"]["files"]["fstFile"]]
 
     config["lofi"]["files"]["ADfileList"] = [config["lofi"]["files"]["ADdrvfile"],
-        args.configuration + "_ADBlade.dat",
-        args.configuration + "_AD15.dat",]
+        case_tag + "_ADBlade.dat",
+        case_tag + "_AD15.dat",]
 
     config["lofi"]["files"]["dirList"] = ["AeroData"]
 
@@ -101,9 +115,9 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     # ================================================
     # High-Fidelity runs with ADflow
     # ================================================
-    if 'ADflow' in fidelity:
-        spanRef = R # used for moment normalisation
+    if 'ADflow' in options["fidelity"]:
         outputDirectory = os.path.join(path_to_case, "ADflow", output)
+        options["outputDirectory"] = outputDirectory
 
         if MPI.COMM_WORLD.rank == 0:
             if not os.path.exists(outputDirectory):
@@ -111,15 +125,16 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i] * rotsign # Caution: tsr is signed!
             Vel = Vlist[i]
+            pitch = pitchlist[i]
             
             #TODO: use Tag instead of the long name of the configuration
-            name = f"{args.configuration}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
+            name = f"{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
+            options["casename"] = name
             if not plotonly:
                 
                 if MPI.COMM_WORLD.rank == 0:
                     print(f"Starting Hi-fi analysis at tsr={tsr}")
-                funcs, ap = HiFiAero(name,args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outputDirectory)
-
+                funcs, ap = HiFiAero(tsr,Vel,pitch,rho,T,options)
                 trq = funcs[f"{ap.name}_mx"]
                 thr = funcs[f"{ap.name}_fx"]
             else:
@@ -142,9 +157,10 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     # ================================================
     # Low-Fidelity runs with OpenFAST
     # ================================================
-    elif 'OpenFAST' in fidelity:
+    elif 'OpenFAST' in options["fidelity"]:
 
         outputDirectory = os.path.join(path_to_case, "OpenFAST", output)
+        options["outputDirectory"] = outputDirectory
         config["lofi"]["lofi_code"] = "OpenFAST"
         config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["OFfileList"]
         # omlist  
@@ -157,14 +173,15 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                pitch = pitchlist[i]
+                outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
 
                 #computing results
                 if not plotonly:
                     print(f"Starting Lo-fi analysis at tsr={tsr}")
 
                     # Running the OpenFast runscript
-                    LoFiAero(args,config["lofi"],tsr,Vel,R,spanDir,rho,areaRef,T,path_to_case,outputFile,outputDirectory)
+                    LoFiAero(tsr,Vel,pitch,rho,T,config["lofi"],options)
                 
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)
@@ -179,8 +196,9 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     # ================================================
     # Low-Fidelity runs with AeroDyn 
     # ================================================
-    elif 'AeroDyn' in fidelity:
+    elif 'AeroDyn' in options["fidelity"]:
         outputDirectory = os.path.join(path_to_case, "AeroDyn", output)
+        options["outputDirectory"] = outputDirectory
 
         config["lofi"]["lofi_code"] = "AeroDyn"
         config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["ADfileList"]
@@ -193,14 +211,15 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                outputFile = os.path.join(outputDirectory, f"{args.configuration}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                pitch = pitchlist[i]
+                outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
 
                 #computing results
                 if not plotonly:
                     print(f"Starting AeroDyn analysis at tsr={tsr}")
                     
                     # Running the OpenFast runscript
-                    LoFiAero(args,config["lofi"],tsr,Vel,R,spanDir,rho,areaRef,T,path_to_case,outputFile,outputDirectory)
+                    LoFiAero(tsr,Vel,pitch,rho,T,config["lofi"],options)
                 
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)
@@ -211,7 +230,7 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
                 thrust.append(thr)
                 cp.append(CP)
 
-    elif 'turbinesFoam' in fidelity:
+    elif 'turbinesFoam' in options["fidelity"]:
         almFolder = os.path.join(path_to_case, "turbinesFoam")
         if MPI.COMM_WORLD.rank == 0:
             if not os.path.exists(almFolder):

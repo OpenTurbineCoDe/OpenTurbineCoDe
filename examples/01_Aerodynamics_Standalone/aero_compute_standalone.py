@@ -31,7 +31,7 @@ parser.add_argument("--configuration", help="WT Configuration", type=str, defaul
     #-> meant to disappear when the hardcoded parameters will instead be passed in a case file
 parser.add_argument("--fidelities", help="fidelities to be included [AeroDyn, (OpenFAST,) ADflow, (turbinesFoam)]", type=str, default=["AeroDyn","ADflow"], nargs="+")
 parser.add_argument("--path_to_case", help="path where the case files are and where we will dump outputs", type=str, default=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'case_aero_standalone' ))
-parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=3)
+parser.add_argument("--hifimesh", help="CFD mesh level - [0,1,2,3,4]", type=int, default=2)
 parser.add_argument("--V", help="Inflow wind speed", type=float, default=[7.0], nargs="+")
 parser.add_argument("--tsrlist", help="Prescribed tip speed ratio", type=float, default=[5.42], nargs="+")
 parser.add_argument("--restart", help="Name of the restart file", type=str, default=None)
@@ -71,6 +71,8 @@ else:
 
 # Vlist = np.array([5.,6.,7.,8.,9.,10.,12.,15.,20.])
 # tsrlist = np.array([7.58,6.32,5.42,4.74,4.21,3.78,3.16,2.53,1.90])
+
+pitchlist = np.nan*Vlist
 
 # =============================================================
 # Turbine data
@@ -133,7 +135,8 @@ elif args.configuration == "DTU_10MW":
     ADext_vel = np.array([4.,6.,8.,9.,10.,11.,12.,15.,25.])
     ADext_xvals = ADext_vel
 
-
+else:
+    raise ValueError("unknown configuration")
 
 
 # =============================================================
@@ -198,6 +201,10 @@ if extraFolder and args.withEllipsys:
 # Packing options
 # =============================================================
 options = {}
+
+options["path_to_case"] = path_to_case
+options["case_tag"] = args.configuration
+
 options["spanDir"] = spanDir
 options["rotsign"] = rotsign
 options["hifimesh"] = args.hifimesh
@@ -208,26 +215,29 @@ options["plotonly"] = args.plotonly
 # High-Fidelity runs with ADflow
 # ================================================
 if 'ADflow' in args.fidelities:
-    # TODO: we should not pass "args" like this, need to figure out a better approach
-    hifi_torque, hifi_thrust, hifi_cp = OTCDaw.aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, "ADflow", options, path_to_case)
+    options["fidelity"] = "ADflow"
+    hifi_torque, hifi_thrust, hifi_cp = OTCDaw.aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options)
     
 # ================================================
 # Low-Fidelity runs with OpenFAST
 # ================================================
 if 'OpenFAST' in args.fidelities:
-    lofi_torque, lofi_thrust, lofi_cp = OTCDaw.aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, "OpenFAST", options, path_to_case)
+    options["fidelity"] = "OpenFAST"
+    lofi_torque, lofi_thrust, lofi_cp = OTCDaw.aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options)
 
 # ================================================
 # Low-Fidelity runs with AeroDyn 
 # ================================================
 if 'AeroDyn' in args.fidelities:
-    AD_torque, AD_thrust, AD_cp = OTCDaw.aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, "AeroDyn", options, path_to_case)
+    options["fidelity"] = "AeroDyn"
+    AD_torque, AD_thrust, AD_cp = OTCDaw.aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options)
 
 # ================================================
 # Medium fidelity
 # ================================================
 if 'turbinesFoam' in args.fidelities:
-    AD_torque, AD_thrust, AD_cp = OTCDaw.aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, "turbinesFoam", options, path_to_case)
+    options["fidelity"] = "turbinesFoam"
+    foam_torque, foam_thrust, foam_cp = OTCDaw.aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options)
 
 # ================================================
 # External Low-Fidelity data 
@@ -301,6 +311,7 @@ if MPI.COMM_WORLD.rank == 0:
         plt.plot(xvals, lofi_cp, label='OpenFAST', marker="o")
     if 'AeroDyn' in args.fidelities:
         plt.plot(xvals, AD_cp, label='AeroDyn', marker="+")
+    #TODO: turbinegfaom
     if args.withADres:
         plt.plot(ADext_xvals, ADext_cp, label='AeroDyn ext', marker="s")
     if extraFolder and args.withEllipsys:
@@ -334,6 +345,7 @@ if MPI.COMM_WORLD.rank == 0:
         plt.plot(xvals, lofi_torque, label='OpenFAST', marker="o")
     if 'AeroDyn' in args.fidelities:
         plt.plot(xvals, AD_torque, label='AeroDyn', marker="+")
+    #TODO: turbinegfaom
     if args.withADres:
         plt.plot(ADext_xvals, ADext_torque, label='AeroDyn ext', marker="s")
     if extraFolder and args.withEllipsys:

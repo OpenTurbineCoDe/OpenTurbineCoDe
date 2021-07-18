@@ -33,8 +33,7 @@ class Aerodynamics:
             self.turb_data = io.load_yaml(turb_yaml)
             
         from types import SimpleNamespace
-        self.args = SimpleNamespace()
-        self.args.configuration = "DTU_10MW" #TODO: this should be done differently
+        self.case_tag = "DTU_10MW" #TODO: this should be done differently
             
         # global parameters
         self.fidelity = "AeroDyn"  #TODO: read from models
@@ -72,15 +71,18 @@ class Aerodynamics:
 
         options = {} #TODO:  fill that with whatever is needed...
 
+        options["path_to_case"] = self.path_to_case
+        options["case_tag"] = self.case_tag
+        options["fidelity"] = self.fidelity
+
         options["spanDir"] = "y" #TODO: this should come from turbine definition
         options["rotsign"] = 1 #TODO: this should come from turbine definition
         options["hifimesh"] = self.mesh_level
-        # options["output"] = args.output
+        # options["output"] = "..."
 
         options["plotonly"] = self.plotonly
 
-
-        torque, thrust, cp = aero_Wrapper(self.args, self.tsrlist, self.Vlist, T, rho, R0, R, Nblade, self.fidelity, options, self.path_to_case)
+        torque, thrust, cp = aero_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options)
         
         self.torque = np.array(torque)
         self.thrust = np.array(thrust)
