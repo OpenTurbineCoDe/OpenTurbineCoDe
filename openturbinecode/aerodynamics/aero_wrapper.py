@@ -51,7 +51,7 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
     if "output" in options:
         output = options["output"] #output folder
     else:
-        output = "output"
+        output = "outputs"
     plotonly = ("plotonly" in options and options["plotonly"]) 
     
 
@@ -107,7 +107,7 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
 
         if MPI.COMM_WORLD.rank == 0:
             if not os.path.exists(outputDirectory):
-                os.mkdir(outputDirectory, exist_ok=True)
+                os.makedirs(outputDirectory, exist_ok=True)
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i] * rotsign # Caution: tsr is signed!
             Vel = Vlist[i]
@@ -124,7 +124,7 @@ def aero_Wrapper(args, tsrlist, Vlist, T, rho, R0, R, Nblade, fidelity, options,
                 thr = funcs[f"{ap.name}_fx"]
             else:
                 #Name used for plotting purposes only
-                outsname = f"Analysis_{case_prefix:s}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}_000_lift.dat"
+                outsname = name + f"_000_lift.dat"
                 res = parser.getLiftDistribution(os.path.join(outputDirectory,outsname))
                 
                 Ico = 'Coordinate' + str.capitalize(spanDir)
