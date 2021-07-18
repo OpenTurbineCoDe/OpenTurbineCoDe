@@ -24,8 +24,24 @@ def requires_adflow(function):
     return check_requirement
 
 
+# TODO: add another dictionary for parameter sweeps?
 @requires_adflow
-def HiFiAero(name,args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outputDirectory): # config not currently used
+def HiFiAero(tsr,Vel,pitch,rho,T,options):
+    #TODO: use the pitch variable!
+
+    # ======================================================================
+    #         Unpack options/params
+    # ======================================================================
+    path_to_case = options["path_to_case"]
+    outputDirectory = options["outputDirectory"]
+    case_tag = options["case_tag"]
+    casename = options["casename"]
+    spanRef  = options["spanRef"]
+    spanDir  = options["spanDir"]
+    areaRef  = options["areaRef"]
+    restart  = options["restart"] if "restart" in options else None
+    hifimesh = options["hifimesh"]
+    
     # ======================================================================
     #         Input Information
     # ======================================================================
@@ -39,12 +55,12 @@ def HiFiAero(name,args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,output
 
     # TODO: we need to clarify if / how we loop over V and tsr
 
-    if args.restart is not None:
-        name = name + "_restart"
-    ap = AeroProblem(name=name, V=Vel, T=T, rho=rho, areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx", "fx"])
+    if restart is not None:
+        casename = casename + "_restart"
+    ap = AeroProblem(name=casename, V=Vel, T=T, rho=rho, areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx", "fx"])
 
     AEROSOLVER = ADFLOW
-    gridFile = f"{path_to_case}/ADflow/INPUT/{args.configuration}_L{args.hifimesh}.cgns"
+    gridFile = f"{path_to_case}/ADflow/INPUT/{case_tag}_L{hifimesh}.cgns"
     CFL = 1.5
     MGCYCLE = "sg"
     MGSTART = -1
@@ -56,7 +72,7 @@ def HiFiAero(name,args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,output
     aeroOptions = {
         # Common Parameters
         "gridFile": gridFile,
-        "restartFile": args.restart,
+        "restartFile": restart,
         "outputDirectory": outputDirectory,
         # Physics Parameters
         "equationType": "RANS",
@@ -112,7 +128,7 @@ def HiFiAero(name,args,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,output
         "surfacevariables": ["cp", "mach", "yplus", "sepsensor", "p", "temp"],
     }
 
-    if args.hifimesh >= 2:
+    if hifimesh >= 2:
         # Different options for coarser meshes
         aeroOptions["nkswitchtol"] = 1e-8
         aeroOptions["anklinresmax"] = 0.9

@@ -20,7 +20,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires = ["numpy", "jsonschema"],  #'json'
+    install_requires = ["numpy", "jsonschema", "matplotlib"],  #'json'
     extras_require={
         "high-fidelity": [
             "adflow",
@@ -34,7 +34,8 @@ setuptools.setup(
     package_data = {"openturbinecode": ["*.json"],
     "openturbinecode.master_GUI": ["Config.ui"],
     "openturbinecode.aerostructural": ["Config.ui"],
-    "openturbinecode.controls": ["ConfigControl_v3.ui"]},
+    "openturbinecode.controls": ["ConfigControl_v3.ui"],
+    "openturbinecode.aerodynamics": ["Config.ui"]},
     packages=[
         "openturbinecode",
         "openturbinecode.aerodynamics",

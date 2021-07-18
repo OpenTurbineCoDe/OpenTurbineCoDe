@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import pyqtgraph as pg
 
-# from openturbinecode.aerodynamics import aerosdynamics_gui as aero
+from openturbinecode.aerodynamics import aerodynamics_gui as aero
 # from openturbinecode.structure import structure_gui as struc
 from openturbinecode.aerostructural import aerostructural_gui as aerostruct
 from openturbinecode.controls import control_gui as ctrl
@@ -71,8 +71,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #=====  AERODYNAMICS ===============================================
         
-        # aero_ui = aero.Mapper(self.OTCD.myAero,parent=self)
-        # self.Master_tabs.addTab(aero_ui,"Aerodynamics")
+        aero_ui = aero.Mapper(self.OTCD.myAero,parent=self)
+        self.Master_tabs.addTab(aero_ui,"Aerodynamics")
 
         #=====  STRUCTURE ===============================================
         

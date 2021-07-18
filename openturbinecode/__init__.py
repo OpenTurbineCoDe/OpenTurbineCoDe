@@ -31,6 +31,16 @@ except subprocess.CalledProcessError as err:
     if err.returncode != 1:  #openfast exits with code 1 when called with `-h`
         failed_imports.append("openfast")
 
+# -------------------- OpenFOAM / pimpleFoam ----------------------------
+try:  # check local installation of openfast
+    config = ut.read_config()
+    path_to_pimpleFoam = config["mefi"]["path_to_pimpleFoam"]
+
+    subprocess.run([path_to_pimpleFoam, '--version'], shell=True, check=True, capture_output=True)
+except subprocess.CalledProcessError as err:
+    if err.returncode != 0:  #TODO: check the exit code of 
+        failed_imports.append("pimpleFoam")
+
 # -------------------- Aerodyn driver ----------------------------
 try:  # check local installation of aerodyn
     config = ut.read_config()

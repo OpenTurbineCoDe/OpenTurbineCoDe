@@ -119,7 +119,22 @@ def replaceInFileTable(filename, inputDir, outputDir, iline, icol, value, mod=0,
     ofh.close()
 
 
-def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outputFile,outputDirectory):
+# TODO: add another dictionary for parameter sweeps?
+def LoFiAero(tsr,Vel,pitch,rho,T,config,options):
+
+    # ======================================================================
+    #         Unpack options/params
+    # ======================================================================
+    path_to_case = options["path_to_case"]
+    outputFile  = options["outputFile"]
+    case_tag = options["case_tag"]
+    # casename = options["casename"]
+    spanRef  = options["spanRef"]
+    # spanDir  = options["spanDir"]
+    
+    #TODO: do something with pitch
+    #TODO: do something with rho
+    #TODO: do something with T
 
     rotRate_z = tsr * Vel / spanRef
     rpm = rotRate_z / (2 * np.pi) * 60
@@ -128,7 +143,7 @@ def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outp
     #         Copying the working files
     # ======================================================================
 
-    fileDirectory = os.path.join(path_to_case, config["lofi_code"]) #, args.output
+    fileDirectory = os.path.join(path_to_case, config["lofi_code"])
     workingDirectory = os.path.join(path_to_case, config["lofi_code"], "workdir")
 
     shutil.rmtree(workingDirectory,True)
@@ -149,7 +164,7 @@ def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outp
         replaceInFile(config["files"]["IWfile"], fileDirectory, workingDirectory, [12], [Vel])
 
         run_cmd = config["path_to_openfast"] + " " + config["files"]["fstFile"]
-        outFile = args.configuration + ".out"
+        outFile = case_tag + ".out"
 
     elif 'AeroDyn' in config["lofi_code"]:
         # driver: rpm
@@ -169,12 +184,14 @@ def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outp
         # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),1,V_,separator='  ',EF=True) #cut the file at the end
 
         run_cmd = config["path_to_aerodyn"] + " " + config["files"]["ADdrvfile"]
-        outFile = args.configuration + ".1.out"
+        outFile = case_tag + ".1.out"
 
     # ======================================================================
     #         Run OpenFAST / AeroDyn
     # ======================================================================
-
+    
+    #change to workdir and run
+    cwd = os.getcwd()
     os.chdir(workingDirectory)
 
     flag = os.system(run_cmd)
@@ -182,6 +199,9 @@ def LoFiAero(args,config,tsr,Vel,spanRef,spanDir,rho,areaRef,T,path_to_case,outp
     if flag!=0:
         print("ERROR - Execution failed during call to %s"%config["lofi_code"])
         exit(1)
+    
+    #go back to where we were
+    os.chdir(cwd)
 
     #Copy the results into the ouput file
     fromdir = os.path.join(workingDirectory, outFile)

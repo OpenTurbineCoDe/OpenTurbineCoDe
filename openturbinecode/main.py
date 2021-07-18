@@ -12,7 +12,7 @@ import openturbinecode.sample_module.sample_script as sample
 import openturbinecode.DLC_manager.dump_IECcase as DLC_manager
 
 
-# import openturbinecode.aerodynamics.aerodynamics_module as aero
+import openturbinecode.aerodynamics.aerodynamics_module as aero
 # import openturbinecode.structure.structure_module as struc
 import openturbinecode.aerostructural.aerostructural_module as aerostruct
 import openturbinecode.controls.control_module as ctrl
@@ -28,7 +28,7 @@ class OpenTurbineCoDe:
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
         self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
         # self.run_schema = self.path_to_root #TODO
-        self.path_to_case = ""
+        self.path_to_case = "."
 
         # --- parse input arguments ---
         self.parse_args(args)
@@ -52,7 +52,7 @@ class OpenTurbineCoDe:
 
         # --- initializing submodules ---
 
-        # self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options, plotonly=args.plotonly)
         # self.myStruc = struc.Structure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myAeroStruct = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
@@ -226,6 +226,7 @@ if __name__ == '__main__':
     parser.add_argument("--models", help="Path to the modeling options file (e.g. modeling_options.yaml)", type=str, default="")
     parser.add_argument("--runoptions", help="Path to the run options file (e.g. run_options.yaml)", type=str, default="")
     parser.add_argument("--GUI", action='store_true', help="Run PyTurbineCoDe with the GUI")
+    parser.add_argument("--plotonly", action='store_true', help="Do not compute anything")
     args = parser.parse_args()
 
     OTCD = OpenTurbineCoDe(args) #initialize me
@@ -236,7 +237,7 @@ if __name__ == '__main__':
         GUI.run(OTCD)
         # ============================================
     else:
-        if not OTCD.path_to_case:
+        if not OTCD.turb_yaml:
             print('You did not provide a turbine case. I will not be able to do anything. Exiting.')
             sys.exit(0)
 
