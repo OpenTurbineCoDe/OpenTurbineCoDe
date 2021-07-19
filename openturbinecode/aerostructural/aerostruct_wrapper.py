@@ -153,10 +153,10 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
                 pitch = pitchlist
             
             #TODO: use Tag instead of the long name of the configuration
-            name = f"{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
+            name = f"MDA_{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
             options["casename"] = name
             if not plotonly:
-                
+
                 if MPI.COMM_WORLD.rank == 0:
                     print(f"Starting Hi-fi analysis at tsr={tsr}")
                 HiFiAeroStruct(tsr,Vel,pitch,rho,T,options)

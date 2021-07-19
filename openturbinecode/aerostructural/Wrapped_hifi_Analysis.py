@@ -5,6 +5,8 @@ import numpy as np
 from mpi4py import MPI
 import pickle
 
+from SETUP import setup_aerostruct, setup_aerostructprob, setup_tacs, setup_structprob, setup_warping
+
 try:
     from baseclasses import AeroProblem
     from adflow import ADFLOW
@@ -154,6 +156,10 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options):
     MP.addProcessorSet("standard", nMembers=nGroup, memberSizes=nProcPerGroup)
     comm, _, _, _, _ = MP.createCommunicators()
 
+    # ======================================================================
+    #         Create aerostruct solver
+    # ======================================================================
+
     # Create solver
     CFDSolver = AEROSOLVER(options=aeroOptions, comm=comm)
 
@@ -164,13 +170,34 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options):
     CFDSolver.addSlices(spanDir, pos, sliceType="absolute")
     CFDSolver.addLiftDistribution(150, spanDir)
 
+    # ---- IDwarp - Warping setup
+    mesh = setup_warping.setup(comm, gridFile)
+    CFDSolver.setMesh(mesh)
+
+    # ---- TACS - Create structurual solver
+    bdfFile = f"{path_to_case}/ADflow/INPUT/DTU_10MW_RWT_blade3D_rotated_3in1_AprilMay2021.bdf"
+    FEASolver = setup_tacs.setup(comm, bdfFile)
+    dispFuncs = FEASolver.functionList.keys()  # Functions to keep track of
+
+    # --- pyAeroStrucuture - Create aerostructural solver ---
+    AS = setup_aerostruct.setup(outputDirectory, comm, CFDSolver, FEASolver)
+
+
+    # ---- Structproblem instantiation
+    sp = setup_structprob.setup(dispFuncs, comm, ap)
+
+    # ---- AeroStructproblem instantiation
+    asp = setup_aerostructprob.setup(comm, ap, sp)
+
     # ======================================================================
     #         Functions:
     # ======================================================================
     
     funcs = {}
-    CFDSolver(ap)
-    CFDSolver.evalFunctions(ap, funcs)
+
+    AS(asp)
+    AS.evalFunctions(asp, funcs)
+    AS.checkSolutionFailure(asp, funcs)
 
     if MPI.COMM_WORLD.rank == 0:
         print(funcs)
