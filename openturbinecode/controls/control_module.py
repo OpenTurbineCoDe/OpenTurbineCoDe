@@ -20,10 +20,7 @@ import numpy as np
 import subprocess
 from datetime import date
 import pandas as pd
-# import matlab.engine
-# my codes
-#from BladeMode import fun_mode_tracking   # self cuntion
-#from fastpost import multipostprocessing   # self cuntion
+
 
 #%%
 
@@ -33,6 +30,7 @@ class Control:
         self.turb_data          = turb_data
         self.models             = models
         self.path_to_case       = path_to_case
+        self.YamlFile           = "OTCD_DTU10MW.yaml"
         self.DTU10MWOpenFAST    = "DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
         self.DTU10MWTACS        = "tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
         self.NREL5MWOpenFAST    = ""
@@ -152,7 +150,7 @@ class Control:
             InflowFile.write()
         if self.DLCs == "DLC 1.1" or self.DLCs == "DLC 1.2":
             InflowFile['WindType']      = 3
-            windfile = "DTU10_NTW_DLC1.2_v"+str(math.ceil(self.DLCV))+".bts"
+            windfile = "DTU10_NTW_DLC1.2_v"+str(math.ceil(float(self.DLCV)))+".bts"
             InflowFile['FileName_BTS']      = os.path.join(os.path.split(InflowFile['FileName_BTS'])[0],windfile)
             InflowFile.write()
         else:
@@ -202,8 +200,6 @@ class Control:
         param_file = Discon_filename_new   
         write_DISCON(self.turbine,self.controller,param_file=param_file, txt_filename=os.path.join(this_dir,self.path_params['rotor_performance_filename']))
         
-    
-    
     def LocalRun(self):
         # Local run the case for parametric study
         print("Running:" + self.workingmodelOpenFAST)
@@ -214,14 +210,7 @@ class Control:
         self.Ft_max.append(FASTouts[69].max())
         self.Tq_max.append(FASTouts[70].max())
     def RunCCD(self):
-        print('abc')
-        # Collect information
-        # construct the OPT path
-        # CCD based on AutoCCD
-        # Show to progress bar
-        #self.progressBar.setValue(idx/nTotal*100)  #used in the CCD function
-
-
+        pass
     def SendToHPCf(self):
         # Send to HPC for running
         subprocess.run(["scp", self.path_params['FAST_directory']+'DISCON.IN',self.Username+"@"+self.Server+":"+self.HPCPath+'/5MW_Land_BD_DLL_WTurb/Rosco_tuning'])
@@ -229,7 +218,7 @@ class Control:
     def HPCloadf(self):
         # Load retults from HPC
         subprocess.run(["scp", self.Username +"@"+self.Server +":"+self.HPCPath+"/5MW_Land_BD_DLL_WTurb/5MW_Land_BD_DLL_WTurb.out", 'HPC/'])
-        
+    # for control    
         
         
 

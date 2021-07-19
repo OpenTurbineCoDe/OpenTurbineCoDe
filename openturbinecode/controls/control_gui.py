@@ -17,6 +17,8 @@ import subprocess
 import scp
 import pandas as pd
 import numpy as np
+import openmdao.api as om
+from Opt_CCD import ControlMDAOom
 
 #import openturbinecode.controls.control_module as ctrl
 import control_module as ctrl
@@ -279,6 +281,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         
     def loadyamlfile(self):   #load the control parameters txt file
         self.readFromUI()
+        self.myCtrl.YamlFile = self.Yamlefile.text()
         print("Yaml file loaded: "+self.myCtrl.YamlFile)
 
     # # ============== Caller functions: gather params from the GUI and calls specific function ==================
@@ -423,9 +426,89 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             self.CV2.setText(str(" "))
         
     def caller_RunCCD(self):
-        #read parameters if needed
-        #Finishing this week to implement the CCD and clean the CCD framework simple version
-        self.myCtrl.RunCCD()
+        self.readFromUI()
+        if self.myCtrl.Modelfidelity == "OpenFAST":
+            prob = om.Problem()
+            MDAOObj = ControlMDAOom()
+            prob.model.add_subsystem('p', MDAOObj)
+            # OpenFAST aero- chord
+            if self.RB113.isChecked():
+                prob.model.add_design_var('p.Chd_c', lower= float(self.myCtrl.ChordFL), upper = float(self.myCtrl.ChordFU))
+            if self.RB123.isChecked():
+                # OpenFAST aero- twist
+                prob.model.add_design_var('p.Twst_c', lower = float(self.myCtrl.ThickFL), upper = float(self.myCtrl.ThickFU))
+            if self.RB131.isChecked():
+                # Update tilt angle and wind inputs
+                self.myCtrl.RunModelUpdate_OpenFAST()
+            if self.RB43.isChecked():
+                # Control 
+                prob.model.add_design_var('p.omega_vs', lower = float(self.myCtrl.ROSCOR2OmegaL), upper = float(self.myCtrl.ROSCOR2OmegaU))
+            if self.RB53.isChecked():
+                prob.model.add_design_var('p.zeta_vs', lower = float(self.myCtrl.ROSCOR2ZetaL), upper = float(self.myCtrl.ROSCOR2ZetaU))
+            if self.RB63.isChecked():
+                prob.model.add_design_var('p.omega_pc', lower = float(self.myCtrl.ROSCOR3OmegaL), upper = float(self.myCtrl.ROSCOR3OmegaU))
+            if self.RB73.isChecked():
+                prob.model.add_design_var('p.zeta_pc', lower = float(self.myCtrl.ROSCOR3ZetaL), upper = float(self.myCtrl.ROSCOR3ZetaU))
+            if self.myCtrl.Objective == "AEP_max":
+                prob.model.add_objective('p.AEP')
+            # Constraint1
+            if self.C1.currentText() == "RotThrust_max" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.RotThrust_max', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "mass_r" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.Mass', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "DEL_Mbr" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_BrM', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "DEL_Mtwr" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_TrM', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "DEL_Fbr" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_BrF', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "DEL_Ftwr" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_TrF', upper=float(self.myCtrl.CV1))
+            # Constraint2
+            if self.C2.currentText() == "RotThrust_max" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.RotThrust_max', upper=float(self.myCtrl.CV1))
+            if self.C2.currentText() == "mass_r" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.Mass', upper=float(self.myCtrl.CV2))
+            if self.C2.currentText() == "DEL_Mbr" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_BrM', upper=float(self.myCtrl.CV2))
+            if self.C2.currentText() == "DEL_Mtwr" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_TrM', upper=float(self.myCtrl.CV2))
+            if self.C2.currentText() == "DEL_Fbr" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_BrF', upper=float(self.myCtrl.CV2))
+            if self.C2.currentText() == "DEL_Ftwr" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_TrF', upper=float(self.myCtrl.CV2))
+            # Set the objective
+            prob.model.add_objective('p.RotTorq_max')
+        
+            # find optimal solution with SciPy optimize
+            driver = prob.driver = om.ScipyOptimizeDriver(optimizer=self.myCtrl.Optimizer, tol=float(self.myCtrl.Tolerane))
+            driver.options['maxiter'] = int(self.myCtrl.Iterations)
+            if self.myCtrl.Display == "True":
+                driver.options['disp'] = True
+            else:
+                driver.options['disp'] = False
+            
+            driver.recording_options['includes'] = ['*']
+            driver.recording_options['record_objectives'] = True
+            driver.recording_options['record_constraints'] = True
+            driver.recording_options['record_desvars'] = True
+            driver.recording_options['record_inputs'] = True
+            driver.recording_options['record_outputs'] = True
+            driver.recording_options['record_residuals'] = True
+            
+            recorder = om.SqliteRecorder("cases.sql")
+            driver.add_recorder(recorder)
+        
+            prob.setup()
+            prob.run_driver()
+            
+            # output display
+            prob.cleanup()
+            cr = om.CaseReader("cases.sql")
+            driver_cases = cr.list_cases('driver')
+            #%%
+            #ast_case = cr.get_case(driver_cases[-1])
+            #print("Optimal Solutions"+last_case)     
 
 
 if __name__=='__main__':

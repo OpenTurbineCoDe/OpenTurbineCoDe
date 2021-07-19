@@ -33,7 +33,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="ParametricSweep">
      <attribute name="title">
@@ -374,72 +374,7 @@
        </property>
        <item>
         <property name="text">
-         <string>Scipy.COBYLA</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.trust-constr</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.CG</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.BFGS</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.Newton-CG</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.TNC</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.differential_evolution</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.L-BFGS-B</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.SLSQP</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.shgo</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.dual_annealing</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.basinhopping</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.Nelder-Mead</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Scipy.Powell</string>
+         <string>SLSQP</string>
         </property>
        </item>
       </widget>
@@ -611,7 +546,12 @@
        </property>
        <item>
         <property name="text">
-         <string>Mr</string>
+         <string>RotThrust_max</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>mass_r</string>
         </property>
        </item>
        <item>
@@ -686,7 +626,12 @@
        </property>
        <item>
         <property name="text">
-         <string>Mr</string>
+         <string>RotThrust_max</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>mass_r</string>
         </property>
        </item>
        <item>
@@ -2726,17 +2671,17 @@
       </property>
       <item>
        <property name="text">
-        <string>AEP_max</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
         <string>RotThrust_max</string>
        </property>
       </item>
       <item>
        <property name="text">
         <string>RotTorq_max</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>AEP_max</string>
        </property>
       </item>
      </widget>
