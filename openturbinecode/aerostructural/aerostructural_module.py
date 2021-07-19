@@ -179,7 +179,7 @@ if __name__=='__main__':
 
     cwd = os.getcwd()
     path_to_case = cwd + "/models/DTU_10MW/Madsen2019"
-    plotonly = False 
+    plotonly = True 
     myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly)
     myAeroStruct.setDefaultValues()
     myAeroStruct.Run()

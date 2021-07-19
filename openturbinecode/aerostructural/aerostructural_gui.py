@@ -80,6 +80,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # self.myAeroStruct.fidelity = self.solver_list.currentText()
         # self.myAeroStruct.mesh_level = self.mesh_list.currentText()
 
+        self.myAeroStruct.fidelity = str(self.Fidelity_selection.currentText())
         self.myAeroStruct.pitchlist = np.array( ast.literal_eval(self.pitchAngle.text()) )
         self.myAeroStruct.twist = np.array( ast.literal_eval(self.twist.text()) )
         self.myAeroStruct.chord = np.array( ast.literal_eval(self.chord.text()) )
@@ -101,7 +102,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         #execute function through the control object
         self.myAeroStruct.Run()
 
-    def caller_SendToHPC(self,):
+    def caller_SendToHPC(self):
         #read params from the GUI
         self.readFromUI()
 

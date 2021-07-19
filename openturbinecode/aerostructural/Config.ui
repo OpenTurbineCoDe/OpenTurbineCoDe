@@ -31,7 +31,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="SetupTab">
           <attribute name="title">
@@ -69,7 +69,7 @@
              <string>Coupled Solver</string>
             </property>
            </widget>
-           <widget class="QComboBox" name="comboBox_5">
+           <widget class="QComboBox" name="Fidelity_selection">
             <property name="geometry">
              <rect>
               <x>300</x>
@@ -80,12 +80,12 @@
             </property>
             <item>
              <property name="text">
-              <string>OpenFast</string>
+              <string>MACH</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>MACH</string>
+              <string>OpenFAST</string>
              </property>
             </item>
            </widget>

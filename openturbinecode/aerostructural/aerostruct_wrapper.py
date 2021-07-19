@@ -200,7 +200,10 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                pitch = pitchlist[i]
+                try:
+                    pitch = pitchlist[i]
+                except IndexError:  # Hack due to the fact that numpy.array returns a weird float if the input is just a scalar
+                    pitch = pitchlist
                 outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
                 options["outputFile"] = outputFile
 
