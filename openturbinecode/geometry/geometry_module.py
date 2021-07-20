@@ -67,6 +67,7 @@ class Geometry:
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
     def loadGeom(self, fn, table, QtWidgets, comboBox):
         #print("I should execute: subprocess.run(\"openfast \" + " + args +")")
+        # TODO: add FileNotFound error treatment so that the GUI does not abort if so
         with open(fn, 'r') as f:
             next(f)
             next(f)
@@ -79,10 +80,10 @@ class Geometry:
         # translate the AeroDyn formatted info into our internal data structure
         
         #TODO: these two should be specified independently!!
-        R = float(content[-1][0])
-        R0 = float(content[0][0])
-        self.turb_data["components"]["hub"]["diameter"] = 2 * R
-        self.turb_data["assembly"]["rotor_diameter"] = 2 * R0
+        R = float(content[-1][0])   # This is rotor diameter
+        R0 = float(content[0][0])   # This is hub diameter
+        self.turb_data["components"]["hub"]["diameter"] = 2 * R0
+        self.turb_data["assembly"]["rotor_diameter"] = 2 * R
 
         self.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]   = [(float(el[0])-R0)/(R-R0) for el in content]
         # reference_axis y...

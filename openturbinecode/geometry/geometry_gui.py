@@ -39,11 +39,15 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.Geo_Button2.clicked.connect(self.caller_Geo_generateGeom)
         self.Geo_pushButton_2.clicked.connect(self.caller_Geo_setLofts)
         self.Geo_pushButton_5.clicked.connect(self.caller_Geo_setSpar)
+
+        self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDynCase" + os.sep + "blade.dat")
     # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
 
     def writeToUI(self):
         #Set interface values
-        self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDynCase" + os.sep + "blade.dat")
+        
+        # Moved this line out of this function, otherwise it would set the same path even if another file is loaded
+        # self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDynCase" + os.sep + "blade.dat")
 
         if self.myGeom.turb_data:
             R0 = self.myGeom.turb_data["components"]["hub"]["diameter"] / 2
@@ -61,6 +65,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 table.setItem(i, 2, QtWidgets.QTableWidgetItem(str(twist[i] * 180. / np.pi)))
                 table.setItem(i, 3, QtWidgets.QTableWidgetItem(self.myGeom.AFlist[i]))
 
+            self.Geo_comboBox_2.clear() # clear the items in comboBox, otherwise the items adds up everywrite it executes
             for i in range(0, self.myGeom.afNum):
                 self.Geo_comboBox_2.addItem(str(i+1))
 
