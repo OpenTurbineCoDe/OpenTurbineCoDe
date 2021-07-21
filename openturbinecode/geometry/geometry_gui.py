@@ -39,6 +39,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.Geo_Button2.clicked.connect(self.caller_Geo_generateGeom)
         self.Geo_pushButton_2.clicked.connect(self.caller_Geo_setLofts)
         self.Geo_pushButton_5.clicked.connect(self.caller_Geo_setSpar)
+        self.Geo_comboBox_4.activated.connect(self.caller_Geo_loadPredefinedTurbine)
+        self.Geo_toolButton2.clicked.connect(self.caller_Geo_openBB3DExe)
+        self.Geo_lineEdit_6.setText(self.myGeom.BB3DExe)
+        self.Geo_lineEdit_3.setText(str(self.myGeom.lofts))
+        self.Geo_lineEdit_5.setText(str(self.myGeom.spar[0])+" "+str(self.myGeom.spar[1]))
+        self.Geo_pushButton_6.clicked.connect(self.caller_Geo_setBB3DExe)
+
 
         self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDynCase" + os.sep + "blade.dat")
     # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
@@ -77,9 +84,12 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
   
     # ============== Caller functions: gather params from the GUI and calls specific function ==================
+    def caller_Geo_loadPredefinedTurbine(self):
+        self.myGeom.Geo_loadPredefinedTurbine(self.Geo_comboBox_4, self.Geo_LineEdit1, self.Geo_toolButton1, self.Geo_widget)
+
     def caller_loadGeom(self):
         self.readFromUI()
-        self.myGeom.loadGeom(self.myGeom.AeroDynFileName, self.Geo_Table1, QtWidgets, self.Geo_comboBox_2)
+        self.myGeom.loadGeom(self.myGeom.AeroDynFileName, self.Geo_Table1, QtWidgets, self.Geo_comboBox_2, self.Geo_comboBox_4)
         self.writeToUI()
     
     def caller_openFileDialogue(self):
@@ -94,12 +104,17 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
     #TODO: underlying codes for saving airfoil shapes 
     def caller_Geo_loadAFCoord(self):
-        self.myGeom.Geo_loadAFCoord(self.Geo_comboBox_2, self.Geo_comboBox_3, self.Geo_lineEdit)
+        self.myGeom.Geo_loadAFCoord(self.Geo_comboBox_2, self.Geo_comboBox_3, self.Geo_lineEdit, self.Geo_comboBox_4)
 
     def caller_Geo_loadExternalAF(self):
-        self.myGeom.Geo_loadExternalAF(self.Geo_toolButton, self.Geo_lineEdit, QtWidgets, self.Geo_comboBox_2)
+        self.myGeom.Geo_loadExternalAF(self.Geo_toolButton, self.Geo_lineEdit, QtWidgets, self.Geo_comboBox_2, self.Geo_comboBox_4)
 
-    
+    def caller_Geo_openBB3DExe(self):
+        self.myGeom.Geo_openBB3DExe(self.Geo_lineEdit_6, QtWidgets)
+
+    def caller_Geo_setBB3DExe(self):
+        self.myGeom.Geo_setBB3DExe(self.Geo_lineEdit_6)
+
     def caller_Geo_openSalomeD(self):
         self.myGeom.Geo_openSalomeD(self.Geo_comboBox, self.Geo_radioButton, Geo_Button2)
 
