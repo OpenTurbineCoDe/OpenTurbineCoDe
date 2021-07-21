@@ -23,7 +23,7 @@ class Geometry:
     def setDefaultValues(self):
 
         ## default settings for BB3D
-        self.BB3DExe = "/home/kz/Desktop/BB3D/make_blade"
+        self.BB3DExe = "/home/kz/Desktop/BB3D/make_blade" #TODO: move this to the config.json file
 
         # TODO: These two should go with turbine settings
         self.spar = [0.15, 0.55]

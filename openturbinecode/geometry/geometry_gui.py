@@ -22,7 +22,6 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myGeom = myGeom #make the control module available
               
         # =================== INITIALIZE FIELD VALUES ==============================
-        self.myGeom.setDefaultValues()
         self.writeToUI()
 
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
