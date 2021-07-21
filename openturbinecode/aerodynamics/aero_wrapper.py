@@ -175,6 +175,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
                 rpm = rpmlist[i]
                 pitch = pitchlist[i]
                 outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                options["outputFile"] = outputFile 
 
                 #computing results
                 if not plotonly:
@@ -213,6 +214,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
                 rpm = rpmlist[i]
                 pitch = pitchlist[i]
                 outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                options["outputFile"] = outputFile 
 
                 #computing results
                 if not plotonly:
