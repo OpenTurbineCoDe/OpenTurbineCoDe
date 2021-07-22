@@ -28,7 +28,7 @@ setuptools.setup(
         ],
         "gui": ["PyQt5", "pyqtgraph"],
         "meshing": ["PGL"],
-        "controls": ["scp", "pandas"]
+        "controls": ["scp", "pandas","ROSCO_toolbox"] # TODO: this stuff is pretty heavyweight, we should find a way to selectively install and use only te packages that we need at installation time, or have some "fake" placeholder modules
         # "low-fidelity": [],
     },
     package_data = {"openturbinecode": ["*.json"],

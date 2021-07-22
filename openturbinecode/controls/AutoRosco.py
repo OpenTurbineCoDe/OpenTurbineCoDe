@@ -22,8 +22,8 @@ import numpy as np
 import subprocess
 from datetime import date
 # my codes
-from BladeMode import fun_mode_tracking   # self cuntion
-from fastpost import multipostprocessing   # self cuntion
+from .BladeMode import fun_mode_tracking   # self cuntion
+from .fastpost import multipostprocessing   # self cuntion
 #%% Initialize parameter dictionaries
 class TurbineMorph:
     def __init__(self,**obj):

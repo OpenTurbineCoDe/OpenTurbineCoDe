@@ -1,4 +1,7 @@
-from idwarp import USMesh
+try:
+    from idwarp import USMesh
+except ImportError:
+    print("IDwarp currently not available")
 
 
 def setup(comm, gridFile):
