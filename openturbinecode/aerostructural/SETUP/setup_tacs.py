@@ -1,5 +1,8 @@
-import pytacs
-from tacs_orig import functions, constitutive
+try:
+    import pytacs
+    from tacs_orig import functions, constitutive
+except ImportError:
+    print("TACS and pyTACS not available")
 
 
 def setup(comm, bdfFile):

@@ -1,4 +1,7 @@
-from pyaerostructure import AeroStruct, TACSLDTransfer
+try:
+    from pyaerostructure import AeroStruct, TACSLDTransfer
+except ImportError:
+    print("pyAerostructure not currently available")
 
 
 def setup(outdir, comm, CFDSolver, FEASolver):
