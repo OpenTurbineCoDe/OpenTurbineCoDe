@@ -12,6 +12,7 @@ import shutil
 
 #take filename in inputDir, replace the list of [value] on [iline], and place it in outputDir
 #mod = 0 (replace the value)|1 (multipy by value)|2 (add value)
+# TODO: These functions should be generalized and imported from utils (?)
 def replaceInFile(filename, inputDir, outputDir, iline, value, mod=0, fmt="  %9.5f"):
     ifi = os.path.join(inputDir, filename)
     ofi = os.path.join(outputDir, filename)
@@ -120,7 +121,7 @@ def replaceInFileTable(filename, inputDir, outputDir, iline, icol, value, mod=0,
 
 
 # TODO: add another dictionary for parameter sweeps?
-def LoFiAero(tsr,Vel,pitch,rho,T,config,options):
+def LoFiAeroStruct(tsr,Vel,pitch,rho,T,config,options):
 
     # ======================================================================
     #         Unpack options/params
@@ -167,25 +168,7 @@ def LoFiAero(tsr,Vel,pitch,rho,T,config,options):
         outFile = case_tag + ".out"
 
     elif 'AeroDyn' in config["lofi_code"]:
-        # driver: rpm
-        replaceInFileTable(config["files"]["ADdrvfile"],fileDirectory,workingDirectory,[22],3,[rpm],separator='  ')
-
-        # driver: Uinf, line 12 (EDIT THE SAME FILE!)
-        replaceInFileTable(config["files"]["ADdrvfile"],workingDirectory,workingDirectory,[22],1,[Vel],separator='  ',EF=True) #cut the file at the end
-
-        # IF WE WERE TO USE 1 DRIVER FILE TO DO MULTIPLE INFOW VEL:
-        # # number of test conditions:
-        # replaceInFile(ADdrvfile,fileDirectory,workingDirectory, [19], [N], fmt="  %d") 
-
-        # # driver: rpm (EDIT THE SAME FILE!)
-        # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),3,rpm_,separator='  ')
-
-        # # driver: Uinf, line 12 (EDIT THE SAME FILE!)
-        # replaceInFileTable(ADdrvfile,workingDirectory,workingDirectory,range(22,22+N),1,V_,separator='  ',EF=True) #cut the file at the end
-
-        run_cmd = config["path_to_aerodyn"] + " " + config["files"]["ADdrvfile"]
-        outFile = case_tag + ".1.out"
-
+        raise Warning("Please run frim the standalone aero module")
     # ======================================================================
     #         Run OpenFAST / AeroDyn
     # ======================================================================

@@ -12,6 +12,7 @@ import numpy as np
 import os
 import sys
 from mpi4py import MPI
+import pickle
 
 # sys.path.insert(1, './scripts')
 # from OTCDparser import OFparse, getLiftDistribution
@@ -20,13 +21,34 @@ from mpi4py import MPI
 
 from ..utils import OTCDparser as parser
 from ..utils import utilities as ut
-from .Wrapped_hifi_Analysis import HiFiAero
-from .Wrapped_lofi_Analysis import LoFiAero
+from .Wrapped_hifi_Analysis import HiFiAeroStruct
+from .Wrapped_lofi_Analysis import LoFiAeroStruct
+
+def pickleRead(fname, comm=None):  # TODO: move this somewhere more appropriate
+    """
+    This is a paralle pickle.load function, which is performed on the root proc only.
+    Error checking is necessary to provide py2 compatibility.
+    """
+    b = None
+    if (comm is None) or (comm is not None and comm.rank == 0):
+        if fname.split(".")[-1] == "pkl":
+            try:
+                with open(fname, "rb") as f:
+                    b = pickle.load(f)
+            except UnicodeDecodeError:  # if pickled with py2
+                with open(fname, "rb") as f:
+                    b = pickle.load(f, encoding="latin1")
+        else:
+            b = OrderedDict(SqliteDict(fname))
+    if comm is not None:
+        comm.barrier()
+        b = comm.bcast(b)
+    return b
 
 
 # TODO: add the ability to specify blade pitch
 # TODO: add another dictionary for parameter sweeps?
-def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
+def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
 
     # baseDir = os.path.dirname(os.path.abspath(__file__))
     
@@ -115,7 +137,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
     # ================================================
     # High-Fidelity runs with ADflow
     # ================================================
-    if 'ADflow' in options["fidelity"]:
+    if 'MACH' in options["fidelity"]:
         outputDirectory = os.path.join(path_to_case, "ADflow", output)
         options["outputDirectory"] = outputDirectory
 
@@ -125,18 +147,23 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
         for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
             tsr = tsrlist[i] * rotsign # Caution: tsr is signed!
             Vel = Vlist[i]
-            pitch = pitchlist[i]
+            try:
+                pitch = pitchlist[i]
+            except IndexError:  # Hack due to the fact that numpy.array returns a weird float if the input is just a scalar
+                pitch = pitchlist
             
             #TODO: use Tag instead of the long name of the configuration
-            name = f"{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
+            name = f"MDA_{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
             options["casename"] = name
             if not plotonly:
-                
+
                 if MPI.COMM_WORLD.rank == 0:
                     print(f"Starting Hi-fi analysis at tsr={tsr}")
-                funcs, ap = HiFiAero(tsr,Vel,pitch,rho,T,options)
-                trq = funcs[f"{ap.name}_mx"]
-                thr = funcs[f"{ap.name}_fx"]
+                HiFiAeroStruct(tsr,Vel,pitch,rho,T,options)
+                outputdir = options["outputDirectory"]
+                funcs = pickleRead(f"{outputdir}/Funcs.pkl")
+                trq = funcs["mx"]
+                thr = funcs["fx"]
             else:
                 #Name used for plotting purposes only
                 outsname = name + f"_000_lift.dat"
@@ -173,15 +200,19 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                pitch = pitchlist[i]
+                try:
+                    pitch = pitchlist[i]
+                except IndexError:  # Hack due to the fact that numpy.array returns a weird float if the input is just a scalar
+                    pitch = pitchlist
                 outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                options["outputFile"] = outputFile
 
                 #computing results
                 if not plotonly:
                     print(f"Starting Lo-fi analysis at tsr={tsr}")
 
                     # Running the OpenFast runscript
-                    LoFiAero(tsr,Vel,pitch,rho,T,config["lofi"],options)
+                    LoFiAeroStruct(tsr,Vel,pitch,rho,T,config["lofi"],options)
                 
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)
@@ -191,105 +222,6 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
                 torque.append(trq)
                 thrust.append(thr)
                 cp.append(CP)
-
-
-    # ================================================
-    # Low-Fidelity runs with AeroDyn 
-    # ================================================
-    elif 'AeroDyn' in options["fidelity"]:
-        outputDirectory = os.path.join(path_to_case, "AeroDyn", output)
-        options["outputDirectory"] = outputDirectory
-
-        config["lofi"]["lofi_code"] = "AeroDyn"
-        config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["ADfileList"]
-        
-        if MPI.COMM_WORLD.rank == 0:
-            if not os.path.exists(outputDirectory):
-                os.mkdir(outputDirectory)
-            #TODO: use a single drive file with multiple inflow velocities instead
-            for i in range(len(Vlist)):
-                tsr = tsrlist[i]
-                Vel = Vlist[i]
-                rpm = rpmlist[i]
-                pitch = pitchlist[i]
-                outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
-
-                #computing results
-                if not plotonly:
-                    print(f"Starting AeroDyn analysis at tsr={tsr}")
-                    
-                    # Running the OpenFast runscript
-                    LoFiAero(tsr,Vel,pitch,rho,T,config["lofi"],options)
-                
-                #postprocessing output files
-                thr, trq, power, fN, fT = parser.OFparse(outputFile)
-
-                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, trq)
-
-                torque.append(trq)
-                thrust.append(thr)
-                cp.append(CP)
-
-    elif 'turbinesFoam' in options["fidelity"]:
-        almFolder = os.path.join(path_to_case, "turbinesFoam")
-        if MPI.COMM_WORLD.rank == 0:
-            if not os.path.exists(almFolder):
-                os.mkdir(almFolder)
-
-        for i in range(len(tsrlist)):
-            #params
-            tsr = tsrlist[i]
-            Vel = Vlist[i]
-            rpm = rpmlist[i]
-            pitch = pitchlist[i]
-            yaw = 0.0
-
-            EndTime = 1.0 #TODO
-            WriteInterval = "???" #TODO
-            DynamicStall = "???" #TODO
-            EndEffectsModel = "???" #TODO
-
-            #file handling
-            caseName = "tsr" + str(i)
-            caseFolder = almFolder + os.sep + caseName
-            if MPI.COMM_WORLD.rank == 0:
-                if not os.path.exists(almFolder):
-                    os.mkdir(almFolder)
-            
-                # shutil.copy('source', caseName) #TODO manage the copy of this
-                
-                subfolder = caseFolder + os.sep + '0' + os.sep + 'include'
-                os.makedirs(subfolder,exist_ok=True)
-
-                fname = open(subfolder + os.sep + 'initialConditions', 'w')
-                fname.write("/*--------------------------------*- C++ -*----------------------------------*\ \n")
-                fname.write("| =========                 |                                                 | \n")
-                fname.write("| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | \n")
-                fname.write("|  \\    /   O peration     | Version:  4.x                                   | \n")
-                fname.write("|   \\  /    A nd           | Web:      www.OpenFOAM.org                      | \n")
-                fname.write("|    \\/     M anipulation  |                                                 | \n")
-                fname.write("\*---------------------------------------------------------------------------*/ \n")
-
-                fname.write("WndVel \t" + str(Vel) + ';\n')
-                fname.write("TSR \t" + str(tsr) + ';\n')
-                fname.write("BldPitchAng \t" + str(pitch) + ';\n')
-                fname.write("Yaw \t" + str(yaw) + ';\n')
-
-                fname.write("EndTime \t" + str(EndTime) + ';\n')
-                fname.write("WriteInterval \t" + WriteInterval + ';\n')
-                fname.write("DynamicStall \t" + DynamicStall + ';\n')
-                fname.write("EndEffectsModel \t" + EndEffectsModel + ';\n')
-                fname.write("Processors \t" + str(MPI.COMM_WORLD.Get_size())  + ';\n')
-                fname.close()   
-
-            #TODO: enable this in a safer way:
-            # subprocess.run(["of4x"])
-            # subprocess.run(["mpirun -np " + self.comBox_11.currentText() + " pimpleFoam -parallel > log&" ])
-        
-        #TODO: manage post-processing
-        torque.append(nan)
-        thrust.append(nan)
-        cp.append(nan)
 
 
     return torque, thrust, cp

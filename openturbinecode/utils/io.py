@@ -8,7 +8,7 @@ import yaml
 #making sure that we prepend "./" to a filename if provided in relative path
 def arg_to_path(args,key):
     path = getattr(args,key) if key in args else ""
-    if path != "" and path[0] != "." and path[0] != os.sep:
+    if path and path[0] != "." and path[0] != os.sep:
         path = "." + os.sep + path
     return path
 

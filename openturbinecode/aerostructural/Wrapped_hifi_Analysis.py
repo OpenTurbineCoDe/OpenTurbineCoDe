@@ -3,6 +3,9 @@
 # ======================================================================
 import numpy as np
 from mpi4py import MPI
+import pickle
+
+from SETUP import setup_aerostruct, setup_aerostructprob, setup_tacs, setup_structprob, setup_warping
 
 try:
     from baseclasses import AeroProblem
@@ -16,17 +19,27 @@ else:
 """
 Definition of a decorator to be used on every function that requires the sprcific module
 """
-def requires_adflow(function):
+def requires_adflow(function):  # TODO turn this into requires_MACH
     def check_requirement(*args,**kwargs):
         if not _has_adflow:
             raise ImportError("adflow is required to do this.")
         function(*args,*kwargs)
     return check_requirement
 
+def pickleWrite(fname, obj, comm=None):  # TODO: move this somewhere more appropriate
+    """
+    Parallel pickle.dump function, only performs operations on the root proc
+    """
+    if (comm is None) or (comm is not None and comm.rank == 0):
+        with open(fname, "wb") as handle:
+            pickle.dump(obj, handle)
+    if comm is not None:
+        comm.barrier()
+
 
 # TODO: add another dictionary for parameter sweeps?
 @requires_adflow
-def HiFiAero(tsr,Vel,pitch,rho,T,options):
+def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options):
     #TODO: use the pitch variable!
 
     # ======================================================================
@@ -128,7 +141,7 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options):
         "surfacevariables": ["cp", "mach", "yplus", "sepsensor", "p", "temp"],
     }
 
-    if hifimesh >= 2:
+    if int(hifimesh) >= 2:
         # Different options for coarser meshes
         aeroOptions["nkswitchtol"] = 1e-8
         aeroOptions["anklinresmax"] = 0.9
@@ -143,6 +156,10 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options):
     MP.addProcessorSet("standard", nMembers=nGroup, memberSizes=nProcPerGroup)
     comm, _, _, _, _ = MP.createCommunicators()
 
+    # ======================================================================
+    #         Create aerostruct solver
+    # ======================================================================
+
     # Create solver
     CFDSolver = AEROSOLVER(options=aeroOptions, comm=comm)
 
@@ -153,15 +170,43 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options):
     CFDSolver.addSlices(spanDir, pos, sliceType="absolute")
     CFDSolver.addLiftDistribution(150, spanDir)
 
+    # ---- IDwarp - Warping setup
+    mesh = setup_warping.setup(comm, gridFile)
+    CFDSolver.setMesh(mesh)
+
+    # ---- TACS - Create structurual solver
+    bdfFile = f"{path_to_case}/ADflow/INPUT/DTU_10MW_RWT_blade3D_rotated_3in1_AprilMay2021.bdf"
+    FEASolver = setup_tacs.setup(comm, bdfFile)
+    dispFuncs = FEASolver.functionList.keys()  # Functions to keep track of
+
+    # --- pyAeroStrucuture - Create aerostructural solver ---
+    AS = setup_aerostruct.setup(outputDirectory, comm, CFDSolver, FEASolver)
+
+
+    # ---- Structproblem instantiation
+    sp = setup_structprob.setup(dispFuncs, comm, ap)
+
+    # ---- AeroStructproblem instantiation
+    asp = setup_aerostructprob.setup(comm, ap, sp)
+
     # ======================================================================
     #         Functions:
     # ======================================================================
     
     funcs = {}
-    CFDSolver(ap)
-    CFDSolver.evalFunctions(ap, funcs)
+
+    AS(asp)
+    AS.evalFunctions(asp, funcs)
+    AS.checkSolutionFailure(asp, funcs)
 
     if MPI.COMM_WORLD.rank == 0:
         print(funcs)
 
+    funcs["mx"] = funcs[f"{ap.name}_mx"]
+    funcs["fx"] = funcs[f"{ap.name}_fx"]
+
+    outputdir = options["outputDirectory"]
+
+    pickleWrite(f"{outputdir}/Funcs.pkl", funcs)
+    
     return funcs, ap
