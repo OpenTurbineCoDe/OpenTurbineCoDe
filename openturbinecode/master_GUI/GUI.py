@@ -9,9 +9,9 @@ from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import pyqtgraph as pg
 
-# from openturbinecode.aerodynamics import aerosdynamics_gui as aero
+from openturbinecode.aerodynamics import aerodynamics_gui as aero
 # from openturbinecode.structure import structure_gui as struc
-# from openturbinecode.aerostructural import aerostructure_gui as aerostruc
+from openturbinecode.aerostructural import aerostructural_gui as aerostruct
 from openturbinecode.controls import control_gui as ctrl
 
 #NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
@@ -60,18 +60,20 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #=====  AERODYNAMICS ===============================================
         
-        # aero_ui = aero.Mapper(self.OTCD.myAero,parent=self)
-        # self.Master_tabs.addTab(aero_ui,"Aerodynamics")
+        aero_ui = aero.Mapper(self.OTCD.myAero,parent=self)
+        self.Master_tabs.addTab(aero_ui,"Aerodynamics")
 
         #=====  STRUCTURE ===============================================
         
         # struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self)
         # self.Master_tabs.addTab(struc_ui,"Structure")
 
-        #=====  AERO-STrUCTURE ===============================================
+        #=====  AERO-STRUCTURE ===============================================
         
-        # aeroStruc_ui = aerostruc.Mapper(self.OTCD.myAeroStruc,parent=self)
-        # self.Master_tabs.addTab(aeroStruc_ui,"AeroStructure")
+        # aerostructGUI_ui = asGui.Mapper(OTCD=self.OTCD,parent=self)
+        # self.SampleModule.addTab(aerostructGUI_ui,"Aerostructural")
+        aerostructGUI_ui = aerostruct.Mapper(self.OTCD.myAeroStruct,parent=self)
+        self.Master_tabs.addTab(aerostructGUI_ui,"AeroStructure")
 
         #=====  CCD ===============================================
         
