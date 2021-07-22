@@ -12,7 +12,7 @@ from ROSCO_toolbox import controller as ROSCO_controller
 from ROSCO_toolbox import turbine as ROSCO_turbine
 from ROSCO_toolbox.utilities import write_DISCON
 from pyFAST.input_output import FASTInputFile,FASTOutputFile
-from TACSDynParams import TACSParams
+from .TACSDynParams import TACSParams
 #from Gen_Ctables import writCtables
 from scipy.optimize import curve_fit
 import openmdao.api as om

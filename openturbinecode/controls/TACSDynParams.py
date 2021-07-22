@@ -15,7 +15,7 @@ import numpy as np
 from baseclasses import StructProblem
 from tacs_orig import functions
 #from mpi4py import MPI
-from tacs_setup import setup_DTU10MW
+from .tacs_setup import setup_DTU10MW
 #%%
 # ==============================================================================
 #       Initialize TACS

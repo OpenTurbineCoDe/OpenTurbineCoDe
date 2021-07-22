@@ -28,8 +28,8 @@ from ROSCO_toolbox import turbine as ROSCO_turbine
 from ROSCO_toolbox.utilities import  write_DISCON
 from pyFAST.input_output import FASTInputFile,FASTOutputFile
 # my function
-from control_module import Control
-from AutoRosco import TurbineMorph
+from .control_module import Control
+from .AutoRosco import TurbineMorph
 #import openMDAO
 import openmdao.api as om
 #%%

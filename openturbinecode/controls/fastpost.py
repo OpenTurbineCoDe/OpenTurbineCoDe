@@ -7,7 +7,14 @@ Created on Sat May 22 16:18:23 2021
 """
 import os
 import ROSCO_toolbox.ofTools.fast_io.output_processing as fp
-from pCrunch import Analysis
+try:
+    from pCrunch import Analysis
+except ImportError:
+    print("------------------------------------------")
+    print("Something is not right with pCrunch")
+    print("Please manually patch pCrunch to corrcetly import ROSCO_toolbox")
+    print("------------------------------------------")
+
 import numpy as np
 #%%
  # postprocessing mutiple openfast simulations
