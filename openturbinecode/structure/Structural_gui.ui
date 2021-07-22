@@ -223,7 +223,7 @@
       </rect>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="HigFidelity">
       <widget class="QGroupBox" name="ecuGroupBox_12">
@@ -259,22 +259,7 @@
         </item>
         <item>
          <property name="text">
-          <string>NaturalFrequency2</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
           <string>NaturalFrequency3</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>NaturalFrequency4</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>NaturalFrequency5</string>
          </property>
         </item>
        </widget>

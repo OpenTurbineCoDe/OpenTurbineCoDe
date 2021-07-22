@@ -22,12 +22,33 @@ from tacs_setup import setup_DTU10MW
 # ==============================================================================
 class TACSParams:
     def __init__(self,yamlfile,thicknesses):
+        # thicknesses a list contain 9 scale factors for the 9 stations
+        self.thicknesses = thicknesses
+        self.ThickScaling(self.thicknesses)
         self.Yamlfile = yaml.safe_load(open(yamlfile))
         self.bdffile=self.Yamlfile["path_params"]["bdffile"]
-        self.tt=[float(d)*0.001 for d in thicknesses]
-        tsn=ts1=tw=to=self.tt
-        ts = [ts1,ts1,ts1]  # leading->trailing
-        self.FEASolver = setup_DTU10MW.setup(self.bdffile,tsn,ts,tw,to)
+        self.FEASolver = setup_DTU10MW.setup(self.bdffile,self.tsn,self.ts,self.tw,self.to)
+    def ThickScaling(self):
+        ts11 = [42,46,40,35,28,25,18,12,10]  # leadings
+        ts1=[float(d)*0.001 for d in ts11]
+        ts21 = [38,60,78,82,82,76,60,42,20]  # caps
+        ts2=[float(d)*0.001 for d in ts21]
+        ts31 = [40,70,80,70,66,58,40,30,18]  # trailing
+        ts3=[float(d)*0.001 for d in ts31]
+        #to = ts3   # Assume training = Web c
+        # distributed thicknesses
+        tsn1 = [42,46,40,35,28,25,18,12,10] # the nose thickness distribution along the span at 9 stations
+        tsn=[float(d)*0.001 for d in tsn1]
+        # ts = [ts1,ts2,ts3]  # leading->trailing
+        tw1 = [64,60,58,50,38,28,20,16,10]  # web
+        tw=[float(d)*0.001 for d in tw1]
+        self.tsn = np.multiply(tsn, self.thicknesses).tolist()
+        self.ts1 = np.multiply(ts1, self.thicknesses).tolist()
+        self.ts2 = np.multiply(ts2, self.thicknesses).tolist()
+        self.ts3 = np.multiply(ts3, self.thicknesses).tolist()
+        self.ts = [self.ts1,self.ts2,self.ts3]
+        self.tw = np.multiply(tw, self.thicknesses).tolist()
+        self.to = self.ts3
         
     def Frequencyanalysis(self,N):
         FEASolver=self.FEASolver

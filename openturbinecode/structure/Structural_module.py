@@ -63,6 +63,7 @@ class Structural:
             self.ThickSclF3L = 0.5
             self.ThickSclF3U = 1.5
             self.ThickSclF3STP = 0.5
+            
             # HPC
             self.Username = "xd101"
             self.Server   = "amarel.rutgers.edu"
@@ -95,6 +96,7 @@ class Structural:
         # Write out
         BeamFile.write()     
         PrimaryFile.write() 
+        
     def LocalRun(self):
         # local run
         print("Running:" + self.workingmodel)

@@ -12,6 +12,7 @@ import numpy as np
 
 #import openturbinecode.structure.structural_module as stru
 import Structural_module as stru
+from TACSDynParams import TACSParams
 
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "Structural_gui.ui")[0]  # Load the UI
 
@@ -185,13 +186,6 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                         self.myStru.LocalRun()
                         self.myStru.postprocessBeamDyn()
                     self.myStru.TwstSclFCV = self.myStru.TwstSclF
-        if  self.myStru.Solver == "TACS":
-            if self.RB42.isChecked():
-                pass
-            if self.RB52.isChecked():
-                pass
-            if self.RB62.isChecked():
-                pass
         self.myStru.sweep = sweep    
     
     def caller_BeamDynPlot(self):
@@ -212,10 +206,68 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         plt.show()
     
     def caller_LocalRunTACS(self):
-        pass
-    
+        if  self.myStru.Solver == "TACS":
+            self.frequency = []
+            if self.RB42.isChecked():
+                sweep = np.arange(float(self.myStru.ThickSclF1L),float(self.myStru.ThickSclF1U),float(self.myStru.ThickSclF1STP))
+                for i in range(len(sweep)):
+                    self.myStru.thickness = []
+                    self.myStru.ThickSclF1CV = sweep[i]
+                    ones= np.ones(3)
+                    self.myStru.thickness.extend(ones*self.myStru.ThickSclF1CV)
+                    self.myStru.thickness.extend(ones*self.myStru.ThickSclF2CV)
+                    self.myStru.thickness.extend(ones*self.myStru.ThickSclF3CV)
+                    TACS = TACSParams(self.myStru.DTU10MWTACS,self.myStru.thickness)
+                    TACS.Frequencyanalysis(3)
+                    frequency= TACS.Modeextractiion()
+                    self.frequency.append(frequency)
+                self.myStru.ThickSclF1CV = self.myStru.ThickSclF1
+            if self.RB52.isChecked():
+                sweep = np.arange(float(self.myStru.ThickSclF2L),float(self.myStru.ThickSclF2U),float(self.myStru.ThickSclF2STP))
+                for i in range(len(sweep)):
+                    self.myStru.thickness = []
+                    self.myStru.ThickSclF2CV = sweep[i]
+                    ones= np.ones(3)
+                    self.myStru.thickness.extend(ones*self.myStru.ThickSclF1CV)
+                    self.myStru.thickness.extend(ones*self.myStru.ThickSclF2CV)
+                    self.myStru.thickness.extend(ones*self.myStru.ThickSclF3CV)
+                    TACS = TACSParams(self.myStru.DTU10MWTACS,self.myStru.thickness)
+                    TACS.Frequencyanalysis(3)
+                    frequency = TACS.Modeextractiion()
+                    self.frequency.append(frequency)
+                self.myStru.ThickSclF2CV = self.myStru.ThickSclF2
+            if self.RB62.isChecked():
+                sweep = np.arange(float(self.myStru.ThickSclF3L),float(self.myStru.ThickSclF3U),float(self.myStru.ThickSclF3STP))
+                for i in range(len(sweep)):
+                    self.myStru.thickness = []
+                    self.myStru.ThickSclF3CV = sweep[i]
+                    ones= np.ones(3)
+                    self.myStru.thickness.extend(ones*self.myStru.ThickSclF1CV)
+                    self.myStru.thickness.extend(ones*self.myStru.ThickSclF2CV)
+                    self.myStru.thickness.extend(ones*self.myStru.ThickSclF3CV)
+                    TACS = TACSParams(self.myStru.DTU10MWTACS,self.myStru.thickness)
+                    TACS.Frequencyanalysis(3)
+                    frequency = TACS.Modeextractiion()
+                    self.frequency.append(frequency)
+                self.myStru.ThickSclF3CV = self.myStru.ThickSclF3
+        self.myStru.sweep = sweep 
     def caller_TACSPlot(self):
-        pass
+        self.readFromUI()
+        # plot
+        frequency = []
+        if self.myStru.TACSResponse == "NaturalFrequency1":
+            for i in self.frequency:
+                frequency.append(i[0])
+            plt.plot(self.myStru.sweep,frequency,'r-s')
+        if self.myStru.TACSResponse == "NaturalFrequency2":
+            for i in self.frequency:
+                frequency.append(i[1])
+            plt.plot(self.myStru.sweep,frequency,'r-s')
+        if self.myStru.TACSResponse == "NaturalFrequency3":
+            for i in self.frequency:
+                frequency.append(i[2])
+            plt.plot(self.myStru.sweep,frequency,'r-s')   
+        plt.show()
     
     def caller_SendToHPCf(self):
         pass
