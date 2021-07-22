@@ -53,17 +53,6 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
         #=====  GEOMETRY ===============================================
-        self.Geo_LineEdit1.setText("/home/kz/Desktop/Geometry/AeroDynCase/blade.dat")
-        self.OTCD.AeroDynBladeFileName = self.Geo_LineEdit1  
-        self.OTCD.Geom_Table1 = self.Geo_Table1
-        self.Geo_Button1.clicked.connect(self.OTCD.loadGeom)
-        self.Geo_Button1.setToolTip('Load blade geometry from an AeroDyn file')
-        self.Geo_toolButton1.clicked.connect(self.OTCD.openFileDialogue)
-        self.Geo_toolButton1.setToolTip('Click here to select AeroDyn blade file')
- 
-
-
-
 
         #=====  MESHING ===============================================
         
@@ -90,34 +79,6 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         
         control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self)
         self.Master_tabs.addTab(control_ui,"Controls")
-
-        #=====  SAMPLE MODULE ===============================================
-        
-        # self.sample_button1.clicked.connect(self.OTCD.sample_hello_world)
-
-        
-        # ===================================
-        # SAMPLE CODE:
-        # ===================================
-
-        # Bind the event handlers to the buttons
-        # self.pushButton.clicked.connect(self.sendToHPC)
-
-        # Set placeholders
-        # self.lineEdit_7.setText("11.4")
-
-        # def showSolverSetup(self):
-        #     print("The user have selected "+str(self.comboBox.currentText()))
-        #     if self.comboBox.currentText() == "AeroDyn (BEM)":
-        #         self.stackedWidget.setCurrentIndex(1)
-        #         self.lineEdit_2.setText("0 0.5 20")
-        #     if self.comboBox.currentText() == "OpenFOAM (ALM)":
-        #         self.stackedWidget.setCurrentIndex(0)
-        #         self.lineEdit_2.setText("0 0.5 20")
-
-        # def sendToHPC(self):
-        #     subprocess.run(["scp", "-r", self.lineEdit_12.text() ,self.lineEdit_13.text()+"@"+self.lineEdit_14.text()+":"+self.lineEdit_15.text()])
-        #     subprocess.run(["rm", "-r",  self.ALMFolder+"/rpm*"])
 
         # ===================================
         # FILL THE GUI WITH PRELOADED DATA:
