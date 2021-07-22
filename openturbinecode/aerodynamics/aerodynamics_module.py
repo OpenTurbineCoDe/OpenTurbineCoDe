@@ -14,6 +14,7 @@ class Aerodynamics:
         self.turb_data = turb_data
         self.models = models
         self.path_to_case = path_to_case
+        print("ahahahaefa "+ self.path_to_case)
 
         self.setDefaultValues()
 
@@ -30,6 +31,7 @@ class Aerodynamics:
         else:
             #TODO : temp - pre - load a turbine
             turb_yaml = self.path_to_case + os.sep + "./Madsen2019_10.yaml"
+            print("hhahah "+turb_yaml)
             self.turb_data = io.load_yaml(turb_yaml)
             
         from types import SimpleNamespace
@@ -145,7 +147,9 @@ class Aerodynamics:
 if __name__=='__main__':
 
     cwd = os.getcwd()
-    myAero = Aerodynamics(cwd)
+    path_to_case = cwd + "/models/DTU_10MW/Madsen2019"
+    myAero = Aerodynamics(path_to_case)
+
     myAero.setDefaultValues()
     myAero.Run()
     myAero.PlotCp()
