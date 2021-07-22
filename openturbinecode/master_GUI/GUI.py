@@ -11,8 +11,10 @@ import pyqtgraph as pg
 
 from openturbinecode.aerodynamics import aerodynamics_gui as aero
 # from openturbinecode.structure import structure_gui as struc
-# from openturbinecode.aerostructural import aerostructure_gui as aerostruc
+from openturbinecode.aerostructural import aerostructural_gui as aerostruct
 from openturbinecode.controls import control_gui as ctrl
+from openturbinecode.geometry import geometry_gui as geom
+
 
 #NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
 #       Later, we should replace this by a static load when everybody is done editing the GUI.
@@ -26,8 +28,6 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
     #def call_Geo_loadGeom(self):
     #    self.OTCD.loadGeom(self.fName)
     
-
-
     def __init__(self,  OTCD_, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
@@ -41,7 +41,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         # You can get inspiration from sample code below, or other resources/tutorials on Qt stuff.
         
         #=====  MAIN OPTIONS ===============================================
-        self.OTCD.MessageBox = self.textBrowser
+        #self.OTCD.MessageBox = self.textBrowser
         self.OTCD.QtWidgets = QtWidgets
         
         self.Main_set_PathToCaseButton.clicked.connect(self.set_path_to_case)
@@ -53,18 +53,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
         #=====  GEOMETRY ===============================================
-        self.Geo_LineEdit1.setText("/home/kz/Desktop/Geometry/AeroDynCase/blade.dat")
-        self.OTCD.AeroDynBladeFileName = self.Geo_LineEdit1  
-        self.OTCD.Geom_Table1 = self.Geo_Table1
-        self.Geo_Button1.clicked.connect(self.OTCD.loadGeom)
-        self.Geo_Button1.setToolTip('Load blade geometry from an AeroDyn file')
-        self.Geo_toolButton1.clicked.connect(self.OTCD.openFileDialogue)
-        self.Geo_toolButton1.setToolTip('Click here to select AeroDyn blade file')
- 
-
-
-
-
+        geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self)
+        self.Master_tabs.addTab(geometry_ui,"Geometry")
         #=====  MESHING ===============================================
         
         #...
@@ -79,43 +69,17 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         # struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self)
         # self.Master_tabs.addTab(struc_ui,"Structure")
 
-        #=====  AERO-STrUCTURE ===============================================
+        #=====  AERO-STRUCTURE ===============================================
         
-        # aeroStruc_ui = aerostruc.Mapper(self.OTCD.myAeroStruc,parent=self)
-        # self.Master_tabs.addTab(aeroStruc_ui,"AeroStructure")
+        # aerostructGUI_ui = asGui.Mapper(OTCD=self.OTCD,parent=self)
+        # self.SampleModule.addTab(aerostructGUI_ui,"Aerostructural")
+        aerostructGUI_ui = aerostruct.Mapper(self.OTCD.myAeroStruct,parent=self)
+        self.Master_tabs.addTab(aerostructGUI_ui,"AeroStructure")
 
         #=====  CCD ===============================================
         
         control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self)
         self.Master_tabs.addTab(control_ui,"Controls")
-
-        #=====  SAMPLE MODULE ===============================================
-        
-        # self.sample_button1.clicked.connect(self.OTCD.sample_hello_world)
-
-        
-        # ===================================
-        # SAMPLE CODE:
-        # ===================================
-
-        # Bind the event handlers to the buttons
-        # self.pushButton.clicked.connect(self.sendToHPC)
-
-        # Set placeholders
-        # self.lineEdit_7.setText("11.4")
-
-        # def showSolverSetup(self):
-        #     print("The user have selected "+str(self.comboBox.currentText()))
-        #     if self.comboBox.currentText() == "AeroDyn (BEM)":
-        #         self.stackedWidget.setCurrentIndex(1)
-        #         self.lineEdit_2.setText("0 0.5 20")
-        #     if self.comboBox.currentText() == "OpenFOAM (ALM)":
-        #         self.stackedWidget.setCurrentIndex(0)
-        #         self.lineEdit_2.setText("0 0.5 20")
-
-        # def sendToHPC(self):
-        #     subprocess.run(["scp", "-r", self.lineEdit_12.text() ,self.lineEdit_13.text()+"@"+self.lineEdit_14.text()+":"+self.lineEdit_15.text()])
-        #     subprocess.run(["rm", "-r",  self.ALMFolder+"/rpm*"])
 
         # ===================================
         # FILL THE GUI WITH PRELOADED DATA:
