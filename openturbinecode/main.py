@@ -4,7 +4,6 @@ import sys
 import os
 import numpy as np
 
-import openturbinecode.meshing.surf_mesher_PGL as pgl
 import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
 import openturbinecode.master_GUI.GUI as GUI
@@ -16,6 +15,7 @@ import openturbinecode.aerodynamics.aerodynamics_module as aero
 # import openturbinecode.structure.structure_module as struc
 import openturbinecode.aerostructural.aerostructural_module as aerostruct
 import openturbinecode.controls.control_module as ctrl
+import openturbinecode.geometry.geometry_module as geom
 # ...
 
 class OpenTurbineCoDe:
@@ -56,7 +56,7 @@ class OpenTurbineCoDe:
         # self.myStruc = struc.Structure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myAeroStruct = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
-
+        self.myGeom = geom.Geometry(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
         self.printv('initilization done. \n\n')
 
     # ---------------- IO/PARSING FUNCTIONS --------------------------------------
@@ -109,10 +109,10 @@ class OpenTurbineCoDe:
         if(self.verbose):
             print(str)
     
-    def printMes(self, mes):
-        self.MessageBox.append(mes)
-        self.cursot = self.MessageBox.textCursor()
-        self.MessageBox.moveCursor(self.cursot.End)
+    #def printMes(self, mes):
+    #    self.MessageBox.append(mes)
+    #    self.cursot = self.MessageBox.textCursor()
+    #    self.MessageBox.moveCursor(self.cursot.End)
 
     #=====  MAIN FUNCTIONS ===============================================
         
@@ -154,68 +154,6 @@ class OpenTurbineCoDe:
 
         #TODO: pass info on Omega and pitch, to avoid NaN in test matrix (AeroDyn, Elastodyn)
         DLC_manager.generateDLC(OTCD.path_to_case, OTCD.turb_data, DLC_list, n_ws, n_seeds, TMax)
-
-    #=====  GEOMETRY FUNCTIONS ===============================================
-    def loadGeom(self):
-        self.printMes('The AeroDyn blade file is located at ' + self.AeroDynBladeFileName.text())
-        with open(self.AeroDynBladeFileName.text(), 'r') as f:
-            next(f)
-            next(f)
-            next(f)
-            next(f)
-            next(f)
-            next(f)
-            content = [x.strip().split()[0:] for x in f]
-        NoSec = len(content)
-        self.Geom_Table1.setRowCount(NoSec)
-        for i in range(0, NoSec-1):
-            self.Geom_Table1.setItem(i, 0, self.QtWidgets.QTableWidgetItem(content[i][0]))
-            self.Geom_Table1.setItem(i, 1, self.QtWidgets.QTableWidgetItem(content[i][4]))
-            self.Geom_Table1.setItem(i, 2, self.QtWidgets.QTableWidgetItem(content[i][5]))
-            self.Geom_Table1.setItem(i, 3, self.QtWidgets.QTableWidgetItem(content[i][6]))
-            self.Geom_Table1.setItem(i, 4, self.QtWidgets.QTableWidgetItem(str(0.125)))
-            self.Geom_Table1.setItem(i, 5, self.QtWidgets.QTableWidgetItem(str(0.25)))
-            #self.Geom_Table.setItem(i, 6, self.QtWidgets.QTableWidgetItem(content[i][6]))
-        self.printMes('Finished loading AeroDyn blade file')
-
-        
-
-    def openFileDialogue(self):
-        self.solverFolder, _filter = str(self.QtWidgets.QFileDialog.getOpenFileName(None, "Open AeroDyn blade file", '.', "(*)"))
-        self.AeroDynBladeFileName.setText(self.solverFolder)
-
-
-    #...
-
-    #=====  MESHING FUNCTIONS ===============================================
-    #write all the geometry files required by PGL, from global turbine data 
-    def call_writePGLinputs(self):
-        planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
-        pgl.writePGLinputs(self.turb_data, self.path_to_case, planform_file)
-    
-    #generate and write aerodynamic surface mesh with PGL
-    def call_generateSurfMesh(self):
-        R = self.turb_data["assembly"]["rotor_diameter"] / 2.
-        R0 = self.turb_data["components"]["hub"]["diameter"] / 2.
-        
-        #determine the blending parameter, basically corresponding to the relative thickness of each airfoil
-        
-        afs = self.turb_data["airfoils"]
-        blend_var = np.zeros(len(afs))
-        airfoil_list = []
-        i = 0
-        for af in afs:
-            blend_var[i] = af["relative_thickness"]
-            airfoil_list.append(af["name"])
-            i+=1
-            
-        print(airfoil_list)
-        print(blend_var)
-
-        #Call the function:
-        mesh_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["meshName"]
-        planform_file = self.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["planform_file"]
-        pgl.generateSurfMesh(R0, R, self.path_to_case, planform_file, airfoil_list, blend_var, mesh_file)
 
 
 
@@ -272,4 +210,3 @@ if __name__ == '__main__':
             OTCD.printv('...done.')
         
     OTCD.printv('Done, byebye')
-    

@@ -13,6 +13,8 @@ from openturbinecode.aerodynamics import aerodynamics_gui as aero
 # from openturbinecode.structure import structure_gui as struc
 from openturbinecode.aerostructural import aerostructural_gui as aerostruct
 from openturbinecode.controls import control_gui as ctrl
+from openturbinecode.geometry import geometry_gui as geom
+
 
 #NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
 #       Later, we should replace this by a static load when everybody is done editing the GUI.
@@ -26,8 +28,6 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
     #def call_Geo_loadGeom(self):
     #    self.OTCD.loadGeom(self.fName)
     
-
-
     def __init__(self,  OTCD_, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
@@ -41,7 +41,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         # You can get inspiration from sample code below, or other resources/tutorials on Qt stuff.
         
         #=====  MAIN OPTIONS ===============================================
-        self.OTCD.MessageBox = self.textBrowser
+        #self.OTCD.MessageBox = self.textBrowser
         self.OTCD.QtWidgets = QtWidgets
         
         self.Main_set_PathToCaseButton.clicked.connect(self.set_path_to_case)
@@ -53,7 +53,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
         #=====  GEOMETRY ===============================================
-
+        geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self)
+        self.Master_tabs.addTab(geometry_ui,"Geometry")
         #=====  MESHING ===============================================
         
         #...
