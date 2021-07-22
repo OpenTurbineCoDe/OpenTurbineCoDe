@@ -95,7 +95,7 @@ if __name__=='__main__':
     parser.add_argument("--plotonly", action='store_true', help="Do not compute anything")
     args = parser.parse_args()
 
-    path_to_case = os.getcwd()
+    path_to_case = os.getcwd() + "/models/DTU_10MW/Madsen2019"
     
     #empty aero object
     myAero = aero.Aerodynamics(path_to_case, plotonly=args.plotonly)
