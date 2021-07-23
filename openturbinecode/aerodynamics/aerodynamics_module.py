@@ -17,6 +17,8 @@ class Aerodynamics:
 
         self.setDefaultValues()
 
+        self.caseToRun = []
+
         self.plotonly = plotonly
               
     # ==================== GENERAL FUNCTIONS ==========================================
@@ -31,8 +33,8 @@ class Aerodynamics:
             #pre-load a turbine
             path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
             path_to_TMP = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
-            turb_yaml = path_to_TMP + os.sep + "./Madsen2019_10.yaml"
-            self.turb_data = io.load_yaml(turb_yaml)
+            turb_yaml = path_to_TMP + os.sep + "Madsen2019_10.yaml"
+            self.reload_turbdata(turb_yaml)
             
         self.case_tag = "DTU_10MW" #TODO: this should be read from turbdata!
             
@@ -63,6 +65,17 @@ class Aerodynamics:
         self.path_to_case = path_to_case
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
+
+    def reload_turbdata(self,path):
+        try:
+            self.turb_data = io.load_yaml(path)
+        except FileNotFoundError:
+            print("CAUTION: file not found at "+path)
+        except IsADirectoryError:
+            print("CAUTION: I did not find a yaml file at "+path)
+
+    def setFolderStructure(self):
+        pass    
 
     def Run(self):
 

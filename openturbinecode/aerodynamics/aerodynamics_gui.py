@@ -29,8 +29,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
+        path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))    
+
         self.myAero = myAero 
-              
+
+        self.pathToRotor = ""
+        self.pathToMadsen = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep + "Madsen2019_10.yaml"
+
         # =================== INITIALIZE FIELD VALUES ==============================
         self.myAero.setDefaultValues()
         self.writeToUI()
@@ -38,13 +43,16 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # =================== FORCE INTERNAL VALUES WHEN RUNNING WITH MASTER ==============================
         if withMasterGUI:
             self.str_pathToCase.setEnabled(False)
-            self.pathToRotor.setEnabled(False)
-            self.loadRotor.setEnabled(False)
 
             self.model_list.setEnabled(False)
+
+            self.loadRotor.setEnabled(False)
             self.model_list.setItemText(0, "internal") 
             self.DLC_list.setEnabled(False)
             self.DLC_list.setItemText(0, "internal") 
+        
+        self.str_pathToRotor.setEnabled(False)            
+        self.browseButtonRotor.setEnabled(False)
             
 
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
@@ -52,6 +60,11 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         
         self.loadRotor.clicked.connect(self.load_case)
 
+        self.model_list.activated.connect(self.GrayOutRotor)
+
+        self.browseButtonRotor.clicked.connect(self.set_pathToRotor)
+
+        self.setFolderStruct_button.clicked.connect(self.caller_setFolderStructure)
         self.runAerodyn.clicked.connect(self.caller_Run)
         self.plot_cp.clicked.connect(self.myAero.PlotCp)
         self.plot_thrust.clicked.connect(self.myAero.PlotThrust)               
@@ -64,6 +77,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     def writeToUI(self):
 
         self.str_pathToCase.setText(self.myAero.path_to_case)
+        self.str_pathToRotor.setText(self.pathToRotor)
 
         #Set interface values
         # model list
@@ -78,6 +92,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
     def readFromUI(self):
         self.myAero.setPathToCase(self.str_pathToCase.text())
+        
+        if self.model_list.currentText() == 'DTU 10 MW': 
+            self.pathToRotor = self.pathToMadsen
+        # elif ...:
+        #     pass
+        else:
+            self.pathToRotor = self.str_pathToRotor.text()
 
         #Get user inputs data
         # self.myAero.XXX = self.model_list.currentText()
@@ -94,8 +115,16 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     # ============== Caller functions: gather params from the GUI and calls specific function ==================
 
     def load_case(self):
-        pass
-        #TODO
+        #read params from the GUI and then load data
+        self.readFromUI()
+        print("loading "+ self.pathToRotor)
+        self.myAero.reload_turbdata(self.pathToRotor)
+    
+    def caller_setFolderStructure(self):
+        self.readFromUI()
+        print("Setting folders in "+ self.myAero.path_to_case)
+        self.myAero.setFolderStructure()
+
 
     def caller_Run(self):
         #read params from the GUI
@@ -104,7 +133,19 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         #execute function through the control object
         self.myAero.Run()
 
+    # ============== Purely GUI functions ===========================
+    def set_pathToRotor(self):
+        (filePath, _) = QtWidgets.QFileDialog.getOpenFileName()
+        self.pathToRotor = filePath
+        self.writeToUI()
 
+    def GrayOutRotor(self):
+        if self.model_list.currentText() == "external":
+            self.str_pathToRotor.setEnabled(True)
+            self.browseButtonRotor.setEnabled(True)
+        else:
+            self.str_pathToRotor.setEnabled(False)            
+            self.browseButtonRotor.setEnabled(False)
 
 
 if __name__=='__main__':
