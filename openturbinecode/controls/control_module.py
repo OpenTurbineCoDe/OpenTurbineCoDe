@@ -8,11 +8,34 @@ import os
 import math
 this_dir            = os.path.dirname(__file__) 
 # Import ROSCO_toolbox modules 
-from ROSCO_toolbox import controller as ROSCO_controller
-from ROSCO_toolbox import turbine as ROSCO_turbine
-from ROSCO_toolbox.utilities import write_DISCON
-from pyFAST.input_output import FASTInputFile,FASTOutputFile
-from TACSDynParams import TACSParams
+try:
+    from ROSCO_toolbox import controller as ROSCO_controller
+    from ROSCO_toolbox import turbine as ROSCO_turbine
+    from ROSCO_toolbox.utilities import write_DISCON
+except ImportError as err:
+    _has_rosco = False
+else:
+    _has_rosco = True
+
+try:
+    from pyFAST.input_output import FASTInputFile,FASTOutputFile
+except ImportError as err:
+    _has_pyfast = False
+else:
+    _has_pyfast = True
+
+# """
+# Definition of a decorator to be used on every function that requires the sprcific module
+# """
+# def requires_pyfast(function):
+#     def check_requirement(*args,**kwargs):
+#         if not _has_pyfast:
+#             raise ImportError("pyfast is required to do this.")
+#         function(*args,*kwargs)
+#     return check_requirement
+
+
+from .TACSDynParams import TACSParams
 #from Gen_Ctables import writCtables
 from scipy.optimize import curve_fit
 import openmdao.api as om
@@ -20,6 +43,8 @@ import numpy as np
 import subprocess
 from datetime import date
 import pandas as pd
+
+import openturbinecode.utils.io as io
 
 #%%
 class Control:
@@ -47,86 +72,94 @@ class Control:
             #... TODO
             pass
         else:
-            # system: FAST
-            self.ChordF = self.ChordFCV = 0.0 # Also define a current value variable for model update
-            self.ChordFL = -0.5
-            self.ChordFU = 0.5
-            self.ChordFSTP = 0.5
-            
-            self.ThickF = self.ThickFCV = 0.0
-            self.ThickFL = -0.5
-            self.ThickFU = 0.5
-            self.ThickFSTP = 0.5
-            
-            self.TiltAngle = self.TiltAngleCV = -5 # (deg)
-            self.TiltAngleL = -8. # (deg)
-            self.TiltAngleU = -2. # (deg)
-            self.TiltAngleSTP = 3. # (deg)
-            
-            # system: TACS based ROM
-            self.BldFpK = self.BldFpKCV = 806463. # N/m
-            self.BldFpKL = 706463.
-            self.BldFpKU = 906463.
-            self.BldFpKSTP = 100000.
-            
-            self.ThickL = self.ThickLCV = 1814541.
-            self.ThickLL = 1614541.
-            self.ThickLU = 2014541.
-            self.ThickLSTP = 200000.
-            
-            self.RtInertia = self.RtInertiaCV = 156348032. # kg*m^2
-            self.RtInertiaL = 136348032. 
-            self.RtInertiaU = 176348032.
-            self.RtInertiaSTP = 20000000.
-            
-            #set default text for general parameters
-            self.ROSCOR2Omega = self.ROSCOR2OmegaCV = 0.2
-            self.ROSCOR2OmegaL = 0.1
-            self.ROSCOR2OmegaU = 0.3
-            self.ROSCOR2OmegaSTP = 0.1
-            
-            self.ROSCOR2Zeta  = self.ROSCOR2ZetaCV = 0.7
-            self.ROSCOR2ZetaL  = 0.5
-            self.ROSCOR2ZetaU  = 0.9
-            self.ROSCOR2ZetaSTP  = 0.2
-            
-            self.ROSCOR3Omega = self.ROSCOR3OmegaCV = 0.3
-            self.ROSCOR3OmegaL = 0.2
-            self.ROSCOR3OmegaU = 0.4
-            self.ROSCOR3OmegaSTP = 0.1
-            
-            self.ROSCOR3Zeta  = self.ROSCOR3ZetaCV = 0.7
-            self.ROSCOR3ZetaL  = 0.5
-            self.ROSCOR3ZetaU  = 0.9
-            self.ROSCOR3ZetaSTP  = 0.2
-            
-            self.PlatformKp   = self.PlatformKpCV = 0.0
-            self.PlatformKpL   = 0.0
-            self.PlatformKpU   = 0.0
-            self.PlatformKpSTP   = 0.0
-            
-            self.DLCV = 11.4
-            # Parametric sweep in GUI
-            # self.yaml=""
-            # self.output=""
-            self.Username = "xd101"
-            self.Server   = "amarel.rutgers.edu"
-            self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
-            # Optimization constraints: baseline model values
-            self.Constraint_Mr             = 41738.8      # rotor mass kg
-            self.Constraint_DEL_Mbr        = 399250.1
-            self.Constraint_DEL_Mtwr       = 1055163.2
-            self.Constraint_DEL_Fbr        = 7234.7
-            self.Constraint_DEL_Ftwr       = 19152.7
-            
-            # Optimization configuration
-            self.Iterations     = 10
-            self.Tolerane       = 1e-6
+            #pre-load a turbine
+            path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+            path_to_TMP = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+            turb_yaml = path_to_TMP + os.sep + "./Madsen2019_10.yaml"
+            self.turb_data = io.load_yaml(turb_yaml)
 
-            # Set objectives
-            self.AEP = []
-            self.Ft_max = []
-            self.Tq_max = []
+        #TODO: read the parameters inside turb_yaml to fill all the following variables (if approprate):
+
+        # system: FAST
+        self.ChordF = self.ChordFCV = 0.0 # Also define a current value variable for model update
+        self.ChordFL = -0.5
+        self.ChordFU = 0.5
+        self.ChordFSTP = 0.5
+        
+        self.ThickF = self.ThickFCV = 0.0
+        self.ThickFL = -0.5
+        self.ThickFU = 0.5
+        self.ThickFSTP = 0.5
+        
+        self.TiltAngle = self.TiltAngleCV = -5 # (deg)
+        self.TiltAngleL = -8. # (deg)
+        self.TiltAngleU = -2. # (deg)
+        self.TiltAngleSTP = 3. # (deg)
+        
+        # system: TACS based ROM
+        self.BldFpK = self.BldFpKCV = 806463. # N/m
+        self.BldFpKL = 706463.
+        self.BldFpKU = 906463.
+        self.BldFpKSTP = 100000.
+        
+        self.ThickL = self.ThickLCV = 1814541.
+        self.ThickLL = 1614541.
+        self.ThickLU = 2014541.
+        self.ThickLSTP = 200000.
+        
+        self.RtInertia = self.RtInertiaCV = 156348032. # kg*m^2
+        self.RtInertiaL = 136348032. 
+        self.RtInertiaU = 176348032.
+        self.RtInertiaSTP = 20000000.
+        
+        #set default text for general parameters
+        self.ROSCOR2Omega = self.ROSCOR2OmegaCV = 0.2
+        self.ROSCOR2OmegaL = 0.1
+        self.ROSCOR2OmegaU = 0.3
+        self.ROSCOR2OmegaSTP = 0.1
+        
+        self.ROSCOR2Zeta  = self.ROSCOR2ZetaCV = 0.7
+        self.ROSCOR2ZetaL  = 0.5
+        self.ROSCOR2ZetaU  = 0.9
+        self.ROSCOR2ZetaSTP  = 0.2
+        
+        self.ROSCOR3Omega = self.ROSCOR3OmegaCV = 0.3
+        self.ROSCOR3OmegaL = 0.2
+        self.ROSCOR3OmegaU = 0.4
+        self.ROSCOR3OmegaSTP = 0.1
+        
+        self.ROSCOR3Zeta  = self.ROSCOR3ZetaCV = 0.7
+        self.ROSCOR3ZetaL  = 0.5
+        self.ROSCOR3ZetaU  = 0.9
+        self.ROSCOR3ZetaSTP  = 0.2
+        
+        self.PlatformKp   = self.PlatformKpCV = 0.0
+        self.PlatformKpL   = 0.0
+        self.PlatformKpU   = 0.0
+        self.PlatformKpSTP   = 0.0
+        
+        self.DLCV = 11.4
+        # Parametric sweep in GUI
+        # self.yaml=""
+        # self.output=""
+        self.Username = "xd101"
+        self.Server   = "amarel.rutgers.edu"
+        self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
+        # Optimization constraints: baseline model values
+        self.Constraint_Mr             = 41738.8      # rotor mass kg
+        self.Constraint_DEL_Mbr        = 399250.1
+        self.Constraint_DEL_Mtwr       = 1055163.2
+        self.Constraint_DEL_Fbr        = 7234.7
+        self.Constraint_DEL_Ftwr       = 19152.7
+        
+        # Optimization configuration
+        self.Iterations     = 10
+        self.Tolerane       = 1e-6
+
+        # Set objectives
+        self.AEP = []
+        self.Ft_max = []
+        self.Tq_max = []
 
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================

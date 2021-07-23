@@ -1,7 +1,23 @@
-import pytacs
-from tacs_orig import functions, constitutive
+try:
+    import pytacs
+    from tacs_orig import functions, constitutive
+except ImportError as err:
+    _has_tacs = False
+else:
+    _has_tacs = True
+
+"""
+Definition of a decorator to be used on every function that requires the sprcific module
+"""
+def requires_tacs(function):
+    def check_requirement(*args,**kwargs):
+        if not _has_tacs:
+            raise ImportError("TACS and pyTACS are required to do this.")
+        function(*args,*kwargs)
+    return check_requirement
 
 
+@requires_tacs
 def setup(comm, bdfFile):
 
     structOptions = {

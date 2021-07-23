@@ -11,8 +11,14 @@ import os
 import ast
 import numpy as np
 import argparse
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+
+#conditional imports
+try:
+    from PyQt5 import QtCore, QtGui, uic, QtWidgets
+    from PyQt5.QtWidgets import QFileDialog
+except ImportError as err:
+    pass
+
 
 import openturbinecode.aerodynamics.aerodynamics_module as aero
 
@@ -95,7 +101,9 @@ if __name__=='__main__':
     parser.add_argument("--plotonly", action='store_true', help="Do not compute anything")
     args = parser.parse_args()
 
-    path_to_case = os.getcwd()
+    path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+    path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+    # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
     
     #empty aero object
     myAero = aero.Aerodynamics(path_to_case, plotonly=args.plotonly)

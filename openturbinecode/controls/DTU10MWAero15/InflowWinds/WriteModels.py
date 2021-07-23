@@ -6,7 +6,13 @@ Created on Sun May 23 22:41:36 2021
 @author: seager
 """
 import subprocess
-from pyFAST.input_output import FASTInputFile,FASTOutputFile
+
+try:
+    from pyFAST.input_output import FASTInputFile,FASTOutputFile
+except ImportError as err:
+    _has_pyfast = False
+else:
+    _has_pyfast = True
 
 for i in range(21):
     inflowfile="InflowWind_NTW_DLC1.2_v"+str(i+5)+".dat"

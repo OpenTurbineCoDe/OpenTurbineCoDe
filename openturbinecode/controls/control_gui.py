@@ -11,17 +11,36 @@ import os
 import ast
 import matplotlib.pyplot as plt
 import shutil, tempfile, math, numpy, string
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import scp
-import pandas as pd
 import numpy as np
-import openmdao.api as om
-from Opt_CCD import ControlMDAOom
+
+#conditional imports
+try:
+    from PyQt5 import QtCore, QtGui, uic, QtWidgets
+    from PyQt5.QtWidgets import QFileDialog
+except ImportError as err:
+    pass
+
+try:
+    import pandas as pd
+except ImportError as err:
+    _has_pandas = False
+else:
+    _has_pandas = True
+
+try:
+    import openmdao.api as om
+except ImportError as err:
+    _has_openmdao = False
+else:
+    _has_openmdao = True
+
+
+from openturbinecode.controls.Opt_CCD import ControlMDAOom
 
 #import openturbinecode.controls.control_module as ctrl
-import control_module as ctrl
+import openturbinecode.controls.control_module as ctrl
 
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) +os.sep+ "ConfigControl_v3.ui")[0]  # Load the UI
 
@@ -514,7 +533,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 if __name__=='__main__':
     app = QtWidgets.QApplication(sys.argv)
     
-    path_to_case = "./"
+    path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+    path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+    # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
     
     #empty control object
     myCtrl = ctrl.Control(path_to_case)

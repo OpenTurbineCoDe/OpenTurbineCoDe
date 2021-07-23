@@ -12,10 +12,23 @@ This scriot is a wrapper for connecting the DTU10MW TACS model with the controll
 # ==============================================================================
 import yaml 
 import numpy as np
-from baseclasses import StructProblem
-from tacs_orig import functions
+
+try:
+    from baseclasses import StructProblem
+except ImportError as err:
+    _has_baseclasses = False
+else:
+    _has_baseclasses = True
+
+try:
+    from tacs_orig import functions
+except ImportError as err:
+    _has_tacs = False
+else:
+    _has_tacs = True
+
 #from mpi4py import MPI
-from tacs_setup import setup_DTU10MW
+from .tacs_setup import setup_DTU10MW
 #%%
 # ==============================================================================
 #       Initialize TACS
