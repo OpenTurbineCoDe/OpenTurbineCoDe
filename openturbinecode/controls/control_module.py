@@ -21,9 +21,7 @@ import subprocess
 from datetime import date
 import pandas as pd
 
-
 #%%
-
 class Control:
     def __init__(self, path_to_case, turb_data=None, models=None):
         
