@@ -37,8 +37,15 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         # =================== FORCE INTERNAL VALUES WHEN RUNNING WITH MASTER ==============================
         if withMasterGUI:
-            #TODO
-            pass
+            self.str_pathToCase.setEnabled(False)
+            self.pathToRotor.setEnabled(False)
+            self.loadRotor.setEnabled(False)
+
+            self.model_list.setEnabled(False)
+            self.model_list.setItemText(0, "internal") 
+            self.DLC_list.setEnabled(False)
+            self.DLC_list.setItemText(0, "internal") 
+            
 
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
@@ -56,6 +63,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
     def writeToUI(self):
 
+        self.str_pathToCase.setText(self.myAero.path_to_case)
+
         #Set interface values
         # model list
         # self.rotorPath.setText(self.myAero.path_to_case)
@@ -63,10 +72,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.windSpeed.setText(', '.join([str(el) for el in self.myAero.Vlist]))
         self.TSR.setText(', '.join([str(el) for el in self.myAero.tsrlist]))
         # self.pitchAngle.setText(str(self.myAero.pitchlist))
+        # self.bladeRadius.setText(str(self.myAero.bladeRlist))
 
         # self.solver_list.setCurrentIndex( XX ) self.myAero.fidelity
 
     def readFromUI(self):
+        self.myAero.setPathToCase(self.str_pathToCase.text())
+
         #Get user inputs data
         # self.myAero.XXX = self.model_list.currentText()
         # self.myAero.path_to_case = self.rotorPath.text()
@@ -74,6 +86,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myAero.Vlist = np.array( ast.literal_eval(self.windSpeed.text()) )
         self.myAero.tsrlist = np.array( ast.literal_eval(self.TSR.text()) )
         # self.myAero.pitchlist = np.array( ast.literal_eval(self.pitchAngle.text()) )
+        # self.myAero.bladeRlist = np.array( ast.literal_eval(self.bladeRadius.text()) )
 
         self.myAero.fidelity = self.solver_list.currentText()
         self.myAero.mesh_level = self.mesh_list.currentText()

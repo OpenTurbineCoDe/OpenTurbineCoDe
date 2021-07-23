@@ -47,6 +47,7 @@ class Aerodynamics:
         self.tsrlist = np.array([9.34,7.81,7.81,7.47]) #TODO: read from models
         self.Vlist = np.array([6.,8.,10.,12.]) #TODO: read from models
         self.pitchlist = np.array([0.,0.,0.,0.]) #TODO: read from models
+        self.bladeRlist = np.array([1.,1.,1.,1.]) #TODO: read from models
 
         #results
         self.torque = np.nan*self.Vlist
@@ -58,7 +59,8 @@ class Aerodynamics:
         # self.Server   = "amarel.rutgers.edu"
         # self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
             
-
+    def setPathToCase(self,path_to_case):    
+        self.path_to_case = path_to_case
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
 

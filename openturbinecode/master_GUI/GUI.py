@@ -66,7 +66,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #=====  AERODYNAMICS ===============================================
         
-        aero_ui = aero.Mapper(self.OTCD.myAero,parent=self)
+        aero_ui = aero.Mapper(self.OTCD.myAero,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(aero_ui,"Aerodynamics")
 
         #=====  STRUCTURE ===============================================
