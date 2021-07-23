@@ -136,11 +136,10 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
 
     if Rscale != None:
         R *= Rscale
+    else:
+        Rscale = 1.0
 
     rotRate_z = tsr * Vel / R
-    print(tsr)
-    print(Vel)
-    print(R)
     rpm = rotRate_z / (2 * np.pi) * 60
 
     # ======================================================================
@@ -167,10 +166,14 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
         # inflow wind: Uinf, line 12
         replaceInFile(config["files"]["IWfile"], fileDirectory, workingDirectory, [12], [Vel])
 
-        print(pitch)
-        #set pitch
-        #set R,R0?
+        # elastodyn: rpm, line 30-32
+        replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, [30], [pitch])
+        replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, [31], [pitch])
+        replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, [32], [pitch])
 
+        #set rescale R in the file! 
+        replaceInFileTable(config["files"]["ADbladefile"],workingDirectory,workingDirectory,range(7,47),1,Rscale,separator='  ',mod=1)
+        
         run_cmd = config["path_to_openfast"] + " " + config["files"]["fstFile"]
         outFile = case_tag + ".out"
 
@@ -181,9 +184,13 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
         # driver: Uinf, line 12 (EDIT THE SAME FILE!)
         replaceInFileTable(config["files"]["ADdrvfile"],workingDirectory,workingDirectory,[22],1,[Vel],separator='  ',EF=True) #cut the file at the end
 
-        print(pitch)
-        #set pitch
-        #set R,R0?        
+        # driver: pitch, line 12 (EDIT THE SAME FILE!)
+        replaceInFileTable(config["files"]["ADdrvfile"],workingDirectory,workingDirectory,[22],4,[pitch],separator='  ',EF=True) #cut the file at the end
+        
+        #set rescale R in the file! 
+        replaceInFileTable(config["files"]["ADbladefile"],workingDirectory,workingDirectory,range(7,47),1,Rscale,separator='  ',mod=1)
+
+              
 
         # IF WE WERE TO USE 1 DRIVER FILE TO DO MULTIPLE INFOW VEL:
         # # number of test conditions:

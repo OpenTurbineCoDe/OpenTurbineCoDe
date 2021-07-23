@@ -85,7 +85,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         self.windSpeed.setText(', '.join([str(el) for el in self.myAero.Vlist]))
         self.TSR.setText(', '.join([str(el) for el in self.myAero.tsrlist]))
-        self.pitchAngle.setText(', '.join([str(el) for el in self.myAero.pitchlist]))
+        self.pitchAngle.setText(', '.join([str(el) for el in self.myAero.pitchlist*180./np.pi]))
         self.bladeRadius.setText(', '.join([str(el) for el in self.myAero.bladeRlist]))
 
         # self.solver_list.setCurrentIndex( XX ) self.myAero.fidelity
@@ -104,10 +104,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # self.myAero.XXX = self.model_list.currentText()
         # self.myAero.path_to_case = self.rotorPath.text()
 
-        self.myAero.Vlist = np.array( ast.literal_eval(self.windSpeed.text()) )
-        self.myAero.tsrlist = np.array( ast.literal_eval(self.TSR.text()) )
-        self.myAero.pitchlist = np.array( ast.literal_eval(self.pitchAngle.text()) )
-        self.myAero.bladeRlist = np.array( ast.literal_eval(self.bladeRadius.text()) )
+        self.myAero.Vlist = np.atleast_1d( ast.literal_eval(self.windSpeed.text()) )
+        self.myAero.tsrlist = np.atleast_1d( ast.literal_eval(self.TSR.text()) )
+        self.myAero.pitchlist = np.atleast_1d( ast.literal_eval(self.pitchAngle.text()) ) /180.*np.pi
+        self.myAero.bladeRlist = np.atleast_1d( ast.literal_eval(self.bladeRadius.text()) )
 
         self.myAero.fidelity = self.solver_list.currentText()
         self.myAero.mesh_level = self.mesh_list.currentText()

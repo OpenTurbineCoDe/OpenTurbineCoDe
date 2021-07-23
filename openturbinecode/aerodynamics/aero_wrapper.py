@@ -87,10 +87,11 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
     config["lofi"]["files"]["EDfile"] = case_tag + "_ED.dat"
     config["lofi"]["files"]["IWfile"] = case_tag + "_IW.dat"
     config["lofi"]["files"]["ADdrvfile"] = case_tag + "_ADdriver.inp"
+    config["lofi"]["files"]["ADbladefile"] = case_tag + "_ADBlade.dat"
 
     #TODO: define standard names and look for the proper file instead of hardcoding it
     config["lofi"]["files"]["OFfileList"] = [config["lofi"]["files"]["IWfile"],
-        case_tag + "_ADBlade.dat",
+        config["lofi"]["files"]["ADbladefile"],
         case_tag + "_AD15.dat",
         case_tag + "_EDTower.dat",
         case_tag + "_EDBlade.dat",
@@ -98,7 +99,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
         config["lofi"]["files"]["fstFile"]]
 
     config["lofi"]["files"]["ADfileList"] = [config["lofi"]["files"]["ADdrvfile"],
-        case_tag + "_ADBlade.dat",
+        config["lofi"]["files"]["ADbladefile"],
         case_tag + "_AD15.dat",]
 
     config["lofi"]["files"]["dirList"] = ["AeroData"]
@@ -175,7 +176,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                pitch = pitchlist[i]
+                pitch = pitchlist[i]*180./np.pi
                 spanRef = Rlist[i]*R
                 areaRef = np.pi*spanRef**2
                 outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out") #TODO:REFLECT SPAN
@@ -216,7 +217,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
-                pitch = pitchlist[i]
+                pitch = pitchlist[i]*180./np.pi
                 spanRef = Rlist[i]*R
                 areaRef = np.pi*spanRef**2
                 outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
