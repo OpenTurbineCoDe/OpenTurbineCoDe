@@ -37,7 +37,7 @@ else:
     _has_openmdao = True
 
 
-from .Opt_CCD import ControlMDAOom
+from openturbinecode.controls.Opt_CCD import ControlMDAOom
 
 #import openturbinecode.controls.control_module as ctrl
 import openturbinecode.controls.control_module as ctrl

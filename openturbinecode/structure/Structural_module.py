@@ -27,6 +27,8 @@ else:
 # else:
     # _has_tacs = True
     
+import openturbinecode.utils.io as io
+
 #%%
 class Structural:
     def __init__(self, path_to_case, turb_data=None, models=None):
