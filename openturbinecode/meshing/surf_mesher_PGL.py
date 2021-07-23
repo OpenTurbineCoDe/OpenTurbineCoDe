@@ -200,8 +200,8 @@ def writePGLinputs(turbine_data, path_to_case, planform_file):
         for j in range(len(turbine_data["airfoils"])):
             if af in turbine_data["airfoils"][j]["name"]:
                 th_af[i] = turbine_data["airfoils"][j]["relative_thickness"]
-        if j == len(turbine_data["airfoils"]):
-            print("Warning: airfoil " + af + " not found in airfoil list.")
+            else:
+                print("Warning: airfoil " + af + " not found in airfoil list.")
         i+=1
 
     thickness = np.interp( np.array(turbine_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]), r_af, th_af )

@@ -7,6 +7,7 @@ import scp
 import pandas as pd
 
 import openturbinecode.meshing.surf_mesher_PGL as pgl
+import openturbinecode.utils.io as io
 
 # def afid_to_afpos(afid,aflist):
 #     return afpos
@@ -15,6 +16,7 @@ class Geometry:
         self.turb_data = turb_data
         self.models = models
         self.path_to_case = path_to_case
+        self.path_to_root = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
 
         self.setDefaultValues()
               
@@ -40,18 +42,7 @@ class Geometry:
             #use turbine data and model data passed as argument to initialize this object
             #... TODO
 
-            r_nodes = self.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]
-
-            r_af = self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["grid"]
-            i_af = range(len(r_af))
-            label_af = self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"]
-
-            self.afNum = len(label_af)
-            
-            #translating af ids for aerodyn file #TODO: this is not very elegant
-            self.AFlist = [ str(int(np.round(np.interp(r,r_af,i_af)))) for r in r_nodes ]
-            # self.AFID = [label_af[int(i)] for i in self.AFlist]
-            self.AFID = label_af
+            self.setPGLdata()
         else:
             #generate our internal structure a minima #TODO: create a function for this
             self.turb_data = {}
@@ -70,8 +61,27 @@ class Geometry:
 
             self.turb_data["airfoils"] = {}
 
+            #TODO:
+            # self.setPGLdata()
 
-    
+    def setPathToCase(self,path_to_case):    
+        self.path_to_case = path_to_case
+        #TODO: adapt anything after this?
+
+    def setPGLdata(self,updateADIF=True):
+            r_nodes = self.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]
+
+            r_af = self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["grid"]
+            i_af = range(len(r_af))
+            label_af = self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"]
+
+            self.afNum = len(label_af)
+            
+            #translating af ids for aerodyn file #TODO: this is not very elegant
+            self.AFlist = [ str(int(np.round(np.interp(r,r_af,i_af)))) for r in r_nodes ]
+            # self.AFID = [label_af[int(i)] for i in self.AFlist]
+            if updateADIF:
+                self.AFID = label_af 
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
     def Geo_loadPredefinedTurbine(self, comboBox, lineEdit, toolButton, widget):
@@ -80,18 +90,30 @@ class Geometry:
             self.AFID = []
             toolButton.setEnabled(False)
             widget.setEnabled(False)
-            lineEdit.setText(os.path.dirname( os.path.realpath(__file__) )+os.sep +"../../models/DTU_10MW/AeroDyn_Reduced/blade.dat")
-            self.AFID = ["/home/kz/Desktop/OpenTurbineCoDe/openturbinecode/geometry/lib_airfoils/cylinder.dat", 
-                         "/home/kz/Desktop/OpenTurbineCoDe/openturbinecode/geometry/lib_airfoils/ffaw3600.dat",
-                         "/home/kz/Desktop/OpenTurbineCoDe/openturbinecode/geometry/lib_airfoils/ffaw3480.dat",
-                         "/home/kz/Desktop/OpenTurbineCoDe/openturbinecode/geometry/lib_airfoils/ffaw3360.dat",
-                         "/home/kz/Desktop/OpenTurbineCoDe/openturbinecode/geometry/lib_airfoils/ffaw3301.dat",
-                         "/home/kz/Desktop/OpenTurbineCoDe/openturbinecode/geometry/lib_airfoils/ffaw3241.dat"
+            lineEdit.setText( self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "AeroDyn_Reduced" + os.sep + "blade.dat") #TODO: we should refer to Madsen2019 aerodyn file
+            self.AFID = [self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "cylinder.dat", 
+                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3600.dat",
+                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3480.dat",
+                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3360.dat",
+                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3301.dat",
+                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3241.dat"
                          ]
+
+            path_to_TMP = self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+            turb_yaml = path_to_TMP + os.sep + "Madsen2019_10.yaml"
+            self.turb_data = io.load_yaml(turb_yaml)
+            self.setPGLdata(updateADIF=False)
+
+
         elif comboBox.currentText() == "NREL Phase VI":
             widget.setEnabled(False)
             toolButton.setEnabled(False)
             lineEdit.setText(os.path.dirname( os.path.realpath(__file__) )+os.sep +"../../models/NREL_PhaseVI_UAE/original/AeroDyn/NREL_PhaseVI_UAE_ADBlade.dat")
+            #TODO:
+            # path_to_TMP = self.path_to_root + os.sep + "models" + os.sep + "NREL_PhaseVI_UAE" + os.sep + "original" + os.sep 
+            # turb_yaml = path_to_TMP + os.sep + "Madsen2019_10.yaml"
+            # self.turb_data = io.load_yaml(turb_yaml)
+            # self.setPGLdata(updateADIF=False)
 
         elif comboBox.currentText() == "NREL 5 MW":
             widget.setEnabled(False)
