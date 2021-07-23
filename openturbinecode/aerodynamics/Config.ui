@@ -93,7 +93,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Load rotor</string>
+       <string>Load</string>
       </property>
       <property name="checkable">
        <bool>false</bool>
@@ -176,7 +176,7 @@
        <string>L</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="pathToRotor">
+     <widget class="QLineEdit" name="str_pathToRotor">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -184,6 +184,39 @@
         <width>301</width>
         <height>27</height>
        </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>380</x>
+        <y>50</y>
+        <width>71</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>(yaml file)</string>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="browseButtonRotor">
+      <property name="geometry">
+       <rect>
+        <x>320</x>
+        <y>40</y>
+        <width>51</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>...</string>
       </property>
      </widget>
     </widget>
@@ -767,7 +800,7 @@
            <string>Plot Torque</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="plot_thrust_2">
+         <widget class="QPushButton" name="setFolderStruct_button">
           <property name="geometry">
            <rect>
             <x>10</x>
