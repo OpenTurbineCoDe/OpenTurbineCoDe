@@ -98,7 +98,7 @@ class Aerodynamics:
 
         options["plotonly"] = self.plotonly
 
-        torque, thrust, cp = aero_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options)
+        torque, thrust, cp = aero_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options, Rlist=self.bladeRlist)
         
         self.torque = np.array(torque)
         self.thrust = np.array(thrust)

@@ -26,7 +26,7 @@ from .Wrapped_lofi_Analysis import LoFiAero
 
 # TODO: add the ability to specify blade pitch
 # TODO: add another dictionary for parameter sweeps?
-def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
+def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlist = None):
 
     # baseDir = os.path.dirname(os.path.abspath(__file__))
     
@@ -74,10 +74,8 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
     omlist = tsrlist * Vlist / R #absolute value of the rotation rate
     rpmlist = omlist / (2 * np.pi) * 60
 
-    spanRef = R # used for moment normalisation
-    areaRef = np.pi*R**2
-    options["spanRef"] = spanRef
-    options["areaRef"] = areaRef
+    if Rlist is None :
+        Rlist = np.ones(np.size(omlist))
         
     # =============================================================
     # File names for the lofi analysis
@@ -126,6 +124,10 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
             tsr = tsrlist[i] * rotsign # Caution: tsr is signed!
             Vel = Vlist[i]
             pitch = pitchlist[i]
+            spanRef = Rlist[i]*R
+            areaRef = np.pi*spanRef**2
+            options["spanRef"] = spanRef
+            options["areaRef"] = areaRef
             
             #TODO: use Tag instead of the long name of the configuration
             name = f"{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
@@ -134,7 +136,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
                 
                 if MPI.COMM_WORLD.rank == 0:
                     print(f"Starting Hi-fi analysis at tsr={tsr}")
-                funcs, ap = HiFiAero(tsr,Vel,pitch,rho,T,options)
+                funcs, ap = HiFiAero(tsr,Vel,pitch,rho,T,options, Rscale=Rlist[i])
                 trq = funcs[f"{ap.name}_mx"]
                 thr = funcs[f"{ap.name}_fx"]
             else:
@@ -174,7 +176,9 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
                 pitch = pitchlist[i]
-                outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
+                spanRef = Rlist[i]*R
+                areaRef = np.pi*spanRef**2
+                outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out") #TODO:REFLECT SPAN
                 options["outputFile"] = outputFile 
 
                 #computing results
@@ -182,12 +186,12 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
                     print(f"Starting Lo-fi analysis at tsr={tsr}")
 
                     # Running the OpenFast runscript
-                    LoFiAero(tsr,Vel,pitch,rho,T,config["lofi"],options)
+                    LoFiAero(tsr,Vel,pitch,R,rho,T,config["lofi"],options,Rscale=Rlist[i])
                 
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)
 
-                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, trq)
+                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
 
                 torque.append(trq)
                 thrust.append(thr)
@@ -213,6 +217,8 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
                 Vel = Vlist[i]
                 rpm = rpmlist[i]
                 pitch = pitchlist[i]
+                spanRef = Rlist[i]*R
+                areaRef = np.pi*spanRef**2
                 outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
                 options["outputFile"] = outputFile 
 
@@ -221,12 +227,12 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
                     print(f"Starting AeroDyn analysis at tsr={tsr}")
                     
                     # Running the OpenFast runscript
-                    LoFiAero(tsr,Vel,pitch,rho,T,config["lofi"],options)
-                
+                    LoFiAero(tsr,Vel,pitch,R,rho,T,config["lofi"],options,Rscale=Rlist[i])
+                    
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)
 
-                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, trq)
+                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
 
                 torque.append(trq)
                 thrust.append(thr)
@@ -244,6 +250,8 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
             Vel = Vlist[i]
             rpm = rpmlist[i]
             pitch = pitchlist[i]
+            spanRef = Rlist[i]*R
+            areaRef = np.pi*spanRef**2
             yaw = 0.0
 
             EndTime = 1.0 #TODO

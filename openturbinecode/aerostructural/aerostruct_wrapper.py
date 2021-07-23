@@ -212,7 +212,7 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
                     print(f"Starting Lo-fi analysis at tsr={tsr}")
 
                     # Running the OpenFast runscript
-                    LoFiAeroStruct(tsr,Vel,pitch,rho,T,config["lofi"],options)
+                    LoFiAeroStruct(tsr,Vel,pitch,R,rho,T,config["lofi"],options)
                 
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)

@@ -120,7 +120,7 @@ def replaceInFileTable(filename, inputDir, outputDir, iline, icol, value, mod=0,
 
 
 # TODO: add another dictionary for parameter sweeps?
-def LoFiAero(tsr,Vel,pitch,rho,T,config,options):
+def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
 
     # ======================================================================
     #         Unpack options/params
@@ -129,14 +129,18 @@ def LoFiAero(tsr,Vel,pitch,rho,T,config,options):
     outputFile  = options["outputFile"]
     case_tag = options["case_tag"]
     # casename = options["casename"]
-    spanRef  = options["spanRef"]
     # spanDir  = options["spanDir"]
     
-    #TODO: do something with pitch
     #TODO: do something with rho
     #TODO: do something with T
 
-    rotRate_z = tsr * Vel / spanRef
+    if Rscale != None:
+        R *= Rscale
+
+    rotRate_z = tsr * Vel / R
+    print(tsr)
+    print(Vel)
+    print(R)
     rpm = rotRate_z / (2 * np.pi) * 60
 
     # ======================================================================
@@ -163,6 +167,10 @@ def LoFiAero(tsr,Vel,pitch,rho,T,config,options):
         # inflow wind: Uinf, line 12
         replaceInFile(config["files"]["IWfile"], fileDirectory, workingDirectory, [12], [Vel])
 
+        print(pitch)
+        #set pitch
+        #set R,R0?
+
         run_cmd = config["path_to_openfast"] + " " + config["files"]["fstFile"]
         outFile = case_tag + ".out"
 
@@ -172,6 +180,10 @@ def LoFiAero(tsr,Vel,pitch,rho,T,config,options):
 
         # driver: Uinf, line 12 (EDIT THE SAME FILE!)
         replaceInFileTable(config["files"]["ADdrvfile"],workingDirectory,workingDirectory,[22],1,[Vel],separator='  ',EF=True) #cut the file at the end
+
+        print(pitch)
+        #set pitch
+        #set R,R0?        
 
         # IF WE WERE TO USE 1 DRIVER FILE TO DO MULTIPLE INFOW VEL:
         # # number of test conditions:
