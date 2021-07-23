@@ -8,8 +8,8 @@ import pandas as pd
 
 import openturbinecode.meshing.surf_mesher_PGL as pgl
 
-def afid_to_afpos(afid,aflist):
-    return afpos
+# def afid_to_afpos(afid,aflist):
+#     return afpos
 class Geometry:
     def __init__(self, path_to_case, turb_data=None, models=None):
         self.turb_data = turb_data

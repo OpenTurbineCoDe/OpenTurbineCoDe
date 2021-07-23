@@ -29,27 +29,27 @@ class Aerostructural:
         # Initialization of attributes
         if self.turb_data and self.models:
             #Will read directly from turb_data, so nothing to do here
-            
-            # geometric parameters
-            # self.twist = ... #TODO: read from turb_data
-            # self.chord = ... #TODO: read from turb_data
-            # ...
             pass
         else:
-            #TODO : temp - pre - load a turbine
-            turb_yaml = self.path_to_case + os.sep + "./Madsen2019_10.yaml"
+            #pre-load a turbine
+            path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+            path_to_TMP = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+            turb_yaml = path_to_TMP + os.sep + "./Madsen2019_10.yaml"
             self.turb_data = io.load_yaml(turb_yaml)
 
-            # geometric parameters - TODO: read from turb_data
-            self.twist = [0.0] * 7  # Hardcoding vals and number of DVs now
-            self.chord = [1.0] * 7
-            self.span = 1.0
-            self.precone = 1.0
-            self.thickness = [1.0] * 7
-            
-        from types import SimpleNamespace
-        self.case_tag = "DTU_10MW" #TODO: this should be done differently
-            
+        self.case_tag = "DTU_10MW" #TODO: this should be read from turbdata!
+
+        Nel = 7 #number of stations spanwise
+        # Nel = len(self.turb_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"])
+
+        # geometric parameters - default scaling
+        #TODO: read from models
+        self.twist = [0.0] * Nel  # Hardcoding vals and number of DVs now
+        self.chord = [1.0] * Nel
+        self.span = 1.0
+        self.precone = 1.0
+        self.thickness = [1.0] * Nel
+
         # global parameters
         self.fidelity = "MACH"  #TODO: read from models
         self.mesh_level = "3" #TODO: read from models

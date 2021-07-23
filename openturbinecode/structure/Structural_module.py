@@ -50,48 +50,56 @@ class Structural:
             #... TODO
             pass
         else:
-            # system: BeamDyn
-            self.TipLoadx = self.TipLoadxCV = 1.0
-            self.TipLoadxL = 0.5
-            self.TipLoadxU = 1.5
-            self.TipLoadxSTP = 0.5
-            
-            self.DistrLoadx = self.DistrLoadxCV = 1.0
-            self.DistrLoadxL = 0.5
-            self.DistrLoadxU = 1.5
-            self.DistrLoadxSTP = 0.5
-            
-            self.TwstSclF = self.TwstSclFCV = 1. # (deg)
-            self.TwstSclFL = 0.5 # (deg)
-            self.TwstSclFU = 1.5 # (deg)
-            self.TwstSclFSTP = 0.5 # (deg)
-            # system: TACS
-            self.ThickSclF1 = self.ThickSclF1CV = 1.0
-            self.ThickSclF1L = 0.5
-            self.ThickSclF1U = 1.5
-            self.ThickSclF1STP = 0.5
-            
-            self.ThickSclF2 = self.ThickSclF2CV = 1.0
-            self.ThickSclF2L = 0.5
-            self.ThickSclF2U = 1.5
-            self.ThickSclF2STP = 0.5
-            
-            self.ThickSclF3 = self.ThickSclF3CV = 1.0
-            self.ThickSclF3L = 0.5
-            self.ThickSclF3U = 1.5
-            self.ThickSclF3STP = 0.5
-            
-            # HPC
-            self.Username = "xd101"
-            self.Server   = "amarel.rutgers.edu"
-            self.HPCPath  = "/scratch/xd101/Subroutine-Structural"
-            # response
-            self.RootFxr_max = []
-            self.RootFyr_max = []
-            self.RootMxr_max = []
-            self.RootMyr_max = []
-            self.TipTDxr_max = []
-            self.TipTDyr_max = []
+            #pre-load a turbine
+            path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+            path_to_TMP = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+            turb_yaml = path_to_TMP + os.sep + "./Madsen2019_10.yaml"
+            self.turb_data = io.load_yaml(turb_yaml)
+
+        #TODO: read the parameters inside turb_yaml to fill all the following variables (if approprate):
+
+        # system: BeamDyn
+        self.TipLoadx = self.TipLoadxCV = 1.0
+        self.TipLoadxL = 0.5
+        self.TipLoadxU = 1.5
+        self.TipLoadxSTP = 0.5
+        
+        self.DistrLoadx = self.DistrLoadxCV = 1.0
+        self.DistrLoadxL = 0.5
+        self.DistrLoadxU = 1.5
+        self.DistrLoadxSTP = 0.5
+        
+        self.TwstSclF = self.TwstSclFCV = 1. # (deg)
+        self.TwstSclFL = 0.5 # (deg)
+        self.TwstSclFU = 1.5 # (deg)
+        self.TwstSclFSTP = 0.5 # (deg)
+        # system: TACS
+        self.ThickSclF1 = self.ThickSclF1CV = 1.0
+        self.ThickSclF1L = 0.5
+        self.ThickSclF1U = 1.5
+        self.ThickSclF1STP = 0.5
+        
+        self.ThickSclF2 = self.ThickSclF2CV = 1.0
+        self.ThickSclF2L = 0.5
+        self.ThickSclF2U = 1.5
+        self.ThickSclF2STP = 0.5
+        
+        self.ThickSclF3 = self.ThickSclF3CV = 1.0
+        self.ThickSclF3L = 0.5
+        self.ThickSclF3U = 1.5
+        self.ThickSclF3STP = 0.5
+        
+        # HPC
+        self.Username = "xd101"
+        self.Server   = "amarel.rutgers.edu"
+        self.HPCPath  = "/scratch/xd101/Subroutine-Structural"
+        # response
+        self.RootFxr_max = []
+        self.RootFyr_max = []
+        self.RootMxr_max = []
+        self.RootMyr_max = []
+        self.TipTDxr_max = []
+        self.TipTDyr_max = []
             
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
