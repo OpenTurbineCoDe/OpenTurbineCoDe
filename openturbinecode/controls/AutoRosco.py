@@ -10,17 +10,31 @@ Created on Sun Feb 28 16:42:41 2021
 import yaml 
 import os
 this_dir            = os.path.dirname(__file__) 
+
 # Import ROSCO_toolbox modules 
-from ROSCO_toolbox import controller as ROSCO_controller
-from ROSCO_toolbox import turbine as ROSCO_turbine
-from ROSCO_toolbox.utilities import write_DISCON
-from pyFAST.input_output import FASTInputFile,FASTOutputFile
+try:
+    from ROSCO_toolbox import controller as ROSCO_controller
+    from ROSCO_toolbox import turbine as ROSCO_turbine
+    from ROSCO_toolbox.utilities import write_DISCON
+except ImportError as err:
+    _has_rosco = False
+else:
+    _has_rosco = True
+
+try:
+    from pyFAST.input_output import FASTInputFile,FASTOutputFile
+except ImportError as err:
+    _has_pyfast = False
+else:
+    _has_pyfast = True
+
 #from Gen_Ctables import writCtables
 from scipy.optimize import curve_fit
 import openmdao.api as om
 import numpy as np
 import subprocess
 from datetime import date
+
 # my codes
 from .BladeMode import fun_mode_tracking   # self cuntion
 from .fastpost import multipostprocessing   # self cuntion

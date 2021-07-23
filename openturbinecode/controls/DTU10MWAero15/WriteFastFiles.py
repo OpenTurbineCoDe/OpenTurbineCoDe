@@ -7,7 +7,14 @@ Created on Sun May 23 23:10:41 2021
 """
 from multiprocess import Pool
 import subprocess
-from pyFAST.input_output import FASTInputFile,FASTOutputFile
+
+try:
+    from pyFAST.input_output import FASTInputFile,FASTOutputFile
+except ImportError as err:
+    _has_pyfast = False
+else:
+    _has_pyfast = True
+
 import numpy as np
    #%%
 for i in range(21):

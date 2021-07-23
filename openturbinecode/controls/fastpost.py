@@ -6,14 +6,20 @@ Created on Sat May 22 16:18:23 2021
 @author: seager
 """
 import os
-import ROSCO_toolbox.ofTools.fast_io.output_processing as fp
+
+try:
+    import ROSCO_toolbox.ofTools.fast_io.output_processing as fp
+except ImportError as err:
+    _has_rosco = False
+else:
+    _has_rosco = True
+
 try:
     from pCrunch import Analysis
 except ImportError:
-    print("------------------------------------------")
-    print("Something is not right with pCrunch")
-    print("Please manually patch pCrunch to corrcetly import ROSCO_toolbox")
-    print("------------------------------------------")
+    _has_pcrunch = False
+else:
+    _has_pcrunch = True
 
 import numpy as np
 #%%

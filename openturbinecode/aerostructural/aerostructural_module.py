@@ -177,8 +177,10 @@ class Aerostructural:
 
 if __name__=='__main__':
 
-    cwd = os.getcwd()
-    path_to_case = cwd + "/models/DTU_10MW/Madsen2019"
+    path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+    path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+    # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
+
     plotonly = True 
     myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly)
     myAeroStruct.setDefaultValues()

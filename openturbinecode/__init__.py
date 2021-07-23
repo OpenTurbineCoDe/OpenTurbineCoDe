@@ -2,6 +2,39 @@ import subprocess
 from .utils import utilities as ut
 
 failed_imports = []
+# -------------------- pandas ----------------------------
+try: 
+    import pandas
+except ImportError as err:
+    failed_imports.append("pandas")
+
+# -------------------- pCrunch ----------------------------
+try: 
+    from pCrunch import Analysis
+except ImportError as err:
+    failed_imports.append("pCrunch")
+
+try: 
+    from ROSCO_toolbox import controller
+except ImportError as err:
+    failed_imports.append("ROSCO_toolbox")
+    print("------------------------------------------")
+    print("Something is not right with pCrunch")
+    print("Please manually patch pCrunch to corrcetly import ROSCO_toolbox")
+    print("------------------------------------------")
+
+# -------------------- openmdao ----------------------------
+try: 
+    import openmdao.api
+except ImportError as err:
+    failed_imports.append("openmdao")
+
+# -------------------- pyFAST ----------------------------
+try: 
+    import pyFAST.input_output
+except ImportError as err:
+    failed_imports.append("pyFAST")
+    
 # -------------------- ADFLOW ----------------------------
 try: # check adflow import
     import adflow
@@ -14,6 +47,14 @@ try: # check pgl import
 except ImportError as err:
     failed_imports.append("pgl")
 
+# -------------------- TACS ----------------------------
+try: # check adflow import
+    import pytacs
+    from tacs_orig import functions, constitutive
+
+except ImportError as err:
+    failed_imports.append("TACS/pyTACS")
+    
 # -------------------- AeroelasticSE ----------------------------
 try:
     from weis.aeroelasticse.CaseGen_IEC import CaseGen_IEC
@@ -50,6 +91,13 @@ try:  # check local installation of aerodyn
 except subprocess.CalledProcessError as err:
     if err.returncode != 1:  #openfast exits with code 1 when called with `-h`
         failed_imports.append("aerodyn")
+
+# -------------------- PyQt5 ----------------------------
+try: 
+    import PyQt5.QtWidgets
+except ImportError as err:
+    failed_imports.append("PyQt5")
+
 
 # -------------------- ---------------- ----------------------------
 

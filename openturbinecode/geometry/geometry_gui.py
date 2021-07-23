@@ -4,11 +4,22 @@ import ast
 import matplotlib.pyplot as plt
 import shutil, tempfile, math, string
 import numpy as np
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import scp
-import pandas as pd
+
+#conditional imports
+try:
+    from PyQt5 import QtCore, QtGui, uic, QtWidgets
+    from PyQt5.QtWidgets import QFileDialog
+except ImportError as err:
+    pass
+
+try:
+    import pandas as pd
+except ImportError as err:
+    _has_pandas = False
+else:
+    _has_pandas = True
 
 import openturbinecode.geometry.geometry_module as geom
 
@@ -134,7 +145,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 if __name__=='__main__':
     app = QtWidgets.QApplication(sys.argv)
     
-    path_to_case = "./"
+    path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+    path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+    # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
     
     #empty geometry object
     myGeom = geom.Geometry(path_to_case)

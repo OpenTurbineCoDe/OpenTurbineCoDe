@@ -8,10 +8,33 @@ import os
 import math
 this_dir            = os.path.dirname(__file__) 
 # Import ROSCO_toolbox modules 
-from ROSCO_toolbox import controller as ROSCO_controller
-from ROSCO_toolbox import turbine as ROSCO_turbine
-from ROSCO_toolbox.utilities import write_DISCON
-from pyFAST.input_output import FASTInputFile,FASTOutputFile
+try:
+    from ROSCO_toolbox import controller as ROSCO_controller
+    from ROSCO_toolbox import turbine as ROSCO_turbine
+    from ROSCO_toolbox.utilities import write_DISCON
+except ImportError as err:
+    _has_rosco = False
+else:
+    _has_rosco = True
+
+try:
+    from pyFAST.input_output import FASTInputFile,FASTOutputFile
+except ImportError as err:
+    _has_pyfast = False
+else:
+    _has_pyfast = True
+
+# """
+# Definition of a decorator to be used on every function that requires the sprcific module
+# """
+# def requires_pyfast(function):
+#     def check_requirement(*args,**kwargs):
+#         if not _has_pyfast:
+#             raise ImportError("pyfast is required to do this.")
+#         function(*args,*kwargs)
+#     return check_requirement
+
+
 from .TACSDynParams import TACSParams
 #from Gen_Ctables import writCtables
 from scipy.optimize import curve_fit

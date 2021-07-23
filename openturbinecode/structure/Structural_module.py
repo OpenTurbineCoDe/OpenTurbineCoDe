@@ -1,15 +1,32 @@
 import sys
 import os
 import matplotlib.pyplot as plt
-import shutil, tempfile, math, numpy, string
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
+import shutil, tempfile, math, string
+import numpy as np
 import subprocess
-import pyqtgraph as pg
 import scp
-#
-from pyFAST.input_output import FASTInputFile,FASTOutputFile
-# from TACSDynParams import TACSParams
+
+#conditional imports
+try:
+    from PyQt5 import QtCore, QtGui, uic, QtWidgets
+    from PyQt5.QtWidgets import QFileDialog
+except ImportError as err:
+    pass
+
+try:
+    from pyFAST.input_output import FASTInputFile,FASTOutputFile
+except ImportError as err:
+    _has_pyfast = False
+else:
+    _has_pyfast = True
+
+# try:
+#     from TACSDynParams import TACSParams
+# except ImportError as err:
+#     _has_tacs = False
+# else:
+    # _has_tacs = True
+    
 #%%
 class Structural:
     def __init__(self, path_to_case, turb_data=None, models=None):
