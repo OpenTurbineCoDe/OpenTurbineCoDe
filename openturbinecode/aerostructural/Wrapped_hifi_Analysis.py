@@ -5,7 +5,7 @@ import numpy as np
 from mpi4py import MPI
 import pickle
 
-from SETUP import setup_aerostruct, setup_aerostructprob, setup_tacs, setup_structprob, setup_warping
+from .SETUP import setup_aerostruct, setup_aerostructprob, setup_tacs, setup_structprob, setup_warping
 
 try:
     from baseclasses import AeroProblem

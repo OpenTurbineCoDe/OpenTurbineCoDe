@@ -20,16 +20,18 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires = ["numpy", "jsonschema", "matplotlib"],  #'json'
+    install_requires = ["numpy", "jsonschema", "matplotlib", "scp"],
     extras_require={
         "high-fidelity": [
             "adflow",
-            "multipoint"
+            "multipoint",
+            "baseclasses",
+            "pytacs"
         ],
         "gui": ["PyQt5", "pyqtgraph"],
         "meshing": ["PGL"],
-        "controls": ["scp", "pandas"]
-        # "low-fidelity": [],
+        "controls": ["pandas","ROSCO_toolbox","openmdao","pCrunch"], # TODO: this stuff is pretty heavyweight, we should find a way to selectively install and use only te packages that we need at installation time, or have some "fake" placeholder modules
+        "low-fidelity": ["pyFAST"],
     },
     package_data = {"openturbinecode": ["*.json"],
     "openturbinecode.master_GUI": ["Config.ui"],

@@ -28,12 +28,13 @@ class Aerodynamics:
             #Will read directly from turb_data, so nothing to do here
             pass
         else:
-            #TODO : temp - pre - load a turbine
-            turb_yaml = self.path_to_case + os.sep + "./Madsen2019_10.yaml"
+            #pre-load a turbine
+            path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+            path_to_TMP = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+            turb_yaml = path_to_TMP + os.sep + "./Madsen2019_10.yaml"
             self.turb_data = io.load_yaml(turb_yaml)
             
-        from types import SimpleNamespace
-        self.case_tag = "DTU_10MW" #TODO: this should be done differently
+        self.case_tag = "DTU_10MW" #TODO: this should be read from turbdata!
             
         # global parameters
         self.fidelity = "AeroDyn"  #TODO: read from models
@@ -145,7 +146,13 @@ class Aerodynamics:
 if __name__=='__main__':
 
     cwd = os.getcwd()
-    myAero = Aerodynamics(cwd)
+
+    path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+    path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+    # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
+
+    myAero = Aerodynamics(path_to_case)
+
     myAero.setDefaultValues()
     myAero.Run()
     myAero.PlotCp()

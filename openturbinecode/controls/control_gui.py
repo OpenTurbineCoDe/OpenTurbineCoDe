@@ -11,12 +11,35 @@ import os
 import ast
 import matplotlib.pyplot as plt
 import shutil, tempfile, math, numpy, string
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
 import subprocess
 import scp
-import pandas as pd
+import numpy as np
 
+#conditional imports
+try:
+    from PyQt5 import QtCore, QtGui, uic, QtWidgets
+    from PyQt5.QtWidgets import QFileDialog
+except ImportError as err:
+    pass
+
+try:
+    import pandas as pd
+except ImportError as err:
+    _has_pandas = False
+else:
+    _has_pandas = True
+
+try:
+    import openmdao.api as om
+except ImportError as err:
+    _has_openmdao = False
+else:
+    _has_openmdao = True
+
+
+from openturbinecode.controls.Opt_CCD import ControlMDAOom
+
+#import openturbinecode.controls.control_module as ctrl
 import openturbinecode.controls.control_module as ctrl
 
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) +os.sep+ "ConfigControl_v3.ui")[0]  # Load the UI
@@ -31,158 +54,488 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # =================== INITIALIZE FIELD VALUES ==============================
         self.myCtrl.setDefaultValues()
         self.writeToUI()
-
+ 
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
+        # determine the model selection interface
+        self.FidelitySelection.activated.connect(self.FidelitySelectionUI)
+        self.ModelSelection.activated.connect(self.ModelSelectionUI)
+        # General
+        self.LoadUsrModel.clicked.connect(self.LoadInherentMod)
+        self.toolButton_8.clicked.connect(self.Setuserfile)
+        self.LoadUsFile.clicked.connect(self.Loaduserfile)
         # Parametric Sweep
-        self.toolButton_6.clicked.connect(self.setyamlWorkingDir)
-        self.ControlTune.clicked.connect(self.caller_RunRoscoTune)
+        self.toolButton_6.clicked.connect(self.setyamlfile)
+        self.Loadyaml.clicked.connect(self.loadyamlfile)
+        #self.ControlTune.clicked.connect(self.caller_ControlTune)
+        #self.SetOutDir.clicked.connect(self.SetOutputDir)
+        #self.WritoutModel.clicked.connect(self.caller_Writeout)
         self.PushRun.clicked.connect(self.caller_LocalRun)
-        #self.saveButton.clicked.connect(self.saveFileDialog)
+        self.Postplot.clicked.connect(self.caller_Postplot)
         self.SendToHPC_2.clicked.connect(self.caller_SendToHPCf)
         self.LoadResults_2.clicked.connect(self.caller_HPCloadf)
-        #self.QMessageBox .clicked.connect(self.Message)
+        # Constraints
+        self.C1.activated.connect(self.C1set)
+        self.C2.activated.connect(self.C2set)
         # Optimization
         self.PushRunCCD.clicked.connect(self.caller_RunCCD)
 
-        
-
-    # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
-
+    # ======== Functions to fill the UI, or to retrieve info from the UI =====
     def writeToUI(self):
-
-        #Set interface values
-        # self.ModelSelection.setText(str(self.myCtrl.Baselinemodel)) #no text function
-        self.lineEdit_32.setText(str(self.myCtrl.ROSCOR2Omega))
-        self.lineEdit_31.setText(str(self.myCtrl.ROSCOR2Zeta))
-        self.lineEdit_35.setText(str(self.myCtrl.ROSCOR3Omega))
-        self.lineEdit_36.setText(str(self.myCtrl.ROSCOR3Zeta))
-        self.lineEdit_37.setText(str(self.myCtrl.PlatformP1))
-        self.lineEdit_38.setText(str(self.myCtrl.PlatformP2))
-        #self.SimulinkP1 = ast.literal_eval(self.lineEdit_.text
-        #self.SimulinkP2 = ast.literal_eval(self.lineEdit_.text
-        # self.comboBox_3.setText(str(self.myCtrl.ControlSelection)) #no text function
+        # Set system parameters radio button defaults
+        self.RB111.setChecked(True)
+        self.RB121.setChecked(True)
+        self.RB131.setChecked(True)
+        self.RB211.setChecked(True)
+        self.RB221.setChecked(True)
+        self.RB231.setChecked(True)
+        
+        # set the system parameters for openfast
+        self.CHD1.setText(str(self.myCtrl.ChordF))
+        self.CHD2.setText(str(self.myCtrl.ChordFL))
+        self.CHD3.setText(str(self.myCtrl.ChordFU))
+        self.CHD4.setText(str(self.myCtrl.ChordFSTP))
+        self.Thick1.setText(str(self.myCtrl.ThickF))
+        self.Thick2.setText(str(self.myCtrl.ThickFL))
+        self.Thick3.setText(str(self.myCtrl.ThickFU))
+        self.Thick4.setText(str(self.myCtrl.ThickFSTP))
+        self.TILT1.setText(str(self.myCtrl.TiltAngle))
+        self.TILT2.setText(str(self.myCtrl.TiltAngleL))
+        self.TILT3.setText(str(self.myCtrl.TiltAngleU))
+        self.TILT4.setText(str(self.myCtrl.TiltAngleSTP))
+        
+        # set the system parameters for TACS based
+        self.FlpK1.setText(str(self.myCtrl.BldFpK))
+        self.FlpK2.setText(str(self.myCtrl.BldFpKL))
+        self.FlpK3.setText(str(self.myCtrl.BldFpKU))
+        self.FlpK4.setText(str(self.myCtrl.BldFpKSTP))
+        self.ThickL1.setText(str(self.myCtrl.ThickL))
+        self.ThickL2.setText(str(self.myCtrl.ThickLL))
+        self.ThickL3.setText(str(self.myCtrl.ThickLU))
+        self.ThickL4.setText(str(self.myCtrl.ThickLSTP))
+        self.RtIner1.setText(str(self.myCtrl.RtInertia))
+        self.RtIner2.setText(str(self.myCtrl.RtInertiaL))
+        self.RtIner3.setText(str(self.myCtrl.RtInertiaU))
+        self.RtIner4.setText(str(self.myCtrl.RtInertiaSTP))
+        # Set radio default for control parameters
+        self.RB41.setChecked(True)
+        self.RB51.setChecked(True)
+        self.RB61.setChecked(True)
+        self.RB71.setChecked(True)
+        self.RB81.setChecked(True)
+        
+        #Set interface values for control
+        self.OMEGAR21.setText(str(self.myCtrl.ROSCOR2Omega))
+        self.OMEGAR22.setText(str(self.myCtrl.ROSCOR2OmegaL))
+        self.OMEGAR23.setText(str(self.myCtrl.ROSCOR2OmegaU))
+        self.OMEGAR24.setText(str(self.myCtrl.ROSCOR2OmegaSTP))
+        self.ZETAR21.setText(str(self.myCtrl.ROSCOR2Zeta))
+        self.ZETAR22.setText(str(self.myCtrl.ROSCOR2ZetaL))
+        self.ZETAR23.setText(str(self.myCtrl.ROSCOR2ZetaU))
+        self.ZETAR24.setText(str(self.myCtrl.ROSCOR2ZetaSTP))
+        self.OMEGAR31.setText(str(self.myCtrl.ROSCOR3Omega))
+        self.OMEGAR32.setText(str(self.myCtrl.ROSCOR3OmegaL))
+        self.OMEGAR33.setText(str(self.myCtrl.ROSCOR3OmegaU))
+        self.OMEGAR34.setText(str(self.myCtrl.ROSCOR3OmegaSTP))
+        self.ZETAR31.setText(str(self.myCtrl.ROSCOR3Zeta))
+        self.ZETAR32.setText(str(self.myCtrl.ROSCOR3ZetaL))
+        self.ZETAR33.setText(str(self.myCtrl.ROSCOR3ZetaU))
+        self.ZETAR34.setText(str(self.myCtrl.ROSCOR3ZetaSTP))
+        self.PLATK1.setText(str(self.myCtrl.PlatformKp))
+        self.PLATK2.setText(str(self.myCtrl.PlatformKpL))
+        self.PLATK3.setText(str(self.myCtrl.PlatformKpU))
+        self.PLATK4.setText(str(self.myCtrl.PlatformKpSTP))
         # Run Simulation
-        # self.comboBox.setText(str(self.myCtrl.DLC)) #no text function
-        self.lineEdit_39.setText(str(self.myCtrl.DLCVelocity))
+        self.DLCV.setText(str(self.myCtrl.DLCV))
         # Run on HPC
         self.lineEdit_27.setText(self.myCtrl.Username)
         self.lineEdit_26.setText(self.myCtrl.Server)
-        self.lineEdit_24.setText(self.myCtrl.HPCPath)
-        # Parameterization OpenFAST
-        self.lineEdit_29.setText(str(self.myCtrl.FSChordStations))
-        self.lineEdit_45.setText(str(self.myCtrl.FSTwistStations))
-        self.lineEdit_40.setText(str(self.myCtrl.FSThickStations))
-        self.lineEdit_30.setText(str(self.myCtrl.FSLimits))
-        # self.comboBox_4.setText(str(self.myCtrl.FSObjective)) #no text function
-        # Parameterization TACS
-        self.lineEdit_43.setText(str(self.myCtrl.TSChordStations))
-        self.lineEdit_46.setText(str(self.myCtrl.TSTwistStations))
-        self.lineEdit_42.setText(str(self.myCtrl.TSThickStations))
-        self.lineEdit_41.setText(str(self.myCtrl.TSLimits))
-        # self.comboBox_5.setText(str(self.myCtrl.TSObjective)) #no text function
+        self.lineEdit_25.setText(self.myCtrl.HPCPath)
+        # Constraints: using 0.0 and will initiate later
+        self.CV1.setText(str(0.0))
+        self.CV2.setText(str(0.0))
         # Optimization
-        # self.comboBox_2.setText(str(self.myCtrl.Optimizer)) #no text function
-        self.lineEdit_23.setText(str(self.myCtrl.Iterations))
-        # self.comboBox_6.setText(str(self.myCtrl.Display)) #no text function
-        self.lineEdit_28.setText(str(self.myCtrl.Tolerane))
-
-        self.lineEdit_25.setText(self.myCtrl.YamlFile)
-
-
-
+        self.Iterations.setText(str(self.myCtrl.Iterations))
+        self.Tolerane.setText(str(self.myCtrl.Tolerane))
+        
     def readFromUI(self):
         #Get user inputs data
-        # self.myCtrl.Baselinemodel = ast.literal_eval(self.ModelSelection.text()) #no.text function
-        self.myCtrl.ROSCOR2Omega = ast.literal_eval(self.lineEdit_32.text())
-        self.myCtrl.ROSCOR2Zeta = ast.literal_eval(self.lineEdit_31.text())
-        self.myCtrl.ROSCOR3Omega = ast.literal_eval(self.lineEdit_35.text())
-        self.myCtrl.ROSCOR3Zeta = ast.literal_eval(self.lineEdit_36.text())
-        self.myCtrl.PlatformP1 = ast.literal_eval(self.lineEdit_37.text())
-        self.myCtrl.PlatformP2 = ast.literal_eval(self.lineEdit_38.text())
-        #self.SimulinkP1 = ast.literal_eval(self.lineEdit_.text())
-        #self.SimulinkP2 = ast.literal_eval(self.lineEdit_.text())
-        # self.myCtrl.ControlSelection = ast.literal_eval(self.comboBox_3.text()) #no.text function
-        # Run Simulation
-        # self.myCtrl.DLC = ast.literal_eval(self.comboBox.text()) #no.text function
-        self.myCtrl.DLCVelocity = ast.literal_eval(self.lineEdit_39.text())
-        # Run on HPC
-        self.myCtrl.Username = self.lineEdit_27.text()
-        self.myCtrl.Server = self.lineEdit_26.text()
-        self.myCtrl.HPCPath =self.lineEdit_24.text()
-        # Parameterization OpenFAST
-        self.myCtrl.FSChordStations = ast.literal_eval(self.lineEdit_29.text())
-        self.myCtrl.FSTwistStations = ast.literal_eval(self.lineEdit_45.text())
-        self.myCtrl.FSThickStations = ast.literal_eval(self.lineEdit_40.text())
-        self.myCtrl.FSLimits = ast.literal_eval(self.lineEdit_30.text())
-        # self.myCtrl.FSObjective = ast.literal_eval(self.comboBox_4.text()) #no.text function
-        # Parameterization TACS
-        self.myCtrl.TSChordStations = ast.literal_eval(self.lineEdit_43.text())
-        self.myCtrl.TSTwistStations = ast.literal_eval(self.lineEdit_46.text())
-        self.myCtrl.TSThickStations = ast.literal_eval(self.lineEdit_42.text())
-        self.myCtrl.TSLimits = ast.literal_eval(self.lineEdit_41.text())
-        # self.myCtrl.TSObjective = ast.literal_eval(self.comboBox_5.text()) #no.text function
-        # Optimization
-        # self.myCtrl.Optimizer = ast.literal_eval(self.comboBox_2.text()) #no.text function
-        self.myCtrl.Iterations = ast.literal_eval(self.lineEdit_23.text())
-        # self.myCtrl.Display = ast.literal_eval(self.comboBox_6.text()) #no.text function
-        self.myCtrl.Tolerane = ast.literal_eval(self.lineEdit_28.text())
-
+        self.myCtrl.Modelfidelity   = self.FidelitySelection.currentText() #no.text function
+        self.myCtrl.ModelSelected   = self.ModelSelection.currentText() 
+        # system: FAST
+        self.myCtrl.ChordF          = self.CHD1.text()
+        self.myCtrl.ChordFL         = self.CHD2.text()
+        self.myCtrl.ChordFU         = self.CHD3.text()
+        self.myCtrl.ChordFSTP       = self.CHD4.text()
         
-    def setyamlWorkingDir(self):   #load the control parameters txt file
-        #self.ctrldir = str(QtWidgets.QFileDialog.getExistingDirectory())
+        self.myCtrl.ThickF          = self.Thick1.text()
+        self.myCtrl.ThickFL         = self.Thick2.text()
+        self.myCtrl.ThickFU         = self.Thick3.text()
+        self.myCtrl.ThickFSTP       = self.Thick4.text()
+        
+        self.myCtrl.TiltAngle       = self.TILT1.text()
+        self.myCtrl.TiltAngleL      = self.TILT2.text() # (deg)
+        self.myCtrl.TiltAngleU      = self.TILT3.text() # (deg)
+        self.myCtrl.TiltAngleSTP    = self.TILT4.text() # (deg)
+        
+        # system: TACS based ROM
+        self.myCtrl.BldFpK          = self.FlpK1.text() # N/m
+        self.myCtrl.BldFpKL         = self.FlpK2.text()
+        self.myCtrl.BldFpKR         = self.FlpK3.text()
+        self.myCtrl.BldFpKSTP       = self.FlpK4.text()
+        
+        self.myCtrl.ThickL          = self.ThickL1.text()
+        self.myCtrl.ThickLL         = self.ThickL2.text()
+        self.myCtrl.ThickLU         = self.ThickL3.text()
+        self.myCtrl.ThickLSTP       = self.ThickL4.text()
+        
+        self.myCtrl.RtInertia       = self.RtIner1.text() # kg*m^2
+        self.myCtrl.RtInertiaL      = self.RtIner2.text() 
+        self.myCtrl.RtInertiaU      = self.RtIner3.text()
+        self.myCtrl.RtInertiaSTP    = self.RtIner4.text()
+        
+        # Controller
+        self.myCtrl.Controller      = self.comboBox_10.currentText() 
+        #set default text for general parameters
+        self.myCtrl.ROSCOR2Omega    = self.OMEGAR21.text()
+        self.myCtrl.ROSCOR2OmegaL   = self.OMEGAR22.text()
+        self.myCtrl.ROSCOR2OmegaU   = self.OMEGAR23.text()
+        self.myCtrl.ROSCOR2OmegaSTP = self.OMEGAR24.text()
+        
+        self.myCtrl.ROSCOR2Zeta     = self.ZETAR21.text()
+        self.myCtrl.ROSCOR2ZetaL    = self.ZETAR22.text()
+        self.myCtrl.ROSCOR2ZetaU    = self.ZETAR23.text()
+        self.myCtrl.ROSCOR2ZetaSTP  = self.ZETAR24.text()
+        
+        self.myCtrl.ROSCOR3Omega    = self.OMEGAR31.text()
+        self.myCtrl.ROSCOR3OmegaL   = self.OMEGAR32.text()
+        self.myCtrl.ROSCOR3OmegaU   = self.OMEGAR33.text()
+        self.myCtrl.ROSCOR3OmegaSTP = self.OMEGAR34.text()
+        
+        self.myCtrl.ROSCOR3Zeta     = self.ZETAR31.text()
+        self.myCtrl.ROSCOR3ZetaL    = self.ZETAR32.text()
+        self.myCtrl.ROSCOR3ZetaU    = self.ZETAR33.text()
+        self.myCtrl.ROSCOR3ZetaSTP  = self.ZETAR34.text()
+        
+        self.myCtrl.PlatformKp      = self.PLATK1.text()
+        self.myCtrl.PlatformKpL     = self.PLATK2.text()
+        self.myCtrl.PlatformKpU     = self.PLATK3.text()
+        self.myCtrl.PlatformKpSTP   = self.PLATK4.text()
+        # DLC case
+        self.myCtrl.DLCs            = self.DLCs.currentText() 
+        self.myCtrl.DLCV            = self.DLCV.text()
+        # Constraints
+        self.myCtrl.C1              = self.C1.currentText() 
+        self.myCtrl.CS1             = self.CS1.currentText() 
+        self.myCtrl.CV1             = self.CV1.text()
+        self.myCtrl.C2              = self.C2.currentText() 
+        self.myCtrl.CS2             = self.CS2.currentText() 
+        self.myCtrl.CV2             = self.CV2.text()
+        # Objective
+        self.myCtrl.Objective       = self.Objective.currentText()
+        # Yaml file
+        self.myCtrl.YamlFile             = self.Yamlefile.text()
+        # self.output=""
+        self.myCtrl.Username        = "xd101"
+        self.myCtrl.Server          = "amarel.rutgers.edu"
+        self.myCtrl.HPCPath         = "/scratch/xd101/Subroutine-ROSCODemo"
+        
+        # Optimization configuration
+        self.myCtrl.Optimizer       = self.Optimizer.currentText()
+        self.myCtrl.Display         = self.Display.currentText() 
+        self.myCtrl.Iterations      = self.Iterations.text()
+        self.myCtrl.Tolerane        = self.Tolerane.text()
+
+       
+    def FidelitySelectionUI(self):
+        self.readFromUI()
+        fidelity = str(self.myCtrl.Modelfidelity)
+        print("Current model type:"+fidelity)
+        if fidelity == "OpenFAST":
+            self.StackedSysIo.setCurrentIndex(0)          
+        else:
+            self.StackedSysIo.setCurrentIndex(1)  
+            
+    def ModelSelectionUI(self):
+        self.readFromUI()
+        model = str(self.myCtrl.ModelSelected)
+        print("Current model:"+model)
+        if model == "User_Model":
+            self.StackedFIleIO.setCurrentIndex(0)
+        else:
+            self.StackedFIleIO.setCurrentIndex(1)
+            
+    def LoadInherentMod(self):
+        self.readFromUI()
+        if self.myCtrl.ModelSelected == "DTU10MW(Local)" and self.myCtrl.Modelfidelity == "OpenFAST":
+            self.myCtrl.workingmodelOpenFAST == self.myCtrl.DTU10MWOpenFAST                    # should from yaml         
+            print("DTU10MW OpenFAST model loaded from library for CCD: "+ self.myCtrl.workingmodelOpenFAST)
+        if self.myCtrl.ModelSelected == "DTU10MW(Local)" and self.myCtrl.Modelfidelity == "ROM_OpenFAST":
+            self.myCtrl.workingmodelTACS == self.myCtrl.DTU10MWTACS
+            self.myCtrl.workingmodelOpenFAST == self.myCtrl.DTU10MWOpenFAST                              
+            print("DTU10MW OpenFAST model loaded from library for ROM  and ROM-based CCD: "+self.myCtrl.workingmodelOpenFAST)
+        if self.myCtrl.ModelSelected == "DTU10MW(Local)" and self.myCtrl.Modelfidelity == "ROM_TACS+OpenFAST":
+            self.myCtrl.workingmodel == self.myCtrl.DTU10MWTACS  
+            print("DTU10MW TACS model and OpenFAST model are loaded from library for ROM and ROM-based CCD: "+ self.myCtrl.workingmodelTACS+" and "+self.myCtrl.workingmodelOpenFAST)                            
+        if self.myCtrl.ModelSelected == "User_Model" and self.myCtrl.Modelfidelity == "ROM_TACS+OpenFAST":
+            print("ERROR: This model is not available now.")
+        if self.myCtrl.ModelSelected == "External_model":
+            pass # not implemented: function for receiving model path from other module
+        
+    def Setuserfile(self):
+        self.readFromUI()
         (filePath, fileType) = QtWidgets.QFileDialog.getOpenFileName()
-        self.lineEdit_25.setText(filePath)
-        self.myCtrl.YamlFile=filePath
-
-    # ============== Caller functions: gather params from the GUI and calls specific function ==================
-    def caller_RunRoscoTune(self):
-        #read parameters if needed
-        #...
-        #alternativly, re-read the entire GUI information if you define the readFromUI function:
-        # self.readFromUI()
-
-        #Call the function:
-        self.myCtrl.RunRoscoTune()
+        self.lineEdit_55.setText(str(filePath))
         
+    def Loaduserfile(self):
+        self.readFromUI()
+        self.myCtrl.workingmodelOpenFAST=str(self.lineEdit_55.text())
+        print("Loaded file  "+self.myCtrl.workingmodelOpenFAST)
+    
+    def setyamlfile(self):   #load the control parameters txt file
+        self.readFromUI()
+        (filePath, fileType) = QtWidgets.QFileDialog.getOpenFileName()
+        self.Yamlefile.setText(filePath)
+        print("Yaml file selected: "+str(filePath))
+        
+    def loadyamlfile(self):   #load the control parameters txt file
+        self.readFromUI()
+        self.myCtrl.YamlFile = self.Yamlefile.text()
+        print("Yaml file loaded: "+self.myCtrl.YamlFile)
+
+    # # ============== Caller functions: gather params from the GUI and calls specific function ==================
     def caller_LocalRun(self):
-        #read params from the GUI (TENTATIVELY USING VELOCITY FIELD FOR THE DEMO):
-        folder = self.lineEdit_39.text()
-        #alternativly, re-read the entire GUI information if you define the readFromUI function:
-        # self.readFromUI()
+        self.readFromUI()
+        if self.myCtrl.Modelfidelity == "OpenFAST":
+            # FAST running
+            if self.RB112.isChecked():
+                sweep = np.arange(float(self.myCtrl.ChordFL),float(self.myCtrl.ChordFU),float(self.myCtrl.ChordFSTP))
+                for i in range(len(sweep)):
+                    self.myCtrl.ChordFCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
+                    self.myCtrl.LocalRun()
+                    self.myCtrl.postprocessOpenFAST()
+                self.myCtrl.ChordFCV = self.myCtrl.ChordF
+                
+            if self.RB122.isChecked():
+                sweep = np.arange(float(self.myCtrl.ThickFL),float(self.myCtrl.ThickFU),float(self.myCtrl.ThickFSTP))
+                for i in range(len(sweep)):
+                    self.myCtrl.ThickFCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
+                    self.myCtrl.LocalRun()
+                    self.myCtrl.postprocessOpenFAST()
+                self.myCtrl.ThickFCV = self.myCtrl.ThickF
+                
+            if self.RB132.isChecked():
+                sweep = np.arange(float(self.myCtrl.TiltAngleL),float(self.myCtrl.TiltAngleU),float(self.myCtrl.TiltAngleSTP))
+                for i in range(len(sweep)):
+                    self.myCtrl.TiltAngleCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
+                    self.myCtrl.LocalRun()
+                    self.myCtrl.postprocessOpenFAST()
+                self.myCtrl.TiltAngleCV = self.myCtrl.TiltAngle
+              # Control parameters 
+            if self.RB42.isChecked():
+                sweep = np.arange(float(self.myCtrl.ROSCOR2OmegaL),float(self.myCtrl.ROSCOR2OmegaU),float(self.myCtrl.ROSCOR2OmegaSTP))
+                for i in range(len(sweep)):
+                    self.myCtrl.ROSCOR2OmegaCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
+                    self.myCtrl.RunRoscoTune()
+                    self.myCtrl.Writeout()
+                    self.myCtrl.LocalRun()
+                    self.myCtrl.postprocessOpenFAST()
+                self.myCtrl.ROSCOR2OmegaCV = self.myCtrl.ROSCOR2Omega
+                    
+            if self.RB52.isChecked():
+                sweep = np.arange(float(self.myCtrl.ROSCOR2ZetaL),float(self.myCtrl.ROSCOR2ZetaU),float(self.myCtrl.ROSCOR2ZetaSTP))
+                for i in range(len(sweep)):
+                    self.myCtrl.ROSCOR2ZetaCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
+                    self.myCtrl.RunRoscoTune()
+                    self.myCtrl.Writeout()
+                    self.myCtrl.LocalRun()
+                    self.myCtrl.postprocessOpenFAST()
+                self.myCtrl.ROSCOR2ZetaCV = self.myCtrl.ROSCOR2Zeta
+                
+            if self.RB62.isChecked():
+                sweep = np.arange(float(self.myCtrl.ROSCOR3OmegaL),float(self.myCtrl.ROSCOR3OmegaU),float(self.myCtrl.ROSCOR3OmegaSTP))
+                for i in range(len(sweep)):
+                    self.myCtrl.ROSCOR3OmegaCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
+                    self.myCtrl.RunRoscoTune()
+                    self.myCtrl.Writeout()
+                    self.myCtrl.LocalRun()
+                    self.myCtrl.postprocessOpenFAST()
+                self.myCtrl.ROSCOR3OmegaCV = self.myCtrl.ROSCOR3Omega
+                
+            if self.RB72.isChecked():
+                sweep = np.arange(float(self.myCtrl.ROSCOR3ZetaL),float(self.myCtrl.ROSCOR3ZetaU),float(self.myCtrl.ROSCOR3ZetaSTP))
+                for i in range(len(sweep)):
+                    self.myCtrl.ROSCOR3ZetaCV = sweep[i]
+                    self.myCtrl.RunModelUpdate_OpenFAST()
+                    self.myCtrl.RunRoscoTune()
+                    self.myCtrl.Writeout()
+                    self.myCtrl.LocalRun()
+                    self.myCtrl.postprocessOpenFAST()
+                self.myCtrl.ROSCOR3ZetaCV = self.myCtrl.ROSCOR3Zeta
+                
+        if "HF" in self.myCtrl.Modelfidelity:
+            # FOR ROM based model running and control tuning
+            if self.RB212.isChecked():
+                pass
+            if self.RB222.isChecked():
+                pass
+            if self.RB232.isChecked():
+                pass
+            if self.RB42.isChecked():
+                pass
+            if self.RB52.isChecked():
+                pass
+            if self.RB62.isChecked():
+                pass
+            if self.RB72.isChecked():
+                pass
 
-        #execute function through the control object
-        self.myCtrl.LocalRun( folder + "/5MW_Land_BD_DLL_WTurb.fst")
-
-    def caller_RunCCD(self):
-        #read parameters if needed
-        #...
-        # self.readFromUI()
-        #Call the function:
-        self.myCtrl.RunCCD()
-
-        
+        self.myCtrl.sweep = sweep
+    def caller_Postplot(self):
+        self.readFromUI()
+        #self.myCtrl.postprocessOpenFAST()
+        if self.myCtrl.Objective == "RotThrust_max":
+             plt.plot(self.myCtrl.sweep,self.myCtrl.Ft_max,'r-s')
+        else:
+             plt.plot(self.myCtrl.sweep,self.myCtrl.Tq_max,'r-s')  
+        plt.show()
+       
     def caller_SendToHPCf(self):
         #read parameters if needed
         self.readFromUI()
-        orig = "dummy" #TODO
-        
-        #Call the function:
-        self.myCtrl.SendToHPCf(self,orig)
+        self.myCtrl.SendToHPCf()
         
     def caller_HPCloadf(self):
         #read parameters if needed
         self.readFromUI()
-        orig = "dummy" #TODO
+        self.myCtrl.HPCloadf()
+    def C1set(self):
+        self.readFromUI()
+        if self.myCtrl.C1 == "Mr":
+            self.CV1.setText(str(self.myCtrl.Constraint_Mr))
+        if self.myCtrl.C1 == "DEL_Mbr":
+            self.CV1.setText(str(self.myCtrl.Constraint_DEL_Mbr))
+        if self.myCtrl.C1 == "DEL_Mtwr":
+            self.CV1.setText(str(self.myCtrl.Constraint_DEL_Mtwr))
+        if self.myCtrl.C1 == "DEL_Fbr":
+            self.CV1.setText(str(self.myCtrl.Constraint_DEL_Fbr))
+        if self.myCtrl.C1 == "DEL_Ftwr":
+            self.CV1.setText(str(self.myCtrl.Constraint_DEL_Ftwr))
+        if self.myCtrl.C1 == "None":
+            self.CV1.setText(str(" "))
+    def C2set(self):
+        self.readFromUI()
+        if self.myCtrl.C2 == "Mr":
+            self.CV2.setText(str(self.myCtrl.Constraint_Mr))
+        if self.myCtrl.C2 == "DEL_Mbr":
+            self.CV2.setText(str(self.myCtrl.Constraint_DEL_Mbr))
+        if self.myCtrl.C2 == "DEL_Mtwr":
+            self.CV2.setText(str(self.myCtrl.Constraint_DEL_Mtwr))
+        if self.myCtrl.C2 == "DEL_Fbr":
+            self.CV2.setText(str(self.myCtrl.Constraint_DEL_Fbr))
+        if self.myCtrl.C2 == "DEL_Ftwr":
+            self.CV2.setText(str(self.myCtrl.Constraint_DEL_Ftwr))
+        if self.myCtrl.C2 == "None":
+            self.CV2.setText(str(" "))
         
-        #Call the function:
-        self.myCtrl.HPCloadf(self,orig)
+    def caller_RunCCD(self):
+        self.readFromUI()
+        if self.myCtrl.Modelfidelity == "OpenFAST":
+            prob = om.Problem()
+            MDAOObj = ControlMDAOom()
+            prob.model.add_subsystem('p', MDAOObj)
+            # OpenFAST aero- chord
+            if self.RB113.isChecked():
+                prob.model.add_design_var('p.Chd_c', lower= float(self.myCtrl.ChordFL), upper = float(self.myCtrl.ChordFU))
+            if self.RB123.isChecked():
+                # OpenFAST aero- twist
+                prob.model.add_design_var('p.Twst_c', lower = float(self.myCtrl.ThickFL), upper = float(self.myCtrl.ThickFU))
+            if self.RB131.isChecked():
+                # Update tilt angle and wind inputs
+                self.myCtrl.RunModelUpdate_OpenFAST()
+            if self.RB43.isChecked():
+                # Control 
+                prob.model.add_design_var('p.omega_vs', lower = float(self.myCtrl.ROSCOR2OmegaL), upper = float(self.myCtrl.ROSCOR2OmegaU))
+            if self.RB53.isChecked():
+                prob.model.add_design_var('p.zeta_vs', lower = float(self.myCtrl.ROSCOR2ZetaL), upper = float(self.myCtrl.ROSCOR2ZetaU))
+            if self.RB63.isChecked():
+                prob.model.add_design_var('p.omega_pc', lower = float(self.myCtrl.ROSCOR3OmegaL), upper = float(self.myCtrl.ROSCOR3OmegaU))
+            if self.RB73.isChecked():
+                prob.model.add_design_var('p.zeta_pc', lower = float(self.myCtrl.ROSCOR3ZetaL), upper = float(self.myCtrl.ROSCOR3ZetaU))
+            if self.myCtrl.Objective == "AEP_max":
+                prob.model.add_objective('p.AEP')
+            # Constraint1
+            if self.C1.currentText() == "RotThrust_max" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.RotThrust_max', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "mass_r" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.Mass', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "DEL_Mbr" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_BrM', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "DEL_Mtwr" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_TrM', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "DEL_Fbr" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_BrF', upper=float(self.myCtrl.CV1))
+            if self.C1.currentText() == "DEL_Ftwr" and self.CS1.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_TrF', upper=float(self.myCtrl.CV1))
+            # Constraint2
+            if self.C2.currentText() == "RotThrust_max" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.RotThrust_max', upper=float(self.myCtrl.CV1))
+            if self.C2.currentText() == "mass_r" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.Mass', upper=float(self.myCtrl.CV2))
+            if self.C2.currentText() == "DEL_Mbr" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_BrM', upper=float(self.myCtrl.CV2))
+            if self.C2.currentText() == "DEL_Mtwr" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_TrM', upper=float(self.myCtrl.CV2))
+            if self.C2.currentText() == "DEL_Fbr" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_BrF', upper=float(self.myCtrl.CV2))
+            if self.C2.currentText() == "DEL_Ftwr" and self.CS2.currentText() == "<=":
+                prob.model.add_constraint('p.DEL_TrF', upper=float(self.myCtrl.CV2))
+            # Set the objective
+            prob.model.add_objective('p.RotTorq_max')
+        
+            # find optimal solution with SciPy optimize
+            driver = prob.driver = om.ScipyOptimizeDriver(optimizer=self.myCtrl.Optimizer, tol=float(self.myCtrl.Tolerane))
+            driver.options['maxiter'] = int(self.myCtrl.Iterations)
+            if self.myCtrl.Display == "True":
+                driver.options['disp'] = True
+            else:
+                driver.options['disp'] = False
+            
+            driver.recording_options['includes'] = ['*']
+            driver.recording_options['record_objectives'] = True
+            driver.recording_options['record_constraints'] = True
+            driver.recording_options['record_desvars'] = True
+            driver.recording_options['record_inputs'] = True
+            driver.recording_options['record_outputs'] = True
+            driver.recording_options['record_residuals'] = True
+            
+            recorder = om.SqliteRecorder("cases.sql")
+            driver.add_recorder(recorder)
+        
+            prob.setup()
+            prob.run_driver()
+            
+            # output display
+            prob.cleanup()
+            cr = om.CaseReader("cases.sql")
+            driver_cases = cr.list_cases('driver')
+            #%%
+            #ast_case = cr.get_case(driver_cases[-1])
+            #print("Optimal Solutions"+last_case)     
 
 
 if __name__=='__main__':
     app = QtWidgets.QApplication(sys.argv)
     
-    path_to_case = "./"
+    path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
+    path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+    # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
     
     #empty control object
     myCtrl = ctrl.Control(path_to_case)

@@ -3,11 +3,16 @@
 import sys
 import os
 import matplotlib.pyplot as plt
-import shutil, tempfile, math, numpy, string
-from PyQt5 import QtCore, QtGui, uic, QtWidgets
-from PyQt5.QtWidgets import QFileDialog
-import subprocess
-import pyqtgraph as pg
+# import shutil, tempfile, math, string
+# import numpy as np
+# import subprocess
+
+#conditional imports
+try:
+    from PyQt5 import QtCore, QtGui, uic, QtWidgets
+    from PyQt5.QtWidgets import QFileDialog
+except ImportError as err:
+    pass
 
 from openturbinecode.aerodynamics import aerodynamics_gui as aero
 # from openturbinecode.structure import structure_gui as struc
