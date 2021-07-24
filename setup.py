@@ -31,7 +31,7 @@ setuptools.setup(
         "gui": ["PyQt5", "pyqtgraph"],
         "meshing": ["PGL"],
         "controls": ["pandas","ROSCO_toolbox","openmdao","pCrunch"], # TODO: this stuff is pretty heavyweight, we should find a way to selectively install and use only te packages that we need at installation time, or have some "fake" placeholder modules
-        "low-fidelity": ["pyFAST"],
+        "low-fidelity": [],
     },
     package_data = {"openturbinecode": ["*.json"],
     "openturbinecode.master_GUI": ["Config.ui"],
