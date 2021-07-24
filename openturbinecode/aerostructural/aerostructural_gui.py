@@ -75,6 +75,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.Objective_Mass.setText(str(self.myAeroStruct.massWeight))
         self.conv_tol.setText(str(self.myAeroStruct.convergencetolerance))
         self.max_iters.setText(str(self.myAeroStruct.maxiters))
+        self.Wind_V.setText(str(self.myAeroStruct.Vlist))
+        self.rpm.setText(str(self.myAeroStruct.rpmlist))
 
     def readFromUI(self):
         #Get user inputs data

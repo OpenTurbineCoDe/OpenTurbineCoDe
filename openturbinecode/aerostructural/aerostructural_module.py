@@ -57,7 +57,8 @@ class Aerostructural:
 
         #parameters for sweep:
         # self.tsrlist = np.array([9.6]) #TODO: read from models
-        # self.Vlist = np.array([8.]) #TODO: read from models
+        self.rpmlist = np.array([6.8]) #TODO: read from models
+        self.Vlist = np.array([8.]) #TODO: read from models
         # self.pitchlist = np.array([0.]) #TODO: read from models
         self.tsrlist = np.array([7.81]) #TODO: read from models
         self.Vlist = np.array([8.]) #TODO: read from models
