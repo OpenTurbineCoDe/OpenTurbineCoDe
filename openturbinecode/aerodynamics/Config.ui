@@ -326,6 +326,11 @@
         <string>1.1</string>
        </property>
       </item>
+      <item>
+       <property name="text">
+        <string>1.3</string>
+       </property>
+      </item>
      </widget>
     </widget>
     <widget class="QWidget" name="widget_6" native="true">
@@ -354,7 +359,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Wind speed</string>
+       <string>Wind speed [m/s]</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="windSpeed">
@@ -414,7 +419,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Pitch angle</string>
+       <string>Pitch angle [deg]</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="pitchAngle">

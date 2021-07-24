@@ -57,6 +57,8 @@ class Aerodynamics:
         self.cp     = np.nan*self.Vlist
 
 
+        self.Vdlc = np.array(range(5,16)) 
+
         # self.Username = "xd101"
         # self.Server   = "amarel.rutgers.edu"
         # self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"

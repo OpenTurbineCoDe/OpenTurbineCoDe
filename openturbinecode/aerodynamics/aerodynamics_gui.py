@@ -48,8 +48,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
             self.loadRotor.setEnabled(False)
             self.model_list.setItemText(0, "internal") 
-            self.DLC_list.setEnabled(False)
-            self.DLC_list.setItemText(0, "internal") 
+
+            self.DLC_list.addItem("internal") 
         
         self.str_pathToRotor.setEnabled(False)            
         self.browseButtonRotor.setEnabled(False)
@@ -61,6 +61,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.loadRotor.clicked.connect(self.load_case)
 
         self.model_list.activated.connect(self.GrayOutRotor)
+        self.DLC_list.activated.connect(self.GrayOutVels)
 
         self.browseButtonRotor.clicked.connect(self.set_pathToRotor)
 
@@ -147,6 +148,16 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             self.str_pathToRotor.setEnabled(False)            
             self.browseButtonRotor.setEnabled(False)
 
+    def GrayOutVels(self):
+        if self.DLC_list.currentText() == "internal":
+            self.windSpeed.setEnabled(False)
+            #TODO: update the field of velocity!
+        elif "." in self.DLC_list.currentText() :
+            self.windSpeed.setEnabled(False)
+            self.windSpeed.setText(', '.join([str(el) for el in self.myAero.Vdlc]))
+        else:
+            self.windSpeed.setEnabled(True)
+            
 
 if __name__=='__main__':
     app = QtWidgets.QApplication(sys.argv)
