@@ -13,7 +13,8 @@ def requires_tacs(function):
     def check_requirement(*args,**kwargs):
         if not _has_tacs:
             raise ImportError("TACS and pyTACS are required to do this.")
-        function(*args,*kwargs)
+        FEASolver = function(*args,*kwargs)
+        return FEASolver
     return check_requirement
 
 

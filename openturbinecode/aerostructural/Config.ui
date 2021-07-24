@@ -1257,7 +1257,7 @@
               <string>Max Iterations</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_4">
+            <widget class="QLineEdit" name="conv_tol">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -1267,7 +1267,7 @@
               </rect>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_6">
+            <widget class="QLineEdit" name="max_iters">
              <property name="geometry">
               <rect>
                <x>280</x>

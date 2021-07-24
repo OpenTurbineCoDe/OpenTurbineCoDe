@@ -13,7 +13,7 @@ from openturbinecode.aerostructural.aerostruct_wrapper import aerostruct_Wrapper
 import openturbinecode.utils.io as io
 
 class Aerostructural:
-    def __init__(self, path_to_case, turb_data=None, models=None, plotonly=False):
+    def __init__(self, path_to_case, turb_data=None, models=None, plotonly=False, optimize=False):
 
         self.turb_data = turb_data
         self.models = models
@@ -21,7 +21,8 @@ class Aerostructural:
 
         self.setDefaultValues()
 
-        self.plotonly = plotonly      
+        self.plotonly = plotonly
+        self.optimize = optimize      
 
     # ==================== GENERAL FUNCTIONS ==========================================    
     def setDefaultValues(self):
@@ -62,6 +63,12 @@ class Aerostructural:
         self.Vlist = np.array([8.]) #TODO: read from models
         self.pitchlist = np.array([0.]) #TODO: read from models
 
+        # Optimization
+        self.torqueWeight = 0.0
+        self.massWeight = 1.0
+        self.convergencetolerance = 1e-4
+        self.maxiters = 500
+
         #results
         self.torque = np.nan*self.Vlist
         self.thrust = np.nan*self.Vlist
@@ -100,7 +107,7 @@ class Aerostructural:
 
         options["plotonly"] = self.plotonly
 
-        torque, thrust, cp = aerostruct_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options)
+        torque, thrust, cp = aerostruct_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options, self.optimize)
         
         self.torque = np.array(torque)
         self.thrust = np.array(thrust)
@@ -181,8 +188,8 @@ if __name__=='__main__':
     path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
     # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
 
-    plotonly = True 
-    myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly)
+    plotonly = False 
+    myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly,optimize=True)
     myAeroStruct.setDefaultValues()
     myAeroStruct.Run()
     myAeroStruct.PlotCp()

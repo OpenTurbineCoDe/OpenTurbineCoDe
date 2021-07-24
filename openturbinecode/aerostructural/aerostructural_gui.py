@@ -43,6 +43,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         #TODO: connect buttons:
         # # self.loadRotor.clicked.connect(self.load_case)
         self.RunAnalysis.clicked.connect(self.caller_Run)
+        self.RunOptimization.clicked.connect(self.caller_Opt)
         # self.plot_cp.clicked.connect(self.myAeroStructPlotCp)
         # self.plot_thrust.clicked.connect(self.myAeroStructPlotThrust)               
         # self.plot_torque.clicked.connect(self.myAeroStructPlotTorque)
@@ -70,6 +71,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.precone.setText(str(self.myAeroStruct.precone))
         self.thickness.setText(', '.join([str(el) for el in self.myAeroStruct.thickness]))
         self.whichHPC.setText(str(self.myAeroStruct.CaseToHPC))
+        self.Objective_Torque.setText(str(self.myAeroStruct.torqueWeight))
+        self.Objective_Mass.setText(str(self.myAeroStruct.massWeight))
+        self.conv_tol.setText(str(self.myAeroStruct.convergencetolerance))
+        self.max_iters.setText(str(self.myAeroStruct.maxiters))
 
     def readFromUI(self):
         #Get user inputs data
@@ -105,6 +110,16 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         #execute function through the control object
         self.myAeroStruct.Run()
+
+    def caller_Opt(self):
+        #read params from the GUI
+        self.readFromUI()
+
+        self.myAeroStruct.optimize = True
+
+        #execute function through the control object
+        self.myAeroStruct.Run()
+
 
     def caller_SendToHPC(self):
         #read params from the GUI

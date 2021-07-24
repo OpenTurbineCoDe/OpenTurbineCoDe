@@ -11,6 +11,7 @@ from math import nan
 import numpy as np
 import os
 import sys
+import time
 from mpi4py import MPI
 import pickle
 
@@ -48,7 +49,7 @@ def pickleRead(fname, comm=None):  # TODO: move this somewhere more appropriate
 
 # TODO: add the ability to specify blade pitch
 # TODO: add another dictionary for parameter sweeps?
-def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options):
+def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, optimize):
 
     # baseDir = os.path.dirname(os.path.abspath(__file__))
     
@@ -156,10 +157,19 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
             name = f"MDA_{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
             options["casename"] = name
             if not plotonly:
-
-                if MPI.COMM_WORLD.rank == 0:
-                    print(f"Starting Hi-fi analysis at tsr={tsr}")
-                HiFiAeroStruct(tsr,Vel,pitch,rho,T,options)
+                
+                if optimize:
+                    if MPI.COMM_WORLD.rank == 0:
+                        print("+ ------------------------------------ +")
+                        print(f"Starting Optimization")
+                        print("+ ------------------------------------ +")
+                        time.sleep(3)
+                        HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=optimize)
+                    
+                else:
+                    if MPI.COMM_WORLD.rank == 0:
+                        print(f"Starting Hi-fi analysis at tsr={tsr}")
+                    HiFiAeroStruct(tsr,Vel,pitch,rho,T,options)
                 outputdir = options["outputDirectory"]
                 funcs = pickleRead(f"{outputdir}/Funcs.pkl")
                 trq = funcs["mx"]
