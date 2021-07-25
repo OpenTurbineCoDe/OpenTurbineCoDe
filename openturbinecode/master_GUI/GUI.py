@@ -45,15 +45,20 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         # ------>> PLEASE WRITE CODE UNDER YOUR ASSOCIATED SECTION <<---------
         # You can get inspiration from sample code below, or other resources/tutorials on Qt stuff.
         
+        #=====  DEFAULTS ===============================================
+
+        self.pathToMadsen = self.OTCD.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep + "Madsen2019_10.yaml"
+
         #=====  MAIN OPTIONS ===============================================
         #self.OTCD.MessageBox = self.textBrowser
         self.OTCD.QtWidgets = QtWidgets
         
         self.Main_set_PathToCaseButton.clicked.connect(self.set_path_to_case)
 
+        self.preload_button.clicked.connect(self.load_case)
+
         self.Main_set_SaveCaseButton.clicked.connect(self.save_all_options)
 
-        #...
 
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
@@ -107,7 +112,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Main_set_PathToCase.setText(self.OTCD.path_to_case)
 
         #update parameters with the current texts in the fields
-        if "DLC" in self.OTCD.modeling_options["OpenTurbineCoDe"]: 
+        if "DLC" in self.OTCD.modeling_options["OpenTurbineCoDe"] and "DLC_list" in self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]: 
             self.disp_DLC_options()
 
         if self.OTCD.turb_data:
@@ -125,7 +130,18 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         #TODO: do the same for all standalone GUIs?
         
 
-        
+    def load_case(self):
+
+        #TODO: select the right path depending on the case_list combobox
+        path = self.pathToMadsen
+
+        self.OTCD.turb_yaml = path
+        self.OTCD.load_turbine_case()
+        self.disp_case()
+
+        #update standalone GUIs
+        self.aero_ui.writeToUI()
+        #...
 
 
     def save_MainParams_options(self):

@@ -86,11 +86,19 @@ class OpenTurbineCoDe:
     def load_turbine_case(self):
         self.turb_data = io.validate_with_defaults(self.turb_yaml,self.turbine_schema)
 
+        #UPDATE EVERY CHILD MODULE
+        if self.turb_data:
+            self.myAero.turb_data = self.turb_data
+            #...
+
         self.printv('turbine case loaded')
 
     #import modeling options under the form of a dictionary and making it available as an attribute to this object
     def load_modeling_options(self):
         self.modeling_options = io.validate_with_defaults(self.model_yaml, self.model_schema)
+
+        #UPDATE EVERY CHILD MODULE
+        #...
         
         self.printv('modeling options loaded')
 
