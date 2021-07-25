@@ -12,7 +12,7 @@ import shutil
 
 #take filename in inputDir, replace the list of [value] on [iline], and place it in outputDir
 #mod = 0 (replace the value)|1 (multipy by value)|2 (add value)
-def replaceInFile(filename, inputDir, outputDir, iline, value, mod=0, fmt="  %9.5f"):
+def replaceInFile(filename, inputDir, outputDir, iline, value, mod=0, fmt="  %9.5f", colstart=11):
     ifi = os.path.join(inputDir, filename)
     ofi = os.path.join(outputDir, filename)
     buffer = ""
@@ -23,18 +23,18 @@ def replaceInFile(filename, inputDir, outputDir, iline, value, mod=0, fmt="  %9.
     except Exception:
         print('Could not open files: '+ ifh )
         exit(1)
-    
+
     l = 0 #index of read file
     lr = 0 #index of replaced values
     for line in ifh.readlines():
         l+=1
         if l in iline:
             if mod == 1:
-                line = "%9.6E"%(float(line[0:12])*value) + line[11:] #multiply the value in the file
+                line = "%9.6E"%(float(line[0:12])*value) + line[colstart:] #multiply the value in the file
             elif mod == 2:
-                line = "%9.6E"%(float(line[0:12])+value) + line[11:] #multiply the value in the file
+                line = "%9.6E"%(float(line[0:12])+value) + line[colstart:] #multiply the value in the file
             else:
-                line = fmt%value[lr] + line[11:]
+                line = fmt%value[lr] + line[colstart:]
             
             buffer += line
             lr+=1
@@ -143,6 +143,26 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
     rpm = rotRate_z / (2 * np.pi) * 60
 
     # ======================================================================
+    #         DLC setting
+    # ======================================================================
+
+    DLCtype = 0 #initialize as uniform flow
+    
+    windSubfolder = "wind"
+    if "DLC" in options and options["DLC"]["type"]>0:
+        DLCtype = options["DLC"]["type"]
+        DLCtag = options["DLC"]["DLCtag"] 
+        path_to_wind = options["DLC"]["path_to_wind"]
+
+        if DLCtype == 1.1:
+            windfile = "%s_1ETM_U%8.6f_Seed1.0.bts"%(DLCtag,Vel)
+        elif DLCtype == 1.3:
+            windfile = "%s_NTM_U%8.6f_Seed1.0.bts"%(DLCtag,Vel)
+        else:
+            print("Non-implemented DLC")
+            raise AttributeError()
+
+    # ======================================================================
     #         Copying the working files
     # ======================================================================
 
@@ -155,9 +175,13 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
     for file in config["files"]["fileList"]:
         shutil.copy(os.path.join(fileDirectory,file), os.path.join(workingDirectory,file))
     for dir in config["files"]["dirList"]:
-        shutil.copytree(os.path.join(fileDirectory,dir), os.path.join(workingDirectory,dir))    
+        shutil.copytree(os.path.join(fileDirectory,dir), os.path.join(workingDirectory,dir))  
 
-    
+    if DLCtype > 0:
+        localWindFolder= workingDirectory + os.sep + windSubfolder
+        os.mkdir(localWindFolder)
+        shutil.copy(path_to_wind + os.sep + windfile, localWindFolder)
+                    
 
     if 'OpenFAST' in config["lofi_code"]:
         # elastodyn: rpm, line 35
@@ -167,17 +191,35 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
         replaceInFile(config["files"]["IWfile"], fileDirectory, workingDirectory, [12], [Vel])
 
         # elastodyn: rpm, line 30-32
-        replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, [30], [pitch])
-        replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, [31], [pitch])
-        replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, [32], [pitch])
-
+        replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, [30,31,32], [pitch,]*3)
+        
         #set rescale R in the file! 
         replaceInFileTable(config["files"]["ADbladefile"],workingDirectory,workingDirectory,range(7,47),1,Rscale,separator='  ',mod=1)
         
+        #update TipRad/hubrad
+        replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, [47], Rscale, mod=1)
+        replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, [48], Rscale, mod=1)
+
+
+        if "withFlexibility" in options and not options["withFlexibility"]:
+            replaceInFile(config["files"]["EDfile"], workingDirectory, workingDirectory, range(10,16), ["False",]*6, fmt="%s")
+
+        if DLCtype > 0:
+            #set the input type to inflow wind 
+            replaceInFile(config["files"]["IWfile"], workingDirectory, workingDirectory, [5], [3], fmt="        %i")    
+            #set inflow wind file
+            print(windfile)
+            print("\"%s\""%(windSubfolder + os.sep + windfile))
+            replaceInFile(config["files"]["IWfile"], workingDirectory, workingDirectory, [20], [windSubfolder + os.sep + windfile], fmt="\"%s\"", colstart=25)    
+            
         run_cmd = config["path_to_openfast"] + " " + config["files"]["fstFile"]
         outFile = case_tag + ".out"
 
     elif 'AeroDyn' in config["lofi_code"]:
+        if DLCtype>0:
+            print("Can't simulate non-uniform inflow with AeroDyn")
+            raise AttributeError()
+
         # driver: rpm
         replaceInFileTable(config["files"]["ADdrvfile"],fileDirectory,workingDirectory,[22],3,[rpm],separator='  ')
 
@@ -215,13 +257,13 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
 
     flag = os.system(run_cmd)
 
-    if flag!=0:
-        print("ERROR - Execution failed during call to %s"%config["lofi_code"])
-        exit(1)
-    
     #go back to where we were
     os.chdir(cwd)
 
+    if flag!=0:
+        print("ERROR - Execution failed during call to %s"%config["lofi_code"])
+        raise KeyboardInterrupt()
+    
     #Copy the results into the ouput file
     fromdir = os.path.join(workingDirectory, outFile)
     shutil.copy(fromdir, outputFile)

@@ -7,7 +7,7 @@ Created on Fri Oct  2 14:12:35 2020
 # Config program using PyQt5
 
 import sys
-import os
+import os, shutil
 import ast
 import numpy as np
 import argparse
@@ -61,7 +61,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.loadRotor.clicked.connect(self.load_case)
 
         self.model_list.activated.connect(self.GrayOutRotor)
-        self.DLC_list.activated.connect(self.GrayOutVels)
+        self.DLC_list.activated.connect(self.selectDLC)
 
         self.browseButtonRotor.clicked.connect(self.set_pathToRotor)
 
@@ -110,8 +110,23 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myAero.pitchlist = np.atleast_1d( ast.literal_eval(self.pitchAngle.text()) ) /180.*np.pi
         self.myAero.bladeRlist = np.atleast_1d( ast.literal_eval(self.bladeRadius.text()) )
 
+        #user friendlyness: if only 1 value was given, let's broadcast it
+        maxdim = max([ len(self.myAero.Vlist), len(self.myAero.tsrlist), len(self.myAero.pitchlist), len(self.myAero.bladeRlist)])
+        if len(self.myAero.Vlist) < maxdim:
+            self.myAero.Vlist = np.ones(maxdim)*self.myAero.Vlist[0]
+        if len(self.myAero.tsrlist) < maxdim:
+            self.myAero.tsrlist = np.ones(maxdim)*self.myAero.tsrlist[0]
+        if len(self.myAero.pitchlist) < maxdim:
+            self.myAero.pitchlist = np.ones(maxdim)*self.myAero.pitchlist[0]
+        if len(self.myAero.bladeRlist) < maxdim:
+            self.myAero.bladeRlist = np.ones(maxdim)*self.myAero.bladeRlist[0]
+
         self.myAero.fidelity = self.solver_list.currentText()
         self.myAero.mesh_level = self.mesh_list.currentText()
+
+        self.selectDLC() #potentially overwrite fidelity depending on the DLC
+
+
 
     # ============== Caller functions: gather params from the GUI and calls specific function ==================
 
@@ -121,12 +136,6 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         print("loading "+ self.pathToRotor)
         self.myAero.reload_turbdata(self.pathToRotor)
     
-    def caller_setFolderStructure(self):
-        self.readFromUI()
-        print("Setting folders in "+ self.myAero.path_to_case)
-        self.myAero.setFolderStructure()
-
-
     def caller_Run(self):
         #read params from the GUI
         self.readFromUI()
@@ -140,6 +149,17 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.pathToRotor = filePath
         self.writeToUI()
 
+    def caller_setFolderStructure(self):
+        self.readFromUI()
+        
+        #copy all the files from the model to the case directory
+        fromDir = os.path.dirname(self.pathToRotor)
+        toDir = self.myAero.path_to_case
+        if toDir != fromDir:
+            print("Setting folders in "+ self.myAero.path_to_case)
+            shutil.copytree(fromDir, toDir, dirs_exist_ok=True)    
+        
+
     def GrayOutRotor(self):
         if self.model_list.currentText() == "external":
             self.str_pathToRotor.setEnabled(True)
@@ -148,15 +168,21 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             self.str_pathToRotor.setEnabled(False)            
             self.browseButtonRotor.setEnabled(False)
 
-    def GrayOutVels(self):
+    def selectDLC(self):
         if self.DLC_list.currentText() == "internal":
             self.windSpeed.setEnabled(False)
-            #TODO: update the field of velocity!
+            self.myAero.selectDLC( -1 )
         elif "." in self.DLC_list.currentText() :
             self.windSpeed.setEnabled(False)
-            self.windSpeed.setText(', '.join([str(el) for el in self.myAero.Vdlc]))
+            self.myAero.selectDLC( float(self.DLC_list.currentText()) )
+            if self.solver_list.currentText() != "AeroDyn":
+                print("WARNING : can only do uniform flow with ADFlow... switching back to AeroDyn.")
+                self.solver_list.setCurrentIndex(0)
         else:
             self.windSpeed.setEnabled(True)
+            self.myAero.selectDLC( 0 )
+
+        self.windSpeed.setText(', '.join([str(el) for el in self.myAero.Vlist]))
             
 
 if __name__=='__main__':
