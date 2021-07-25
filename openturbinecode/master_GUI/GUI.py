@@ -58,33 +58,33 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
         #=====  GEOMETRY ===============================================
-        geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self)
-        self.Master_tabs.addTab(geometry_ui,"Geometry")
+        self.geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self)
+        self.Master_tabs.addTab(self.geometry_ui,"Geometry")
         #=====  MESHING ===============================================
         
         #...
 
         #=====  AERODYNAMICS ===============================================
         
-        aero_ui = aero.Mapper(self.OTCD.myAero,parent=self,withMasterGUI=True)
-        self.Master_tabs.addTab(aero_ui,"Aerodynamics")
+        self.aero_ui = aero.Mapper(self.OTCD.myAero,parent=self,withMasterGUI=True)
+        self.Master_tabs.addTab(self.aero_ui,"Aerodynamics")
 
         #=====  STRUCTURE ===============================================
         
-        # struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self)
-        # self.Master_tabs.addTab(struc_ui,"Structure")
+        # self.struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self)
+        # self.Master_tabs.addTab(self.struc_ui,"Structure")
 
         #=====  AERO-STRUCTURE ===============================================
         
         # aerostructGUI_ui = asGui.Mapper(OTCD=self.OTCD,parent=self)
         # self.SampleModule.addTab(aerostructGUI_ui,"Aerostructural")
-        aerostructGUI_ui = aerostruct.Mapper(self.OTCD.myAeroStruct,parent=self)
-        self.Master_tabs.addTab(aerostructGUI_ui,"AeroStructure")
+        self.aerostructGUI_ui = aerostruct.Mapper(self.OTCD.myAeroStruct,parent=self)
+        self.Master_tabs.addTab(self.aerostructGUI_ui,"AeroStructure")
 
         #=====  CCD ===============================================
         
-        control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self)
-        self.Master_tabs.addTab(control_ui,"Controls")
+        self.control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self)
+        self.Master_tabs.addTab(self.control_ui,"Controls")
 
         # ===================================
         # FILL THE GUI WITH PRELOADED DATA:
@@ -118,11 +118,14 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
     #set the case path
     def set_path_to_case(self):
-        self.OTCD.path_to_case = self.Main_set_PathToCase.text()
+        path = self.Main_set_PathToCase.text()
+        self.OTCD.setPathToCase( path )
+        #UPDATE UI:
+        self.aero_ui.str_pathToCase.setText(path)
+        #TODO: do the same for all standalone GUIs?
         
-        # Shall we do the following then ?
-        # # reload turbine data
-        # self.OTCD.load_turbine_case()
+
+        
 
 
     def save_MainParams_options(self):

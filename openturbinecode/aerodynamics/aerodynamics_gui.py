@@ -43,6 +43,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # =================== FORCE INTERNAL VALUES WHEN RUNNING WITH MASTER ==============================
         if withMasterGUI:
             self.str_pathToCase.setEnabled(False)
+            self.setFolderStruct_button.setEnabled(False)
 
             self.model_list.setEnabled(False)
 

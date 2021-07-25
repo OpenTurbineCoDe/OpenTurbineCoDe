@@ -820,7 +820,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Set folder structure in</string>
+           <string>Set working folder in:</string>
           </property>
          </widget>
          <widget class="QLineEdit" name="str_pathToCase">
