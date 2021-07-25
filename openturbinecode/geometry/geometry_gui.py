@@ -44,7 +44,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.Geo_comboBox.activated.connect(self.caller_Geo_outputFormat)
         self.Geo_comboBox_3.activated.connect(self.caller_Geo_setGrey)
         self.Geo_toolButton.clicked.connect(self.caller_Geo_loadExternalAF)
-        self.Geo_pushButton_3.clicked.connect(self.caller_Geo_setSalome)
+        self.Geo_pushButton_3.clicked.connect(self.caller_Geo_getSalome)
+        self.Geo_pushButton.clicked.connect(self.caller_Geo_getIGES)
         self.Geo_pushButton_4.clicked.connect(self.caller_Geo_loadAFCoord)
         self.Geo_Button2.clicked.connect(self.caller_Geo_generateGeom)
         self.Geo_pushButton_2.clicked.connect(self.caller_Geo_setLofts)
@@ -55,6 +56,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.Geo_lineEdit_3.setText(str(self.myGeom.lofts))
         self.Geo_lineEdit_5.setText(str(self.myGeom.spar[0])+" "+str(self.myGeom.spar[1]))
         self.Geo_pushButton_6.clicked.connect(self.caller_Geo_setBB3DExe)
+        self.Geo_lineEdit_4.setText(self.myGeom.salomeExe)
+        self.Geo_lineEdit_2.setText("")
 
 
         self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDynCase" + os.sep + "blade.dat")
@@ -125,21 +128,29 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     def caller_Geo_setBB3DExe(self):
         self.myGeom.Geo_setBB3DExe(self.Geo_lineEdit_6)
 
-    def caller_Geo_openSalomeD(self):
-        self.myGeom.Geo_openSalomeD(self.Geo_comboBox, self.Geo_radioButton, Geo_Button2)
 
-    def caller_Geo_setSalome(self):
-        self.myGeom.Geo_setSalome(self.Geo_lineEdit_4, QtWidgets)
+
+
 
     def caller_Geo_generateGeom(self):
         self.readFromUI()
-        self.myGeom.Geo_generateGeom(self.Geo_comboBox, self.Geo_Table1, self.Geo_Table2, self.Geo_lineEdit_3)
+        self.myGeom.Geo_generateGeom(self.Geo_comboBox, self.Geo_Table1, self.Geo_Table2, self.Geo_lineEdit_3, self.Geo_lineEdit_4, self.Geo_lineEdit_2, self.Geo_radioButton)
 
     def caller_Geo_setLofts(self):
         self.myGeom.Geo_setLofts(self.Geo_lineEdit_3, self.Geo_Table2, QtWidgets)
 
     def caller_Geo_setSpar(self):
         self.myGeom.Geo_setSpar(self.Geo_lineEdit_5)
+
+    ## Salome stuffs
+    def caller_Geo_runSalome(self):
+        self.myGeom.Geo_setSalome(self.Geo_lineEdit_4, self.Geo_lineEdit_2, self.Geo_radioButton)
+
+    def caller_Geo_getSalome(self):
+        self.myGeom.Geo_getSalome(self.Geo_lineEdit_4, QtWidgets)
+
+    def caller_Geo_getIGES(self):
+        self.myGeom.Geo_getIGES(self.Geo_lineEdit_2, QtWidgets)
 
 
 if __name__=='__main__':

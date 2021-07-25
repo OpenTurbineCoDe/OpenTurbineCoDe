@@ -26,6 +26,7 @@ class Geometry:
 
         ## default settings for BB3D
         self.BB3DExe = "/home/kz/Desktop/BB3D/make_blade" #TODO: move this to the config.json file
+        self.salomeExe = "/home/kz/SALOME-9.7.0-UB18.04-SRC/salome"
 
         # TODO: These two should go with turbine settings
         self.spar = [0.15, 0.55]
@@ -211,16 +212,8 @@ class Geometry:
             print('AF ID ' + comboBox2.currentText() + ': ' + lineEdit.text())
 
     # ==================== AERODYN - SALOME GEOM ==========================================
-    def Geo_openSalomeD(self, comboBox, radioButton, button):
-        if comboBox.currentText() == 'Salome' and radioButton.isChecked():
-            #TODO: replace by input from GUI
-            os.system("/home/kz/salome_meca/appli_V2017.0.2/salome")   
     
-    def Geo_setSalome(self, lineEdit, QtWidgets):
-        salome_ = QtWidgets.QFileDialog.getOpenFileName(None, "Open Salome executable", "", "(*)")[0]
-        lineEdit.setText(salome_)
-
-    def Geo_generateGeom(self, comboBox, table, table2, lineEdit):
+    def Geo_generateGeom(self, comboBox, table, table2, lineEdit, lineEdit_4, lineEdit_2, radioButton):
         if comboBox.currentText() == "AeroDyn blade file":
             self.Geo_generateAeroDyn(table)
 
@@ -234,7 +227,7 @@ class Geometry:
             self.Geo_runPGL(table)
 
         elif comboBox.currentText() == "Salome":
-            self.Geo_runSalome(table)
+            self.Geo_runSalome(lineEdit_4, lineEdit_2, radioButton)
 
     # SUB-FUNCTIONS for Geo_generateGeom
 
@@ -350,7 +343,7 @@ class Geometry:
             print(type(loft[1]))
             print(type(loft[-1]))
                 
-        bl = open('/home/kz/Desktop/blade.dat', 'w')
+        bl = open('/home/kz/Desktop/workingFolder/blade.dat', 'w')
         bl.write(str(table.rowCount()) + " ## Number of blade sections \n")
         bl.write(str(self.lofts) + " ## Number of lofts \n")
         bl.write(str(len(self.spar)) + " ## Number of spars \n")
@@ -367,17 +360,36 @@ class Geometry:
             bl.write(str(self.spar[i])+"\n")
 
         print("Run BB3D")
-        workingFolder = "/home/kz/Desktop"
+        workingFolder = "/home/kz/Desktop/workingFolder"
         os.chdir(workingFolder)
         print(os.system("pwd"))
-        subprocess.Popen([self.BB3DExe, "/home/kz/Desktop/blade.dat"])
+        subprocess.Popen([self.BB3DExe, "/home/kz/Desktop/workingFolder/blade.dat"])
         #os.system(self.BB3DExe + " " + "/home/kz/Desktop/blade.dat")
 
     ## BB3D stuff ends at here    
 
+    def Geo_getSalome(self, lineEdit, QtWidgets):
+        self.salomeExe = QtWidgets.QFileDialog.getOpenFileName(None, "Open Salome Executable", "", "(*)")[0]
+        lineEdit.setText(str(self.salomeExe))
 
-    def Geo_runSalome(self, table):
-        print("Launch Salome")
+    def Geo_getIGES(self, lineEdit, QtWidgets):
+        fn_ = QtWidgets.QFileDialog.getOpenFileName(None, "Load iges file", "", "(*)")[0]
+        lineEdit.setText(str(fn_))
+
+    def Geo_runSalome(self, lineEdit_4, lineEdit_2, radioButton):
+        print("Run Salome")
+        salome_ = lineEdit_4.text()
+        geom_ = lineEdit_2.text()
+        workingFolder = "/home/kz/Desktop/workingFolder"
+        os.chdir(workingFolder)    
+        with open(self.path_to_root+"/openturbinecode/geometry/salomeMacro/DTU10_1spar.py", "r") as fin:
+            with open("script.py", "w") as fout:
+                for line in fin:
+                    fout.write(line.replace('???', geom_))
+        if radioButton.isChecked():
+            subprocess.Popen([salome_, "script.py"]) 
+        else:      
+            subprocess.Popen([salome_, "-t", "script.py"]) 
 
 # if __name__=='__main__':
 #     pass

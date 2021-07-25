@@ -422,7 +422,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>4</number>
        </property>
        <widget class="QWidget" name="page">
         <widget class="QLabel" name="Geo_label_12">
@@ -672,9 +672,9 @@
         <widget class="QLineEdit" name="Geo_lineEdit_2">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>60</x>
            <y>120</y>
-           <width>221</width>
+           <width>191</width>
            <height>27</height>
           </rect>
          </property>
@@ -682,7 +682,7 @@
         <widget class="QPushButton" name="Geo_pushButton">
          <property name="geometry">
           <rect>
-           <x>240</x>
+           <x>260</x>
            <y>120</y>
            <width>151</width>
            <height>27</height>
@@ -695,22 +695,22 @@
         <widget class="QPushButton" name="Geo_pushButton_3">
          <property name="geometry">
           <rect>
-           <x>240</x>
+           <x>260</x>
            <y>80</y>
            <width>151</width>
            <height>27</height>
           </rect>
          </property>
          <property name="text">
-          <string>Salome location</string>
+          <string>Get salome location</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="Geo_lineEdit_4">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>60</x>
            <y>80</y>
-           <width>221</width>
+           <width>191</width>
            <height>27</height>
           </rect>
          </property>
