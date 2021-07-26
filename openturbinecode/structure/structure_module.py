@@ -28,6 +28,7 @@ else:
     # _has_tacs = True
     
 import openturbinecode.utils.io as io
+import openturbinecode.utils.utilities as ut
 
 #%%
 class Structural:
@@ -103,7 +104,9 @@ class Structural:
         self.TipTDxr_max = []
         self.TipTDyr_max = []
             
-
+    def setPathToCase(self,path_to_case):    
+        self.path_to_case = path_to_case
+        
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
 
     def RunModelUpdate_Beamdyn(self):
@@ -127,7 +130,10 @@ class Structural:
     def LocalRun(self):
         # local run
         print("Running:" + self.workingmodel)
-        subprocess.run(["beamdyn_driver", self.workingmodel])
+        conf = ut.read_config()
+        bd_driver = conf["lofi"]["path_to_beamdyn"]
+        subprocess.run([bd_driver, self.workingmodel])
+
     def postprocessBeamDyn(self):
         self.RootFxr_max = []
         self.RootFyr_max = []
