@@ -60,7 +60,7 @@ class Aerodynamics:
         self.cp     = np.nan*self.Vlist
 
         #predefined list of velocities for precomputed DLCs
-        self.Vdlc = np.array(range(5,16)) 
+        self.Vdlc = np.array([6.,8.,10.,12.]) #np.array(range(5,16)) 
         self.DLCtag = "iea10MW"
         self.path_to_wind = path_to_root + os.sep + "models" + os.sep + "defaults" + os.sep + "pregenerated_DLCs"
         
@@ -74,6 +74,8 @@ class Aerodynamics:
     def selectDLC(self,DLCtype):
         if DLCtype == 0:
             self.DLC = DLCtype
+            if self.fidelity == "OpenFAST":
+                self.fidelity = "AeroDyn" 
         if DLCtype > 0 :
             self.DLC = DLCtype
             self.fidelity = "OpenFAST" #override
