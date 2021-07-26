@@ -38,7 +38,7 @@ class Aerodynamics:
             
         # global parameters
         self.fidelity = "AeroDyn"  #TODO: read from models
-        self.mesh_level = "2" #TODO: read from models
+        self.mesh_level = "3" #TODO: read from models
 
         #parameters for sweep:
         # self.tsrlist = np.array([9.6]) #TODO: read from models

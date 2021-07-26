@@ -121,7 +121,7 @@ class Aerostructural:
         # f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
         f = plt.figure(num=1,figsize=(10, 7.5)) #(8, 3.2)
     
-        plt.plot(self.Vlist, self.cp, label=self.fidelity, marker="+")
+        plt.plot(self.Vlist, self.cp, label=self.fidelity, marker="+", markersize=14)
 
         plt.xlabel(r"$V \: [m/s]$", fontsize=16)
         plt.ylabel(r"$C_p$", fontsize=16)
@@ -189,8 +189,8 @@ if __name__=='__main__':
     path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
     # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
 
-    plotonly = False 
-    myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly,optimize=True)
+    plotonly = True 
+    myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly,optimize=False)
     myAeroStruct.setDefaultValues()
     myAeroStruct.Run()
     myAeroStruct.PlotCp()
