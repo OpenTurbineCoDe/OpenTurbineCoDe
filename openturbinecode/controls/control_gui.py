@@ -39,7 +39,7 @@ else:
 
 from openturbinecode.controls.Opt_CCD import ControlMDAOom
 
-#import openturbinecode.controls.control_module as ctrl
+# import openturbinecode.controls.control_module as ctrl
 import openturbinecode.controls.control_module as ctrl
 
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) +os.sep+ "ConfigControl_v3.ui")[0]  # Load the UI

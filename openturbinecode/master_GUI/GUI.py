@@ -15,7 +15,7 @@ except ImportError as err:
     pass
 
 from openturbinecode.aerodynamics import aerodynamics_gui as aero
-# from openturbinecode.structure import structure_gui as struc
+from openturbinecode.structure import structure_gui as struc
 from openturbinecode.aerostructural import aerostructural_gui as aerostruct
 from openturbinecode.controls import control_gui as ctrl
 from openturbinecode.geometry import geometry_gui as geom
@@ -71,8 +71,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #=====  STRUCTURE ===============================================
         
-        # struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self)
-        # self.Master_tabs.addTab(struc_ui,"Structure")
+        struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self)
+        self.Master_tabs.addTab(struc_ui,"Structure")
 
         #=====  AERO-STRUCTURE ===============================================
         
@@ -84,7 +84,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         #=====  CCD ===============================================
         
         control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self)
-        self.Master_tabs.addTab(control_ui,"Controls")
+        self.Master_tabs.addTab(control_ui,"CCD")
 
         # ===================================
         # FILL THE GUI WITH PRELOADED DATA:

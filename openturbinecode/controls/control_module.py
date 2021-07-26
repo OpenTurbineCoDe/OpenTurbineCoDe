@@ -35,7 +35,7 @@ else:
 #     return check_requirement
 
 
-from .TACSDynParams import TACSParams
+from openturbinecode.controls.TACSDynParams import TACSParams
 #from Gen_Ctables import writCtables
 from scipy.optimize import curve_fit
 import openmdao.api as om
