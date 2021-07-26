@@ -28,6 +28,7 @@ else:
     # _has_tacs = True
     
 import openturbinecode.utils.io as io
+import openturbinecode.utils.utilities as ut
 
 #%%
 class Structural:
@@ -127,7 +128,10 @@ class Structural:
     def LocalRun(self):
         # local run
         print("Running:" + self.workingmodel)
-        subprocess.run(["beamdyn_driver", self.workingmodel])
+        conf = ut.read_config()
+        bd_driver = conf["lofi"]["path_to_beamdyn"]
+        subprocess.run([bd_driver, self.workingmodel])
+
     def postprocessBeamDyn(self):
         Beamout = FASTOutputFile(os.path.splitext(self.workingmodel)[0]+".out").toDataFrame()
         Beamouts=Beamout.to_numpy()
