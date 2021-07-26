@@ -35,7 +35,7 @@ else:
 #     return check_requirement
 
 
-from .TACSDynParams import TACSParams
+from openturbinecode.controls.TACSDynParams import TACSParams
 #from Gen_Ctables import writCtables
 from scipy.optimize import curve_fit
 import openmdao.api as om
@@ -47,7 +47,6 @@ import pandas as pd
 import openturbinecode.utils.io as io
 
 #%%
-
 class Control:
     def __init__(self, path_to_case, turb_data=None, models=None):
         
@@ -162,6 +161,8 @@ class Control:
         self.Ft_max = []
         self.Tq_max = []
 
+    def setPathToCase(self,path_to_case):    
+        self.path_to_case = path_to_case
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
     def RunModelUpdate_OpenFAST(self):

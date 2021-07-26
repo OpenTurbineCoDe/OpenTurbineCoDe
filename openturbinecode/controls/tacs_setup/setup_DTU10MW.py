@@ -15,18 +15,19 @@ except ImportError as err:
 else:
     _has_tacs = True
 
-"""
-Definition of a decorator to be used on every function that requires the sprcific module
-"""
-def requires_tacs(function):
-    def check_requirement(*args,**kwargs):
-        if not _has_tacs:
-            raise ImportError("TACS and pyTACS are required to do this.")
-        function(*args,*kwargs)
-    return check_requirement
+# """ 
+# This is not working if enabled.
+# Definition of a decorator to be used on every function that requires the sprcific module.
+# """
+# def requires_tacs(function):
+#     def check_requirement(*args,**kwargs):
+#         if not _has_tacs:
+#             raise ImportError("TACS and pyTACS are required to do this.")
+#         function(*args,*kwargs)
+#     return check_requirement
 
+# @requires_tacs
 
-@requires_tacs
 def setup(file,tsn,ts,tw,to):
     bdfFile = file
     structOptions = {
@@ -165,3 +166,11 @@ def setup(file,tsn,ts,tw,to):
         )
 
     return FEASolver
+
+# bdffile = 'tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf'
+# thick = [0.042, 0.046, 0.04, 0.035, 0.028, 0.025, 0.018000000000000002, 0.012, 0.01]
+# tsn = thick
+# ts = [thick,thick,thick]
+# tw = thick
+# to = thick
+# FEASolver = setup(bdffile,tsn,ts,tw,to)

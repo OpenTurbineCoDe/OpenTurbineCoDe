@@ -28,18 +28,17 @@ else:
     _has_tacs = True
 
 #from mpi4py import MPI
-from .tacs_setup import setup_DTU10MW
-#%%
+from openturbinecode.controls.tacs_setup import setup_DTU10MW
+
 # ==============================================================================
 #       Initialize TACS
 # ==============================================================================
 class TACSParams:
-    def __init__(self,yamlfile,thicknesses):
+    def __init__(self,Tacsfile,thicknesses):
         # thicknesses a list contain 9 scale factors for the 9 stations
         self.thicknesses = thicknesses
-        self.ThickScaling(self.thicknesses)
-        self.Yamlfile = yaml.safe_load(open(yamlfile))
-        self.bdffile=self.Yamlfile["path_params"]["bdffile"]
+        self.ThickScaling()
+        self.bdffile = Tacsfile
         self.FEASolver = setup_DTU10MW.setup(self.bdffile,self.tsn,self.ts,self.tw,self.to)
     def ThickScaling(self):
         ts11 = [42,46,40,35,28,25,18,12,10]  # leadings
@@ -48,7 +47,7 @@ class TACSParams:
         ts2=[float(d)*0.001 for d in ts21]
         ts31 = [40,70,80,70,66,58,40,30,18]  # trailing
         ts3=[float(d)*0.001 for d in ts31]
-        #to = ts3   # Assume training = Web c
+        # to = ts3   # Assume training = Web c
         # distributed thicknesses
         tsn1 = [42,46,40,35,28,25,18,12,10] # the nose thickness distribution along the span at 9 stations
         tsn=[float(d)*0.001 for d in tsn1]
@@ -93,8 +92,8 @@ class TACSParams:
         monitor = FEASolver.TACS.KSMPrintStdout("GMRES", 0, 1)
         self.freq.solve(monitor)
         
-    def Modeextractiion(self,modeNum):
-        # modeNum, the order of the interesting mode
+    def Modeextractiion(self):
+        # modeNum, the orders of the interesting modes
         FEASolver=self.FEASolver
         #% extract eigenvalues
         freqValue = []
@@ -110,17 +109,17 @@ class TACSParams:
             freqValue.append(np.sqrt(np.real(eigVal)[0]) / (2*np.pi))  # to Hz
         Mode=Mode.reshape([i+1,j+1])  # the modes
         # Process the modes
-        Mode_X=Mode[modeNum-1,np.arange(0,len(Mode[0,:]),6)]
-        Mode_Y=Mode[modeNum-1,np.arange(1,len(Mode[0,:]),6)]
-        Mode_Z=Mode[modeNum-1,np.arange(2,len(Mode[0,:]),6)]
-        NormT=np.sqrt(Mode_X**2+Mode_Y**2+Mode_Z**2)  # norm
-        Mode_XN=Mode_X/max(NormT)
-        Mode_YN=Mode_Y/max(NormT)
-        Mode_ZN=Mode_Z/max(NormT)
+        # Mode_X=Mode[modeNum-1, np.arange(0,len(Mode[0,:]), 6)]
+        # Mode_Y=Mode[modeNum-1, np.arange(1,len(Mode[0,:]), 6)]
+        # Mode_Z=Mode[modeNum-1, np.arange(2,len(Mode[0,:]), 6)]
+        # NormT=np.sqrt(Mode_X**2+Mode_Y**2+Mode_Z**2)  # norm
+        # Mode_XN=Mode_X/max(NormT)
+        # Mode_YN=Mode_Y/max(NormT)
+        # Mode_ZN=Mode_Z/max(NormT)
         
-        freqValueN=freqValue[modeNum-1]
-        ModeN=np.array([Mode_XN,Mode_YN,Mode_ZN]).T
-        return freqValueN, ModeN
+        # freqValueN=freqValue[modeNum-1]
+        # ModeN=np.array([Mode_XN,Mode_YN,Mode_ZN]).T
+        return freqValue
     def extractMassstiffness(self):
         # Extract the mass and stiffness properties from the tacs solver
         FEASolver=self.FEASolver
@@ -147,13 +146,13 @@ class TACSParams:
 if __name__=="__main__":
     # initialize
     #%%
-    Thicks = [64,60,58,50,38,28,20,16,10] # mm
-    yamlfile = 'OTCD_DTU10MW.yaml'
-    TACSsolver = TACSParams(yamlfile, Thicks)
+    Thicks = [1.,1.,1.,1.,1.,1.,1.,1.,1.] # mm
+    TacsFile = 'tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf'
+    TACSsolver = TACSParams(TacsFile, Thicks)
     #%%
-    N=3
+    N=9
     TACSsolver.Frequencyanalysis(N) # N: number of modes for computation
-    freqValueN, ModeN = TACSsolver.Modeextractiion(1)
+    freqValueN = TACSsolver.Modeextractiion()
     bldeMass, sens_Mass2Thick = TACSsolver.extractMassstiffness()
 
     
