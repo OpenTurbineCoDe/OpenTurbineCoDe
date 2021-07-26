@@ -40,7 +40,7 @@ class OpenTurbineCoDe:
 
         # parse turbine_params (only if turbine data present)
         if self.turb_yaml:
-            self.load_turbine_case()
+            self.load_turbine_case(firstLoad = True)
         else:
             self.turb_data = {}
         
@@ -83,11 +83,11 @@ class OpenTurbineCoDe:
         self.printv('run options loaded')
 
     #import turbine data under the form of a dictionary and making it available as an attribute to this object
-    def load_turbine_case(self):
+    def load_turbine_case(self, firstLoad = False):
         self.turb_data = io.validate_with_defaults(self.turb_yaml,self.turbine_schema)
 
-        #UPDATE EVERY CHILD MODULE
-        if self.turb_data:
+        #UPDATE EVERY CHILD 
+        if not firstLoad and self.turb_data:
             self.myAero.turb_data = self.turb_data
             #...
 
