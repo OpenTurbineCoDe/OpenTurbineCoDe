@@ -13,7 +13,7 @@ from openturbinecode.aerostructural.aerostruct_wrapper import aerostruct_Wrapper
 import openturbinecode.utils.io as io
 
 class Aerostructural:
-    def __init__(self, path_to_case, turb_data=None, models=None, plotonly=False):
+    def __init__(self, path_to_case, turb_data=None, models=None, plotonly=False, optimize=False):
 
         self.turb_data = turb_data
         self.models = models
@@ -21,7 +21,8 @@ class Aerostructural:
 
         self.setDefaultValues()
 
-        self.plotonly = plotonly      
+        self.plotonly = plotonly
+        self.optimize = optimize      
 
     # ==================== GENERAL FUNCTIONS ==========================================    
     def setDefaultValues(self):
@@ -35,7 +36,7 @@ class Aerostructural:
             path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
             path_to_TMP = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
             turb_yaml = path_to_TMP + os.sep + "./Madsen2019_10.yaml"
-            self.turb_data = io.load_yaml(turb_yaml)
+            self.reload_turbdata(turb_yaml)
 
         self.case_tag = "DTU_10MW" #TODO: this should be read from turbdata!
 
@@ -56,11 +57,18 @@ class Aerostructural:
 
         #parameters for sweep:
         # self.tsrlist = np.array([9.6]) #TODO: read from models
-        # self.Vlist = np.array([8.]) #TODO: read from models
+        self.rpmlist = np.array([6.8]) #TODO: read from models
+        self.Vlist = np.array([8.]) #TODO: read from models
         # self.pitchlist = np.array([0.]) #TODO: read from models
         self.tsrlist = np.array([7.81]) #TODO: read from models
         self.Vlist = np.array([8.]) #TODO: read from models
         self.pitchlist = np.array([0.]) #TODO: read from models
+
+        # Optimization
+        self.torqueWeight = 0.0
+        self.massWeight = 1.0
+        self.convergencetolerance = 1e-4
+        self.maxiters = 500
 
         #results
         self.torque = np.nan*self.Vlist
@@ -74,10 +82,19 @@ class Aerostructural:
 
         self.CaseToHPC = self.path_to_case
 
-            
-
+    def setPathToCase(self,path_to_case):    
+        self.path_to_case = path_to_case
+ 
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
+
+    def reload_turbdata(self,path):
+        try:
+            self.turb_data = io.load_yaml(path)
+        except FileNotFoundError:
+            print("CAUTION: file not found at "+path)
+        except IsADirectoryError:
+            print("CAUTION: I did not find a yaml file at "+path)
 
     def Run(self):
 
@@ -100,7 +117,7 @@ class Aerostructural:
 
         options["plotonly"] = self.plotonly
 
-        torque, thrust, cp = aerostruct_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options)
+        torque, thrust, cp = aerostruct_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options, self.optimize)
         
         self.torque = np.array(torque)
         self.thrust = np.array(thrust)
@@ -113,7 +130,7 @@ class Aerostructural:
         # f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
         f = plt.figure(num=1,figsize=(10, 7.5)) #(8, 3.2)
     
-        plt.plot(self.Vlist, self.cp, label=self.fidelity, marker="+")
+        plt.plot(self.Vlist, self.cp, label=self.fidelity, marker="+", markersize=14)
 
         plt.xlabel(r"$V \: [m/s]$", fontsize=16)
         plt.ylabel(r"$C_p$", fontsize=16)
@@ -182,7 +199,7 @@ if __name__=='__main__':
     # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
 
     plotonly = True 
-    myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly)
+    myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly,optimize=False)
     myAeroStruct.setDefaultValues()
     myAeroStruct.Run()
     myAeroStruct.PlotCp()

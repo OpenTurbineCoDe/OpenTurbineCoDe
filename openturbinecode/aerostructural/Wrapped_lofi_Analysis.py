@@ -121,7 +121,7 @@ def replaceInFileTable(filename, inputDir, outputDir, iline, icol, value, mod=0,
 
 
 # TODO: add another dictionary for parameter sweeps?
-def LoFiAeroStruct(tsr,Vel,pitch,rho,T,config,options):
+def LoFiAeroStruct(tsr,Vel,pitch,R,rho,T,config,options):
 
     # ======================================================================
     #         Unpack options/params
@@ -130,14 +130,13 @@ def LoFiAeroStruct(tsr,Vel,pitch,rho,T,config,options):
     outputFile  = options["outputFile"]
     case_tag = options["case_tag"]
     # casename = options["casename"]
-    spanRef  = options["spanRef"]
     # spanDir  = options["spanDir"]
     
     #TODO: do something with pitch
     #TODO: do something with rho
     #TODO: do something with T
 
-    rotRate_z = tsr * Vel / spanRef
+    rotRate_z = tsr * Vel / R
     rpm = rotRate_z / (2 * np.pi) * 60
 
     # ======================================================================
