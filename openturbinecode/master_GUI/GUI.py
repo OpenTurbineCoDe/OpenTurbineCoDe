@@ -76,7 +76,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #=====  STRUCTURE ===============================================
         
-        self.struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self)
+        self.struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.struc_ui,"Structure")
 
         #=====  AERO-STRUCTURE ===============================================
@@ -88,7 +88,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #=====  CCD ===============================================
         
-        self.control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self)
+        self.control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.control_ui,"CCD")
 
         # ===================================

@@ -104,7 +104,9 @@ class Structural:
         self.TipTDxr_max = []
         self.TipTDyr_max = []
             
-
+    def setPathToCase(self,path_to_case):    
+        self.path_to_case = path_to_case
+        
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
 
     def RunModelUpdate_Beamdyn(self):

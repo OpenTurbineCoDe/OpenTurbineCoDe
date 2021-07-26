@@ -29,7 +29,7 @@ import openturbinecode.structure.structure_module as stru
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "structure_gui.ui")[0]  # Load the UI
 
 class Mapper(QtWidgets.QMainWindow, form_class):
-    def __init__(self, myStru, parent=None):
+    def __init__(self, myStru, parent=None, withMasterGUI=False):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
@@ -38,6 +38,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # =================== INITIALIZE FIELD VALUES ==============================
         self.myStru.setDefaultValues()
         self.writeToUI()
+
+        if withMasterGUI:
+            #TODO: adapt GUI visual if needed
+            pass
 
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # activate the different UI based on solvers
