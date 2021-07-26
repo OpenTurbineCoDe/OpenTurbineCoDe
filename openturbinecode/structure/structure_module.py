@@ -129,6 +129,12 @@ class Structural:
         print("Running:" + self.workingmodel)
         subprocess.run(["beamdyn_driver", self.workingmodel])
     def postprocessBeamDyn(self):
+        self.RootFxr_max = []
+        self.RootFyr_max = []
+        self.RootMxr_max = []
+        self.RootMyr_max = []
+        self.TipTDxr_max = []
+        self.TipTDyr_max = []
         Beamout = FASTOutputFile(os.path.splitext(self.workingmodel)[0]+".out").toDataFrame()
         Beamouts=Beamout.to_numpy()
         self.RootFxr_max.append(Beamouts[1].max())
