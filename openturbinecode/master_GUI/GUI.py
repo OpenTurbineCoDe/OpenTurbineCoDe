@@ -63,7 +63,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
         #=====  GEOMETRY ===============================================
-        self.geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self)
+        self.geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.geometry_ui,"Geometry")
         #=====  MESHING ===============================================
         
@@ -141,7 +141,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #update standalone GUIs
         self.aero_ui.writeToUI()
-        #...
+        # self.aerostruct_ui.writeToUI() #does not seem to be needed here...
+        self.geometry_ui.writeToUI()
 
 
     def save_MainParams_options(self):

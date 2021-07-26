@@ -67,7 +67,11 @@ class Geometry:
 
     def setPathToCase(self,path_to_case):    
         self.path_to_case = path_to_case
-        #TODO: adapt anything after this?
+
+    def set_turbdata(self,turb_data):
+        self.turb_data = turb_data
+        self.setPGLdata()
+        
 
     def setPGLdata(self,updateADIF=True):
             r_nodes = self.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]

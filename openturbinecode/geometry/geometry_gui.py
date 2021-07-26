@@ -26,7 +26,7 @@ import openturbinecode.geometry.geometry_module as geom
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "geom.ui")[0]  # Load the UI
 
 class Mapper(QtWidgets.QMainWindow, form_class):
-    def __init__(self, myGeom, parent=None):
+    def __init__(self, myGeom, parent=None, withMasterGUI=False):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
@@ -35,6 +35,15 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # =================== INITIALIZE FIELD VALUES ==============================
         self.writeToUI()
 
+        if withMasterGUI:
+            # self.Geo_LineEdit1.setEnabled(False)
+
+            # self.Geo_Button1.setEnabled(False)
+
+            self.Geo_comboBox_4.setEnabled(False)
+            self.Geo_comboBox_4.setItemText(0, "internal") 
+
+            
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
         self.Geo_Button1.clicked.connect(self.caller_loadGeom)
