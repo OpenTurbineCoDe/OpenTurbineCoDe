@@ -26,7 +26,7 @@ def requires_adflow(function):
 
 # TODO: add another dictionary for parameter sweeps?
 @requires_adflow
-def HiFiAero(tsr,Vel,pitch,rho,T,options):
+def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
     #TODO: use the pitch variable!
 
     # ======================================================================
@@ -42,6 +42,11 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options):
     restart  = options["restart"] if "restart" in options else None
     hifimesh = options["hifimesh"]
     
+    if not(Rscale is  None):
+        print("WARNING: adflow does not handle R scaling like this yet.")
+    if any(pitch) !=  0.:
+        print("WARNING: adflow does not handle pitch !=0 this yet.")
+
     # ======================================================================
     #         Input Information
     # ======================================================================

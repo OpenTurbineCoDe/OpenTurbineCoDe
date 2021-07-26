@@ -28,7 +28,7 @@ class OpenTurbineCoDe:
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
         self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
         # self.run_schema = self.path_to_root #TODO
-        self.path_to_case = self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep  # hack to run without specifying a module - we are not reading from yaml yet
+        # self.path_to_case = self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep  # hack to run without specifying a module - we are not reading from yaml yet
         self.path_to_case = os.getcwd()
 
         # --- parse input arguments ---
@@ -40,7 +40,7 @@ class OpenTurbineCoDe:
 
         # parse turbine_params (only if turbine data present)
         if self.turb_yaml:
-            self.load_turbine_case()
+            self.load_turbine_case(firstLoad = True)
         else:
             self.turb_data = {}
         
@@ -83,14 +83,22 @@ class OpenTurbineCoDe:
         self.printv('run options loaded')
 
     #import turbine data under the form of a dictionary and making it available as an attribute to this object
-    def load_turbine_case(self):
+    def load_turbine_case(self, firstLoad = False):
         self.turb_data = io.validate_with_defaults(self.turb_yaml,self.turbine_schema)
+
+        #UPDATE EVERY CHILD 
+        if not firstLoad and self.turb_data:
+            self.myAero.turb_data = self.turb_data
+            #...
 
         self.printv('turbine case loaded')
 
     #import modeling options under the form of a dictionary and making it available as an attribute to this object
     def load_modeling_options(self):
         self.modeling_options = io.validate_with_defaults(self.model_yaml, self.model_schema)
+
+        #UPDATE EVERY CHILD MODULE
+        #...
         
         self.printv('modeling options loaded')
 
@@ -117,6 +125,14 @@ class OpenTurbineCoDe:
 
     #=====  MAIN FUNCTIONS ===============================================
         
+    def setPathToCase(self,path):
+        self.path_to_case = path
+        self.myAero.setPathToCase(path)
+        # self.myStruc.setPathToCase(path)
+        # self.myAeroStruct.setPathToCase(path)
+        # self.myCtrl.setPathToCase(path)
+        # self.myGeom.setPathToCase(path)
+
     def update_MainParams(self, PRated, nblade, D, HubD, HubHeight, Vin, Vout, Overhang, Tilt, Precone):
         self.turb_data["assembly"]["rated_power"] = PRated 
         self.turb_data["assembly"]["number_of_blades"] = nblade 
