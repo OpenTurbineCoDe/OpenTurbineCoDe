@@ -88,7 +88,9 @@ class OpenTurbineCoDe:
 
         #UPDATE EVERY CHILD 
         if not firstLoad and self.turb_data:
+            #note: we don't call reload_turbdata from each module because it is safer here with validate_with_defaults
             self.myAero.turb_data = self.turb_data
+            self.myAeroStruct.turb_data = self.turb_data
             #...
 
         self.printv('turbine case loaded')
@@ -129,7 +131,7 @@ class OpenTurbineCoDe:
         self.path_to_case = path
         self.myAero.setPathToCase(path)
         # self.myStruc.setPathToCase(path)
-        # self.myAeroStruct.setPathToCase(path)
+        self.myAeroStruct.setPathToCase(path)
         # self.myCtrl.setPathToCase(path)
         # self.myGeom.setPathToCase(path)
 

@@ -34,8 +34,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         # =================== FORCE INTERNAL VALUES WHEN RUNNING WITH MASTER ==============================
         if withMasterGUI:
-            #TODO
-            pass
+            self.lineEdit_5.setEnabled(False)
+            
+            self.pushButton_14.setEnabled(False)
+
+            self.comboBox.setEnabled(False)
+            self.comboBox.setItemText(0, "internal") 
+
 
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
