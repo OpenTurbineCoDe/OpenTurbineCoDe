@@ -28,8 +28,8 @@ class OpenTurbineCoDe:
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
         self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
         # self.run_schema = self.path_to_root #TODO
-        # self.path_to_case = self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep  # hack to run without specifying a module - we are not reading from yaml yet
-        self.path_to_case = os.getcwd()
+        self.path_to_case = self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep  # hack to run without specifying a module - we are not reading from yaml yet
+        # self.path_to_case = os.getcwd()
 
         # --- parse input arguments ---
         self.parse_args(args)
@@ -88,7 +88,9 @@ class OpenTurbineCoDe:
 
         #UPDATE EVERY CHILD 
         if not firstLoad and self.turb_data:
+            #note: we don't call reload_turbdata from each module because it is safer here with validate_with_defaults
             self.myAero.turb_data = self.turb_data
+            self.myAeroStruct.turb_data = self.turb_data
             #...
 
         self.printv('turbine case loaded')
@@ -129,7 +131,7 @@ class OpenTurbineCoDe:
         self.path_to_case = path
         self.myAero.setPathToCase(path)
         # self.myStruc.setPathToCase(path)
-        # self.myAeroStruct.setPathToCase(path)
+        self.myAeroStruct.setPathToCase(path)
         # self.myCtrl.setPathToCase(path)
         # self.myGeom.setPathToCase(path)
 

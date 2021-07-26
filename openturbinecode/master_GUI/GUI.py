@@ -83,7 +83,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         
         # aerostructGUI_ui = asGui.Mapper(OTCD=self.OTCD,parent=self)
         # self.SampleModule.addTab(aerostructGUI_ui,"Aerostructural")
-        self.aerostructGUI_ui = aerostruct.Mapper(self.OTCD.myAeroStruct,parent=self)
+        self.aerostructGUI_ui = aerostruct.Mapper(self.OTCD.myAeroStruct,parent=self, withMasterGUI=True)
         self.Master_tabs.addTab(self.aerostructGUI_ui,"AeroStructure")
 
         #=====  CCD ===============================================

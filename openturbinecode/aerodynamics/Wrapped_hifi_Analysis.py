@@ -133,7 +133,7 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
         "surfacevariables": ["cp", "mach", "yplus", "sepsensor", "p", "temp"],
     }
 
-    if hifimesh >= 2:
+    if int(hifimesh) >= 2:
         # Different options for coarser meshes
         aeroOptions["nkswitchtol"] = 1e-8
         aeroOptions["anklinresmax"] = 0.9

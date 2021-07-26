@@ -308,7 +308,7 @@
               <string>Wind speed</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_2">
+            <widget class="QLineEdit" name="Wind_V">
              <property name="geometry">
               <rect>
                <x>290</x>
@@ -338,7 +338,7 @@
               <string>Rotor speed (RPM)</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_3">
+            <widget class="QLineEdit" name="rpm">
              <property name="geometry">
               <rect>
                <x>290</x>
@@ -1257,7 +1257,7 @@
               <string>Max Iterations</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_4">
+            <widget class="QLineEdit" name="conv_tol">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -1267,7 +1267,7 @@
               </rect>
              </property>
             </widget>
-            <widget class="QLineEdit" name="lineEdit_6">
+            <widget class="QLineEdit" name="max_iters">
              <property name="geometry">
               <rect>
                <x>280</x>

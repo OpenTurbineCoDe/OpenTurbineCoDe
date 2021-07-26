@@ -273,13 +273,13 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 os.makedirs(subfolder,exist_ok=True)
 
                 fname = open(subfolder + os.sep + 'initialConditions', 'w')
-                fname.write("/*--------------------------------*- C++ -*----------------------------------*\ \n")
+                fname.write("|*--------------------------------*- C++ -*----------------------------------*| \n")
                 fname.write("| =========                 |                                                 | \n")
                 fname.write("| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | \n")
                 fname.write("|  \\    /   O peration     | Version:  4.x                                   | \n")
                 fname.write("|   \\  /    A nd           | Web:      www.OpenFOAM.org                      | \n")
                 fname.write("|    \\/     M anipulation  |                                                 | \n")
-                fname.write("\*---------------------------------------------------------------------------*/ \n")
+                fname.write("|*---------------------------------------------------------------------------*| \n")
 
                 fname.write("WndVel \t" + str(Vel) + ';\n')
                 fname.write("TSR \t" + str(tsr) + ';\n')
