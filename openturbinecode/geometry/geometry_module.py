@@ -160,17 +160,20 @@ class Geometry:
         print('AF ID ' + comboBox1.currentText() + ': ' + comboBox2.currentText())
         self.AFID[int(comboBox1.currentText())-1] = lineEdit.text() 
         #TODO: read airfoil coordinates and populate self.turb_data["aifroils"]
-        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"] = self.AFlist
-        print(self.AFID[0])
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"][int(comboBox1.currentText())-1] = lineEdit.text().split(os.sep)[-1].split(".")[0]
+        print(self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"])
+        
         
     def Geo_loadExternalAF(self, toolButton, lineEdit, QtWidgets, comboBox2):
 
         fn_ = QtWidgets.QFileDialog.getOpenFileName(None, "Open airfoil coordinate file", "", "(*)")[0]
         lineEdit.setText(str(fn_))
         self.AFID[int(comboBox2.currentText())-1] = lineEdit.text() 
-        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"] = self.AFlist
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"][int(comboBox2.currentText())-1] = lineEdit.text().split(os.sep)[-1].split(".")[0]
         #TODO: read airfoil coordinates and populate self.turb_data["aifroils"]
         print('AF ID ' + comboBox2.currentText() + ': ' + lineEdit.text())
+        print(self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"])
+        
 
     # ==================== AERODYN - SALOME GEOM ==========================================
     
@@ -203,8 +206,8 @@ class Geometry:
         bl.write("  BlSpn     BlCrvAC    BlSwpAC    BlCrvAng    BlTwist    BlChord    BlAFID \n")
         bl.write("  (m)       (m)        (m)        (deg)       (deg)      (m)        (-) \n")
         for row in range(0, table.rowCount()):
-            bl.write(str(table.item(row, 0).text()) + "\t 0 \t 0 \t 0 \t" + str(table.item(row, 1).text()) + "\t" + str(table.item(row, 2).text()) + "\t" + str(table.item(row, 3).text()) + "\n")
-        print("Done writing AeroDyn blade file. The file is stored at /home/kz/Desktop/AeroDynBL.dat")
+            bl.write(str(table.item(row, 0).text()) + "\t 0 \t 0 \t 0 \t" + str(table.item(row, 1).text()) + "\t" + str(table.item(row, 3).text()) + "\t" + str(table.item(row, 2).text()) + "\n")
+        print("Done writing AeroDyn blade file. The file is stored in " + self.path_to_case+'/AeroDynBL.dat')
         bl.close()
 
     def Geo_generateTurbinesFoam(self, table):
@@ -215,7 +218,7 @@ class Geometry:
         for row in range(0, table.rowCount()):
             bl.write("(0 \t " + str(table.item(row, 0).text()) + "\t 0 \t" + str(table.item(row, 1).text()) + "\t 0.25 \t" + str(table.item(row, 2).text()) + ")\n")
             af.write(str(table.item(row,3).text())+'\n')
-        print("Done writing turbinesFoam blade file. The file is stored at /home/kz/Desktop/turbFoam.dat and AF.dat")
+        print("Done writing turbinesFoam blade file. The file is stored at "+self.path_to_case+"/turbFoam.dat and AF.dat")
 
     
     #=====  PGL FUNCTIONS ===============================================
