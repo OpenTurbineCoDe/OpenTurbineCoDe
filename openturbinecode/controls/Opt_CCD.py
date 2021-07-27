@@ -75,9 +75,10 @@ class ControlMDAOom(om.ExternalCodeComp):
         self.add_output('RotThrust_max', val=0.0)  
         self.add_output('RotTorq_max', val=0.0) 
         #self.add_output('WeAEP_Mass', val=0.0) 
-        self.yamlfile = "OTCD_DTU10MW.yaml"
-        self.WorkFast_file= "DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
-        self.WorkFast_fileloc= "DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
+        self.path_to_root =  os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        self.yamlfile = self.path_to_root+"/controls/OTCD_DTU10MW.yaml"
+        self.WorkFast_file= self.path_to_root+"/controls/DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
+        self.WorkFast_fileloc= self.path_to_root+"/controls/DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
         # providing these is optional; the component will verify that any input
         # files exist before execution and that the output files exist after.
         self.options['external_input_files'] = [self.yamlfile]
