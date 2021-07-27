@@ -1,7 +1,8 @@
 {
     "lofi": {
         "path_to_openfast" : "openfast",
-        "path_to_aerodyn" : "aerodyn_driver"
+        "path_to_aerodyn" : "aerodyn_driver",
+        "path_to_beamdyn" : "beamdyn_driver"
     },
     "mefi": {
         "path_to_pimpleFoam" : "pimpleFoam"

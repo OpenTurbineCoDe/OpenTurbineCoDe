@@ -39,13 +39,13 @@ else:
 
 from openturbinecode.controls.Opt_CCD import ControlMDAOom
 
-#import openturbinecode.controls.control_module as ctrl
+# import openturbinecode.controls.control_module as ctrl
 import openturbinecode.controls.control_module as ctrl
 
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) +os.sep+ "ConfigControl_v3.ui")[0]  # Load the UI
 
 class Mapper(QtWidgets.QMainWindow, form_class):
-    def __init__(self, myCtrl, parent=None):
+    def __init__(self, myCtrl, parent=None, withMasterGUI=False):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
@@ -54,6 +54,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # =================== INITIALIZE FIELD VALUES ==============================
         self.myCtrl.setDefaultValues()
         self.writeToUI()
+
+        if withMasterGUI:
+            #TODO: adapt GUI visual if needed
+            pass
  
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function

@@ -35,7 +35,7 @@ else:
 #     return check_requirement
 
 
-from .TACSDynParams import TACSParams
+from openturbinecode.controls.TACSDynParams import TACSParams
 #from Gen_Ctables import writCtables
 from scipy.optimize import curve_fit
 import openmdao.api as om
@@ -47,16 +47,16 @@ import pandas as pd
 import openturbinecode.utils.io as io
 
 #%%
-
 class Control:
     def __init__(self, path_to_case, turb_data=None, models=None):
         
         self.turb_data          = turb_data
         self.models             = models
         self.path_to_case       = path_to_case
-        self.YamlFile           = "OTCD_DTU10MW.yaml"
-        self.DTU10MWOpenFAST    = "DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
-        self.DTU10MWTACS        = "tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
+        self.path_to_root       =  os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        self.YamlFile           = self.path_to_root+os.sep+"controls/OTCD_DTU10MW.yaml"
+        self.DTU10MWOpenFAST    = self.path_to_root+os.sep+"controls/DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
+        self.DTU10MWTACS        = self.path_to_root+os.sep+"controls/tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
         self.NREL5MWOpenFAST    = ""
         self.workingmodelOpenFAST       = self.DTU10MWOpenFAST
         self.workingmodelTACS       = self.DTU10MWTACS
@@ -162,12 +162,14 @@ class Control:
         self.Ft_max = []
         self.Tq_max = []
 
+    def setPathToCase(self,path_to_case):    
+        self.path_to_case = path_to_case
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
     def RunModelUpdate_OpenFAST(self):
         self.yaml                   = yaml.safe_load(open(self.YamlFile))
         self.path_params            = self.yaml['path_params']
-        self.Path                   = self.path_params['FAST_directory']
+        self.Path                   = self.path_to_root+os.sep+"controls"+os.sep+self.path_params['FAST_directory']
         FASTFile                    = FASTInputFile(self.workingmodelOpenFAST)
         Elastodynpath               = os.path.join(self.Path,FASTFile['EDFile'].strip('"'))
         ElastoFile                  = FASTInputFile(Elastodynpath)
@@ -193,12 +195,13 @@ class Control:
         #---------------------------------- Using the ROSCO_toolbox--------------------------------#
         self.controller_params      = self.yaml['controller_params']
         self.turbine_params         = self.yaml['turbine_params']
-        self.turbine                     = ROSCO_turbine.Turbine(self.turbine_params)
+        self.turbine                = ROSCO_turbine.Turbine(self.turbine_params)
         self.path_params            = self.yaml['path_params']
-        self.FASTfile           = self.path_params['FAST_InputFile']
+        self.FASTfile               = self.path_params['FAST_InputFile']
+        rotor_performance           = self.Path+os.sep+self.path_params['rotor_performance_filename']
         # Load Turbine
-        self.turbine.load_from_fast(self.FASTfile,self.path_params['FAST_directory'], \
-                rot_source = 'txt',txt_filename = self.path_params['rotor_performance_filename'])
+        self.turbine.load_from_fast(self.FASTfile,self.Path, \
+                rot_source = 'txt',txt_filename = rotor_performance)
 
         # The yamal file do not need to be rewrite, Just using the data ro tune the controller
         # Instantiate controller tuning and tune controller

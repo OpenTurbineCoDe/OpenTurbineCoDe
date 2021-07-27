@@ -12,7 +12,7 @@ import openturbinecode.DLC_manager.dump_IECcase as DLC_manager
 
 
 import openturbinecode.aerodynamics.aerodynamics_module as aero
-# import openturbinecode.structure.structure_module as struc
+import openturbinecode.structure.structure_module as struc
 import openturbinecode.aerostructural.aerostructural_module as aerostruct
 import openturbinecode.controls.control_module as ctrl
 import openturbinecode.geometry.geometry_module as geom
@@ -54,7 +54,7 @@ class OpenTurbineCoDe:
         # --- initializing submodules ---
 
         self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options, plotonly=args.plotonly)
-        # self.myStruc = struc.Structure(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        self.myStruc = struc.Structural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myAeroStruct = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
         self.myGeom = geom.Geometry(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
@@ -89,10 +89,11 @@ class OpenTurbineCoDe:
         #UPDATE EVERY CHILD 
         if not firstLoad and self.turb_data:
             #note: we don't call reload_turbdata from each module because it is safer here with validate_with_defaults
-            self.myAero.turb_data = self.turb_data #TODO: consider using a function instead
-            self.myAeroStruct.turb_data = self.turb_data #TODO: consider using a function instead
+            self.myAero.turb_data = self.turb_data
+            self.myStruc.turb_data = self.turb_data
+            self.myAeroStruct.turb_data = self.turb_data
             self.myGeom.set_turbdata(self.turb_data)
-            #...
+            self.myCtrl.turb_data = self.turb_data
 
         self.printv('turbine case loaded')
 
@@ -131,9 +132,9 @@ class OpenTurbineCoDe:
     def setPathToCase(self,path):
         self.path_to_case = path
         self.myAero.setPathToCase(path)
-        # self.myStruc.setPathToCase(path)
+        self.myStruc.setPathToCase(path)
         self.myAeroStruct.setPathToCase(path)
-        # self.myCtrl.setPathToCase(path)
+        self.myCtrl.setPathToCase(path)
         self.myGeom.setPathToCase(path)
 
     def update_MainParams(self, PRated, nblade, D, HubD, HubHeight, Vin, Vout, Overhang, Tilt, Precone):
