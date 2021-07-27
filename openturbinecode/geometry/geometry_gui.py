@@ -63,7 +63,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.Geo_lineEdit_2.setText("")
 
 
-        self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDynCase" + os.sep + "blade.dat")
+        self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDyn" + os.sep + "DTU_10MW_ADblade.dat")
     # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
 
     def writeToUI(self):
@@ -96,7 +96,21 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         #Get user inputs data
         self.myGeom.AeroDynFileName = self.Geo_LineEdit1.text() #no.text function
 
-        #TODO: FILL IN INTERNAL STRUCTURE WITH DATA IN THE TABLE!!
+        if self.myGeom.turb_data:
+            R0 = self.myGeom.turb_data["components"]["hub"]["diameter"] / 2
+            R  = self.myGeom.turb_data["assembly"]["rotor_diameter"] / 2
+
+            r =  self.myGeom.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]  
+            chord = self.myGeom.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["values"]
+            twist = self.myGeom.turb_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"]
+
+            table = self.Geo_Table1
+            table.setRowCount(len(r))
+            for i in range(len(r)):
+                r[i]     = (float( table.item(i, 0).text() ) - R0) / (R-R0) 
+                chord[i] = float( table.item(i, 1).text() )
+                twist[i] = float( table.item(i, 2).text() )   / 180. * np.pi
+                self.myGeom.AFlist[i] = int( table.item(i, 3).text() )
 
   
     # ============== Caller functions: gather params from the GUI and calls specific function ==================
