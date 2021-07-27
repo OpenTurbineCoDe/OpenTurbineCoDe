@@ -36,9 +36,10 @@ class Structural:
         self.turb_data = turb_data
         self.models = models
         self.path_to_case = path_to_case
-        self.DTU10MWBeamDyn    = "BeamDyn/DTU10MW/DTU10MW_driver.inp"
-        self.DTU10MWTACS        = "../controls/tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
-        self.NREL5MWBeamDyn   = "BeamDyn/NREL5MW/NREL5MW_driver.inp"
+        self.path_to_root =  os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        self.DTU10MWBeamDyn    = self.path_to_root+"/structure/BeamDyn/DTU10MW/DTU10MW_driver.inp"
+        self.DTU10MWTACS        = self.path_to_root+"/controls/tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
+        self.NREL5MWBeamDyn   = self.path_to_root+"/structure/BeamDyn/NREL5MW/NREL5MW_driver.inp"
         self.workingmodel      = self.DTU10MWBeamDyn
 
         self.setDefaultValues()
@@ -135,12 +136,6 @@ class Structural:
         subprocess.run([bd_driver, self.workingmodel])
 
     def postprocessBeamDyn(self):
-        self.RootFxr_max = []
-        self.RootFyr_max = []
-        self.RootMxr_max = []
-        self.RootMyr_max = []
-        self.TipTDxr_max = []
-        self.TipTDyr_max = []
         Beamout = FASTOutputFile(os.path.splitext(self.workingmodel)[0]+".out").toDataFrame()
         Beamouts=Beamout.to_numpy()
         self.RootFxr_max.append(Beamouts[1].max())

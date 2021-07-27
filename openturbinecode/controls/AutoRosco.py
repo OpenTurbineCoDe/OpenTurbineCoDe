@@ -42,6 +42,7 @@ from .fastpost import multipostprocessing   # self cuntion
 class TurbineMorph:
     def __init__(self,**obj):
         # Release yaml parameters
+        self.path_to_root =  os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         self.yamlfile = obj['yamlfile']
         self.yaml = yaml.safe_load(open(self.yamlfile))
         self.path_params = self.yaml['path_params']
@@ -51,11 +52,12 @@ class TurbineMorph:
         self.Bldmass_params = self.yaml['Bld_mass']
         
         #FAST directory
-        self.path = self.path_params['FAST_directory']
+        self.path_to_root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        self.path = self.path_to_root+os.sep+"controls"+os.sep+self.path_params['FAST_directory']  # path to fast category
         # Baseline model for providing baseline plant parameters
-        self.BaselineFast_file = FASTInputFile(self.yaml['path_params']['FAST_Baselinefile']) 
+        self.BaselineFast_file = FASTInputFile(self.path+os.sep+self.yaml['path_params']['FAST_Baselinefile']) 
         # All working FAST files for evaluating all cases, constraints, and objectives
-        self.WorkFast_file = os.path.join(self.path,obj['WorkFast_file'])
+        self.WorkFast_file = obj['WorkFast_file']
         
     #%%#######################################Scaling function############################
     def SplinMorph(self,xc,yc, xy):
@@ -250,9 +252,9 @@ class TurbineMorph:
         # Maybe, using a initialize function to initialize this model if surrogate
         # Currrently, stand alone aerodyn simulations are affordable using 0.1s for each case:
         #% stand-alone aerodyn
-        Single_aero_DrivFil=self.path_params['Single_aero_DrivFil']
-        Single_aero_Driver=self.path_params['Single_aero_Driver']
-        Single_aero_OutFil=self.path_params['Single_aero_OutFil']
+        Single_aero_DrivFil = self.path+os.sep+self.path_params['Single_aero_DrivFil']
+        Single_aero_Driver = self.path_params['Single_aero_Driver']
+        Single_aero_OutFil = self.path+os.sep+self.path_params['Single_aero_OutFil']
         
         AerodynSADrv_file=FASTInputFile(Single_aero_DrivFil)
         #% defalut beta and lambda vectors
@@ -292,8 +294,8 @@ class TurbineMorph:
         Ct=Ct.reshape((i+1,j+1))
         #write out
         #% self.yamlfile
-        textfile=self.path_params['rotor_performance_filename']
-        with open(textfile, 'w') as input_file:
+        self.textfile = self.path+os.sep+self.path_params['rotor_performance_filename']
+        with open(self.textfile, 'w') as input_file:
             input_file.write('# ----- Rotor performance tables for the DTU_10MW_RWT wind turbine -----\n')
             input_file.write('# ------------ Written on {} using the AutoCCD developed by XP DU ------------\n'.format(date.today()))
             input_file.write(' \n')
@@ -365,8 +367,8 @@ class TurbineMorph:
         turbine.rotor_inertia = self.rotor_inertia
         
         # Load Turbine
-        turbine.load_from_fast(self.WorkFast_file,self.path_params['FAST_directory'], \
-                rot_source='txt',txt_filename=self.path_params['rotor_performance_filename'])
+        turbine.load_from_fast(self.WorkFast_file,self.path, \
+                rot_source='txt',txt_filename = self.textfile)
 
             
         # Flap tuning if necessary
@@ -396,7 +398,7 @@ class TurbineMorph:
         Discon_filename_new  = os.path.join(self.path,Servo_file_new['DLL_InFile'].strip('"'))
         
         param_file = Discon_filename_new   
-        write_DISCON(turbine,controller,param_file=param_file, txt_filename=os.path.join(this_dir,self.path_params['rotor_performance_filename']))
+        write_DISCON(turbine,controller,param_file=param_file, txt_filename=os.path.join(self.path,self.path_params['rotor_performance_filename']))
         
         
 
