@@ -92,7 +92,7 @@ class OpenTurbineCoDe:
             self.myAero.turb_data = self.turb_data
             self.myStruc.turb_data = self.turb_data
             self.myAeroStruct.turb_data = self.turb_data
-            #...
+            self.myGeom.set_turbdata(self.turb_data)
             self.myCtrl.turb_data = self.turb_data
 
         self.printv('turbine case loaded')
@@ -135,7 +135,7 @@ class OpenTurbineCoDe:
         self.myStruc.setPathToCase(path)
         self.myAeroStruct.setPathToCase(path)
         self.myCtrl.setPathToCase(path)
-        # self.myGeom.setPathToCase(path)
+        self.myGeom.setPathToCase(path)
 
     def update_MainParams(self, PRated, nblade, D, HubD, HubHeight, Vin, Vout, Overhang, Tilt, Precone):
         self.turb_data["assembly"]["rated_power"] = PRated 
