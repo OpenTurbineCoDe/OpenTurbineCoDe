@@ -10,7 +10,7 @@ import salome
 salome.salome_init()
 import salome_notebook
 notebook = salome_notebook.NoteBook()
-sys.path.insert(0, r'/home/kz/Desktop/workingFolder')
+sys.path.insert(0, r'!!!')
 
 ###
 ### GEOM component
@@ -313,62 +313,61 @@ status = Mesh_12.AddHypothesis(Number_of_Segments_40,Auto_group_for_Sub_mesh_12)
 isDone = Mesh_12.Compute()
 [ Edge_45_1, Edge_46_1, Edge_47_1, Edge_48_1 ] = Mesh_12.GetGroups()
 try:
-  Mesh_1.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 1, Mesh_1)
+  Mesh_1.ExportCGNS( r'!!!/Mesh_1.cgns', 1, Mesh_1)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_2.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_2)
+  Mesh_2.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_2)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_3.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_3)
+  Mesh_3.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_3)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_4.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_4)
+  Mesh_4.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_4)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_5.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_5)
+  Mesh_5.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_5)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_6.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_6)
+  Mesh_6.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_6)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_7.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_7)
+  Mesh_7.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_7)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_8.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_8)
+  Mesh_8.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_8)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_9.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_9)
+  Mesh_9.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_9)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_10.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_10)
+  Mesh_10.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_10)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_11.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_11)
+  Mesh_11.ExportCGNS( r'!!!/Mesh_1.cgns', 0, Mesh_11)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')
 try:
-  Mesh_12.ExportCGNS( r'/home/kz/Desktop/Mesh_1.cgns', 0, Mesh_12)
   pass
 except:
   print('ExportCGNS() failed. Invalid file name?')

@@ -89,48 +89,8 @@ class Geometry:
                 self.AFID = label_af 
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
-    def Geo_loadPredefinedTurbine(self, comboBox, lineEdit, toolButton, widget):
-        # TODO: When selecting predefined turbiens, also set the airfoil types 
-        if comboBox.currentText() == "DTU 10 MW":
-            self.AFID = []
-            toolButton.setEnabled(False)
-            widget.setEnabled(False)
-            lineEdit.setText( self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "AeroDyn_Reduced" + os.sep + "blade.dat") #TODO: we should refer to Madsen2019 aerodyn file
-            self.AFID = [self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "cylinder.dat", 
-                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3600.dat",
-                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3480.dat",
-                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3360.dat",
-                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3301.dat",
-                         self.path_to_root + os.sep + "openturbinecode" + os.sep + "geometry" + os.sep + "lib_airfoils" + os.sep + "ffaw3241.dat"
-                         ]
 
-            path_to_TMP = self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
-            turb_yaml = path_to_TMP + os.sep + "Madsen2019_10.yaml"
-            self.turb_data = io.load_yaml(turb_yaml)
-            self.setPGLdata(updateADIF=False)
-
-
-        elif comboBox.currentText() == "NREL Phase VI":
-            widget.setEnabled(False)
-            toolButton.setEnabled(False)
-            lineEdit.setText(os.path.dirname( os.path.realpath(__file__) )+os.sep +"../../models/NREL_PhaseVI_UAE/original/AeroDyn/NREL_PhaseVI_UAE_ADBlade.dat")
-            #TODO:
-            # path_to_TMP = self.path_to_root + os.sep + "models" + os.sep + "NREL_PhaseVI_UAE" + os.sep + "original" + os.sep 
-            # turb_yaml = path_to_TMP + os.sep + "Madsen2019_10.yaml"
-            # self.turb_data = io.load_yaml(turb_yaml)
-            # self.setPGLdata(updateADIF=False)
-
-        elif comboBox.currentText() == "NREL 5 MW":
-            widget.setEnabled(False)
-            toolButton.setEnabled(False)
-            #TODO: add NREL 5 MW
-            print("Not available yet.")
-        elif comboBox.currentText() == "Load External":
-            widget.setEnabled(True)
-            toolButton.setEnabled(True)
-
-
-    def loadGeom(self, fn, table, QtWidgets, comboBox, comboBox2):
+    def loadGeom(self, fn, table, QtWidgets, comboBox):
         #print("I should execute: subprocess.run(\"openfast \" + " + args +")")
         # TODO: add FileNotFound error treatment so that the GUI does not abort if so
         with open(fn, 'r') as f:
@@ -167,9 +127,7 @@ class Geometry:
         # TODO: read data from the table to allow edits
         self.afNum = int(content[-1][-1])
         
-        # Since AFID has been set for predefined turbines (see function Geo_loadPredefinedTurbine). Initialize AFID only when "Load External"
-        if comboBox2.currentText() == "Load External":
-            self.AFID = ["" for x in range(self.afNum)]    # initial AFID to store airfoil ID
+        self.AFID = ["" for x in range(self.afNum)]    # initial AFID to store airfoil ID
 
     def openFileDialogue(self, fn, QtWidgets):
         fn_ = QtWidgets.QFileDialog.getOpenFileName(None, "Open AeroDyn blade file", "", "(*)")[0]
@@ -197,23 +155,22 @@ class Geometry:
             lineEdit.setText(" ")
 
     #TODO: use os.listdir to list all airfoil coord files dynamically. Should be done in main option, possibly using a refresh button
-    def Geo_loadAFCoord(self, comboBox1, comboBox2, lineEdit, comboBox3):
-        if comboBox3.currentText() == "Load External":
-            lineEdit.setText(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "lib_airfoils" + os.sep + comboBox2.currentText() + '.dat')
-            print('AF ID ' + comboBox1.currentText() + ': ' + comboBox2.currentText())
-            self.AFID[int(comboBox1.currentText())-1] = lineEdit.text() 
-            #TODO: read airfoil coordinates and populate self.turb_data["aifroils"]
-            self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"] = self.AFlist
-            print(self.AFID[0])
+    def Geo_loadAFCoord(self, comboBox1, comboBox2, lineEdit):
+        lineEdit.setText(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "lib_airfoils" + os.sep + comboBox2.currentText() + '.dat')
+        print('AF ID ' + comboBox1.currentText() + ': ' + comboBox2.currentText())
+        self.AFID[int(comboBox1.currentText())-1] = lineEdit.text() 
+        #TODO: read airfoil coordinates and populate self.turb_data["aifroils"]
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"] = self.AFlist
+        print(self.AFID[0])
         
-    def Geo_loadExternalAF(self, toolButton, lineEdit, QtWidgets, comboBox2, comboBox3):
-        if comboBox3.currentText() == "Load External":
-            fn_ = QtWidgets.QFileDialog.getOpenFileName(None, "Open airfoil coordinate file", "", "(*)")[0]
-            lineEdit.setText(str(fn_))
-            self.AFID[int(comboBox2.currentText())-1] = lineEdit.text() 
-            self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"] = self.AFlist
-            #TODO: read airfoil coordinates and populate self.turb_data["aifroils"]
-            print('AF ID ' + comboBox2.currentText() + ': ' + lineEdit.text())
+    def Geo_loadExternalAF(self, toolButton, lineEdit, QtWidgets, comboBox2):
+
+        fn_ = QtWidgets.QFileDialog.getOpenFileName(None, "Open airfoil coordinate file", "", "(*)")[0]
+        lineEdit.setText(str(fn_))
+        self.AFID[int(comboBox2.currentText())-1] = lineEdit.text() 
+        self.turb_data["components"]["blade"]["outer_shape_bem"]["airfoil_position"]["labels"] = self.AFlist
+        #TODO: read airfoil coordinates and populate self.turb_data["aifroils"]
+        print('AF ID ' + comboBox2.currentText() + ': ' + lineEdit.text())
 
     # ==================== AERODYN - SALOME GEOM ==========================================
     
@@ -238,7 +195,7 @@ class Geometry:
     def Geo_generateAeroDyn(self, table):
         print("Generating AeroDyn blade file")
         # TODO: replace file name and location
-        bl = open('/home/kz/Desktop/AeroDynBL.dat', 'w')
+        bl = open(self.path_to_case+'/AeroDynBL.dat', 'w')
         bl.write("------- AERODYN v15.04.* BLADE DEFINITION INPUT FILE ------------------------------------- \n")
         bl.write("Description line for this file -- file corresponds to inputs in Test01_UAE_AeroDyn.dat \n") # TODO: change description
         bl.write("======  Blade Properties ================================================================= \n")
@@ -253,8 +210,8 @@ class Geometry:
     def Geo_generateTurbinesFoam(self, table):
         print("Generate turbinesFoam file")
         # TODO: replace file name and location
-        bl = open('/home/kz/Desktop/turbFoam.dat', 'w')
-        af = open('/home/kz/Desktop/AF.dat', 'w')
+        bl = open(self.path_to_case+'/turbFoam.dat', 'w')
+        af = open(self.path_to_case+'/AF.dat', 'w')
         for row in range(0, table.rowCount()):
             bl.write("(0 \t " + str(table.item(row, 0).text()) + "\t 0 \t" + str(table.item(row, 1).text()) + "\t 0.25 \t" + str(table.item(row, 2).text()) + ")\n")
             af.write(str(table.item(row,3).text())+'\n')
@@ -364,10 +321,10 @@ class Geometry:
             bl.write(str(self.spar[i])+"\n")
 
         print("Run BB3D")
-        workingFolder = "/home/kz/Desktop/workingFolder"
+        workingFolder = self.path_to_case
         os.chdir(workingFolder)
         print(os.system("pwd"))
-        subprocess.Popen([self.BB3DExe, "/home/kz/Desktop/workingFolder/blade.dat"])
+        subprocess.Popen([self.BB3DExe, workingFolder+"/blade.dat"])
         #os.system(self.BB3DExe + " " + "/home/kz/Desktop/blade.dat")
 
     ## BB3D stuff ends at here    
@@ -384,12 +341,19 @@ class Geometry:
         print("Run Salome")
         salome_ = lineEdit_4.text()
         geom_ = lineEdit_2.text()
-        workingFolder = "/home/kz/Desktop/workingFolder"
+        workingFolder = self.path_to_case
         os.chdir(workingFolder)    
-        with open(self.path_to_root+"/openturbinecode/geometry/salomeMacro/DTU10_1spar.py", "r") as fin:
-            with open("script.py", "w") as fout:
-                for line in fin:
-                    fout.write(line.replace('???', geom_))
+        checkWords = ("???", "!!!")
+        repWords = (geom_, workingFolder)
+        f1 = open(self.path_to_root+"/openturbinecode/geometry/salomeMacro/DTU10_1spar.py", "r")
+        f2 = open("script.py", "w")
+        for line in f1:
+            for check, rep in zip(checkWords, repWords):
+                line = line.replace(check, rep)
+            f2.write(line)
+        f1.close()
+        f2.close()
+
         if radioButton.isChecked():
             subprocess.Popen([salome_, "script.py"]) 
         else:      
