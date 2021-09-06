@@ -44,10 +44,10 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>130</y>
+        <x>10</x>
+        <y>50</y>
         <width>491</width>
-        <height>721</height>
+        <height>801</height>
        </rect>
       </property>
       <property name="alternatingRowColors">
@@ -99,7 +99,7 @@
       <property name="geometry">
        <rect>
         <x>370</x>
-        <y>86</y>
+        <y>10</y>
         <width>111</width>
         <height>31</height>
        </rect>
@@ -111,9 +111,9 @@
      <widget class="QLineEdit" name="Geo_LineEdit1">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>90</y>
-        <width>341</width>
+        <x>70</x>
+        <y>11</y>
+        <width>291</width>
         <height>27</height>
        </rect>
       </property>
@@ -123,63 +123,18 @@
      </widget>
      <widget class="QToolButton" name="Geo_toolButton1">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>
-        <x>190</x>
-        <y>50</y>
-        <width>161</width>
+        <x>20</x>
+        <y>6</y>
+        <width>31</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Load External</string>
-      </property>
-     </widget>
-     <widget class="QComboBox" name="Geo_comboBox_4">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>52</y>
-        <width>161</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <item>
-       <property name="text">
-        <string>DTU 10 MW</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>NREL Phase VI</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Load External</string>
-       </property>
-      </item>
-     </widget>
-     <widget class="QLabel" name="Geo_label_3">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>20</y>
-        <width>221</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>14</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Select turbine </string>
+       <string>..</string>
       </property>
      </widget>
     </widget>
@@ -194,7 +149,7 @@
      </property>
      <widget class="QWidget" name="Geo_widget" native="true">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>
@@ -297,7 +252,7 @@
        </property>
        <item>
         <property name="text">
-         <string>ffaw3601</string>
+         <string>ffaw3600</string>
         </property>
        </item>
        <item>
@@ -313,6 +268,11 @@
        <item>
         <property name="text">
          <string>ffaw3301</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ffaw3241</string>
         </property>
        </item>
        <item>
@@ -389,7 +349,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Select output format</string>
+        <string>Select generator</string>
        </property>
       </widget>
       <widget class="QPushButton" name="Geo_Button2">
@@ -422,7 +382,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page">
         <widget class="QLabel" name="Geo_label_12">
@@ -672,9 +632,9 @@
         <widget class="QLineEdit" name="Geo_lineEdit_2">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>60</x>
            <y>120</y>
-           <width>221</width>
+           <width>191</width>
            <height>27</height>
           </rect>
          </property>
@@ -682,7 +642,7 @@
         <widget class="QPushButton" name="Geo_pushButton">
          <property name="geometry">
           <rect>
-           <x>240</x>
+           <x>260</x>
            <y>120</y>
            <width>151</width>
            <height>27</height>
@@ -695,22 +655,22 @@
         <widget class="QPushButton" name="Geo_pushButton_3">
          <property name="geometry">
           <rect>
-           <x>240</x>
+           <x>260</x>
            <y>80</y>
            <width>151</width>
            <height>27</height>
           </rect>
          </property>
          <property name="text">
-          <string>Salome location</string>
+          <string>Get salome location</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="Geo_lineEdit_4">
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>60</x>
            <y>80</y>
-           <width>221</width>
+           <width>191</width>
            <height>27</height>
           </rect>
          </property>

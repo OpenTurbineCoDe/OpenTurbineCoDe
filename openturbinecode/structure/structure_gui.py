@@ -176,6 +176,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             raise ValueError("Function not yet implemented!")
         
     def caller_LocalRunBeamDyn(self):
+        self.myStru.setDefaultValues()
         self.readFromUI()
         if  self.myStru.Solver == "BeamDyn":
             if self.RB12.isChecked():

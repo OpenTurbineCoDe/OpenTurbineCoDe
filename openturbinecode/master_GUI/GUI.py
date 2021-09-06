@@ -59,11 +59,13 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         self.Main_set_SaveCaseButton.clicked.connect(self.save_all_options)
 
+        self.toolButton.clicked.connect(self.openWorkingDir)
+
 
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
         #=====  GEOMETRY ===============================================
-        self.geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self)
+        self.geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.geometry_ui,"Geometry")
         #=====  MESHING ===============================================
         
@@ -122,6 +124,11 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
     #=====  MAIN OPTIONS ===============================================
 
     #set the case path
+    def openWorkingDir(self):
+        dir_ = QtWidgets.QFileDialog.getExistingDirectory(self, "Set Working Directory", " ", QtWidgets.QFileDialog.ShowDirsOnly)
+        print("You have selected " + "\033[4m" + dir_ + "\033[0m" + " as the working directory")
+        self.Main_set_PathToCase.setText(dir_)
+
     def set_path_to_case(self):
         path = self.Main_set_PathToCase.text()
         self.OTCD.setPathToCase( path )
@@ -141,7 +148,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #update standalone GUIs
         self.aero_ui.writeToUI()
-        #...
+        # self.aerostruct_ui.writeToUI() #does not seem to be needed here...
+        self.geometry_ui.writeToUI()
 
 
     def save_MainParams_options(self):
