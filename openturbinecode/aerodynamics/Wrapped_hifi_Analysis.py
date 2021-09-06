@@ -21,6 +21,7 @@ def requires_adflow(function):
         if not _has_adflow:
             raise ImportError("adflow is required to do this.")
         function(*args,*kwargs)
+        # TODO: should return the outputs of the function for correct info passing
     return check_requirement
 
 

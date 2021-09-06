@@ -196,10 +196,16 @@ if __name__=='__main__':
 
     path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
     path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
+    # TODO: split aero and aerostructural output folders
     # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--plotonly", help="skip the analysis and plot directly", action="store_true")
+    parser.add_argument("--optimize", help="perform optimization instead of single point analysis", action="store_true")
+    args = parser.parse_args()
 
-    plotonly = True 
-    myAeroStruct = Aerostructural(path_to_case, plotonly=plotonly,optimize=False)
+    myAeroStruct = Aerostructural(path_to_case, plotonly=args.plotonly,optimize=args.optimize)
     myAeroStruct.setDefaultValues()
     myAeroStruct.Run()
-    myAeroStruct.PlotCp()
+    if not args.plotonly:
+        myAeroStruct.PlotCp()
