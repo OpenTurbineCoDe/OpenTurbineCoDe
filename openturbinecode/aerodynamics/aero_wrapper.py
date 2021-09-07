@@ -188,6 +188,8 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
 
                     # Running the OpenFast runscript
                     LoFiAero(tsr,Vel,pitch,R,rho,T,config["lofi"],options,Rscale=Rlist[i])
+                else:
+                    print(f"Reading from {outputFile}")
                 
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)
@@ -229,6 +231,8 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                     
                     # Running the OpenFast runscript
                     LoFiAero(tsr,Vel,pitch,R,rho,T,config["lofi"],options,Rscale=Rlist[i])
+                else:
+                    print(f"Reading from {outputFile}")
                     
                 #postprocessing output files
                 thr, trq, power, fN, fT = parser.OFparse(outputFile)
