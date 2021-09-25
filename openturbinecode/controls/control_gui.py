@@ -474,6 +474,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 prob.model.add_design_var('p.zeta_pc', lower = float(self.myCtrl.ROSCOR3ZetaL), upper = float(self.myCtrl.ROSCOR3ZetaU))
             if self.myCtrl.Objective == "AEP_max":
                 prob.model.add_objective('p.AEP')
+            if self.myCtrl.Objective == "RotTorq_max":
+                prob.model.add_objective('p.RotTorq_max')
             # Constraint1
             if self.C1.currentText() == "RotThrust_max" and self.CS1.currentText() == "<=":
                 prob.model.add_constraint('p.RotThrust_max', upper=float(self.myCtrl.CV1))
@@ -501,7 +503,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             if self.C2.currentText() == "DEL_Ftwr" and self.CS2.currentText() == "<=":
                 prob.model.add_constraint('p.DEL_TrF', upper=float(self.myCtrl.CV2))
             # Set the objective
-            prob.model.add_objective('p.RotTorq_max')
+            # prob.model.add_objective('p.RotTorq_max')
         
             # find optimal solution with SciPy optimize
             driver = prob.driver = om.ScipyOptimizeDriver(optimizer=self.myCtrl.Optimizer, tol=float(self.myCtrl.Tolerane))
