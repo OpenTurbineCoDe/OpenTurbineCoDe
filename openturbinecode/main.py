@@ -55,7 +55,7 @@ class OpenTurbineCoDe:
 
         self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options, plotonly=args.plotonly)
         self.myStruc = struc.Structural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
-        self.myAeroStruct = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
+        self.myAeroStruct = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options, plotonly=args.plotonly)
         self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
         self.myGeom = geom.Geometry(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
         self.printv('initilization done. \n\n')

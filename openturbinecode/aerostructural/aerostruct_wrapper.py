@@ -140,6 +140,7 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
     # ================================================
     if 'MACH' in options["fidelity"]:
         outputDirectory = os.path.join(path_to_case, "ADflow", output)
+        exampleDirectory = os.path.join(path_to_case, "ADflow")
         options["outputDirectory"] = outputDirectory
 
         if MPI.COMM_WORLD.rank == 0:
@@ -174,21 +175,32 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
                 funcs = pickleRead(f"{outputdir}/Funcs.pkl")
                 trq = funcs["mx"]
                 thr = funcs["fx"]
+
+                # Extracting performance information
+                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
+
+                thrust.append(thr)
+                torque.append(trq)
+                cp.append(abs(CP))
             else:
+                example_plots = os.path.join(exampleDirectory,"example_param_studies.py")
+                os.system(f"python {example_plots}")
+
                 #Name used for plotting purposes only
-                outsname = name + f"_000_lift.dat"
-                res = parser.getLiftDistribution(os.path.join(outputDirectory,outsname))
+                # outsname = name + f"_000_lift.dat"
+                # res = parser.getLiftDistribution(os.path.join(outputDirectory,outsname))
                 
-                Ico = 'Coordinate' + str.capitalize(spanDir)
-                trq = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
-                thr = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
+                # Ico = 'Coordinate' + str.capitalize(spanDir)
+                # trq = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
+                # thr = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
 
-            # Extracting performance information
-            CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
+            # TODO: temporarily disabling the "generalized" output vector
+            # # Extracting performance information
+            # CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
 
-            thrust.append(thr)
-            torque.append(trq)
-            cp.append(abs(CP))
+            # thrust.append(thr)
+            # torque.append(trq)
+            # cp.append(abs(CP))
 
 
     # ================================================
