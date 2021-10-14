@@ -58,7 +58,7 @@ class Control:
         self.DTU10MWOpenFAST    = self.path_to_root+os.sep+"controls/DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
         self.DTU10MWTACS        = self.path_to_root+os.sep+"controls/tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
         self.NREL5MWOpenFAST    = ""
-        self.workingmodelOpenFAST       = self.DTU10MWOpenFAST
+        self.workingmodelOpenFAST   = self.DTU10MWOpenFAST
         self.workingmodelTACS       = self.DTU10MWTACS
 
         self.setDefaultValues()
@@ -82,64 +82,64 @@ class Control:
         #TODO: read the parameters inside turb_yaml to fill all the following variables (if approprate):
 
         # system: FAST
-        self.ChordF = self.ChordFCV = 0.0 # Also define a current value variable for model update
-        self.ChordFL = -0.5
-        self.ChordFU = 0.5
-        self.ChordFSTP = 0.5
+        self.ChordF         = self.ChordFCV = 0.0 # Also define a current value variable for model update
+        self.ChordFL        = -0.5
+        self.ChordFU        = 0.5
+        self.ChordFSTP      = 0.5
         
-        self.ThickF = self.ThickFCV = 0.0
-        self.ThickFL = -0.5
-        self.ThickFU = 0.5
-        self.ThickFSTP = 0.5
+        self.ThickF         = self.ThickFCV = 0.0
+        self.ThickFL        = -0.5
+        self.ThickFU        = 0.5
+        self.ThickFSTP      = 0.5
         
-        self.TiltAngle = self.TiltAngleCV = -5 # (deg)
-        self.TiltAngleL = -8. # (deg)
-        self.TiltAngleU = -2. # (deg)
-        self.TiltAngleSTP = 3. # (deg)
+        self.TiltAngle      = self.TiltAngleCV = -5 # (deg)
+        self.TiltAngleL     = -8. # (deg)
+        self.TiltAngleU     = -2. # (deg)
+        self.TiltAngleSTP   = 3. # (deg)
         
         # system: TACS based ROM
-        self.BldFpK = self.BldFpKCV = 806463. # N/m
-        self.BldFpKL = 706463.
-        self.BldFpKU = 906463.
-        self.BldFpKSTP = 100000.
+        self.BldFpK         = self.BldFpKCV = 806463. # N/m
+        self.BldFpKL        = 706463.
+        self.BldFpKU        = 906463.
+        self.BldFpKSTP      = 100000.
         
-        self.ThickL = self.ThickLCV = 1814541.
-        self.ThickLL = 1614541.
-        self.ThickLU = 2014541.
-        self.ThickLSTP = 200000.
+        self.ThickL         = self.ThickLCV = 1814541.
+        self.ThickLL        = 1614541.
+        self.ThickLU        = 2014541.
+        self.ThickLSTP      = 200000.
         
-        self.RtInertia = self.RtInertiaCV = 156348032. # kg*m^2
-        self.RtInertiaL = 136348032. 
-        self.RtInertiaU = 176348032.
-        self.RtInertiaSTP = 20000000.
+        self.RtInertia      = self.RtInertiaCV = 156348032. # kg*m^2
+        self.RtInertiaL     = 136348032. 
+        self.RtInertiaU     = 176348032.
+        self.RtInertiaSTP   = 20000000.
         
         #set default text for general parameters
-        self.ROSCOR2Omega = self.ROSCOR2OmegaCV = 0.2
-        self.ROSCOR2OmegaL = 0.1
-        self.ROSCOR2OmegaU = 0.3
-        self.ROSCOR2OmegaSTP = 0.1
+        self.ROSCOR2Omega   = self.ROSCOR2OmegaCV = 0.2
+        self.ROSCOR2OmegaL  = 0.1
+        self.ROSCOR2OmegaU  = 0.3
+        self.ROSCOR2OmegaSTP= 0.1
         
-        self.ROSCOR2Zeta  = self.ROSCOR2ZetaCV = 0.7
-        self.ROSCOR2ZetaL  = 0.5
-        self.ROSCOR2ZetaU  = 0.9
-        self.ROSCOR2ZetaSTP  = 0.2
+        self.ROSCOR2Zeta    = self.ROSCOR2ZetaCV = 0.7
+        self.ROSCOR2ZetaL   = 0.5
+        self.ROSCOR2ZetaU   = 0.9
+        self.ROSCOR2ZetaSTP = 0.2
         
-        self.ROSCOR3Omega = self.ROSCOR3OmegaCV = 0.3
-        self.ROSCOR3OmegaL = 0.2
-        self.ROSCOR3OmegaU = 0.4
-        self.ROSCOR3OmegaSTP = 0.1
+        self.ROSCOR3Omega   = self.ROSCOR3OmegaCV = 0.3
+        self.ROSCOR3OmegaL  = 0.2
+        self.ROSCOR3OmegaU  = 0.4
+        self.ROSCOR3OmegaSTP= 0.1
         
-        self.ROSCOR3Zeta  = self.ROSCOR3ZetaCV = 0.7
-        self.ROSCOR3ZetaL  = 0.5
-        self.ROSCOR3ZetaU  = 0.9
-        self.ROSCOR3ZetaSTP  = 0.2
+        self.ROSCOR3Zeta    = self.ROSCOR3ZetaCV = 0.7
+        self.ROSCOR3ZetaL   = 0.5
+        self.ROSCOR3ZetaU   = 0.9
+        self.ROSCOR3ZetaSTP = 0.2
         
-        self.PlatformKp   = self.PlatformKpCV = 0.0
-        self.PlatformKpL   = 0.0
-        self.PlatformKpU   = 0.0
-        self.PlatformKpSTP   = 0.0
+        self.PlatformKp     = self.PlatformKpCV = 0.0
+        self.PlatformKpL    = 0.0
+        self.PlatformKpU    = 0.0
+        self.PlatformKpSTP  = 0.0
         
-        self.DLCV = 11.4
+        self.DLCV           = 11.4
         # Parametric sweep in GUI
         # self.yaml=""
         # self.output=""
@@ -158,7 +158,7 @@ class Control:
         self.Tolerane       = 1e-6
 
         # Set objectives
-        self.AEP = []
+        self.AEP    = []
         self.Ft_max = []
         self.Tq_max = []
 
@@ -180,16 +180,34 @@ class Control:
         InflowFile                  = FASTInputFile(InflowFilePath)
         if self.DLCs == "Uniform_wind":
             InflowFile['WindType']      = 1
-            InflowFile['HWindSpeed']      = self.DLCV
+            InflowFile['HWindSpeed']    = self.DLCV
             InflowFile.write()
         if self.DLCs == "DLC 1.1" or self.DLCs == "DLC 1.2":
             InflowFile['WindType']      = 3
             windfile = "DTU10_NTW_DLC1.2_v"+str(math.ceil(float(self.DLCV)))+".bts"
-            InflowFile['FileName_BTS']      = os.path.join(os.path.split(InflowFile['FileName_BTS'])[0],windfile)
+            InflowFile['FileName_BTS']  = os.path.join(os.path.split(InflowFile['FileName_BTS'])[0],windfile)
             InflowFile.write()
         else:
             pass
-
+    def ROMExtraction(self, ROMparams):
+        self.Path           = self.path_to_root+os.sep+"controls"+os.sep+self.path_params['FAST_directory']
+        FASTFile            = FASTInputFile(self.workingmodelOpenFAST)
+        Elastodynpath       = os.path.join(self.Path,FASTFile['EDFile'].strip('"'))
+        Elastofile          = FASTInputFile(Elastodynpath)
+        ElastoTwrpath       = os.path.join(self.Elastodynpath,Elastofile['TwrFile'].strip('"'))
+        ElastoTwrfile       = FASTInputFile(ElastoTwrpath)
+        ElastoBldpath       = os.path.join(self.Elastodynpath,Elastofile['BldFile(1)'].strip('"'))
+        ElastoBldfile       = FASTInputFile(ElastoBldpath)
+        ROMparams_v         = {}
+        for i in range(len(ROMparams)):
+            if ROMparams[i] in Elastofile.keys():
+                ROMparams_v[ROMparams[i]] = Elastofile[ROMparams[i]]
+            if ROMparams[i] in ElastoTwrfile.keys():
+                ROMparams_v[ROMparams[i]] = ElastoTwrfile[ROMparams[i]]  
+            if ROMparams[i] in ElastoBldfile.keys():
+                ROMparams_v[ROMparams[i]] = ElastoBldfile[ROMparams[i]]  
+        return ROMparams_v
+    
     def RunRoscoTune(self):   # Tune the rosco controller
         # self.YamlFile       = kwargs['YamlFile']
         #---------------------------------- Using the ROSCO_toolbox--------------------------------#
@@ -257,6 +275,7 @@ class Control:
         
         
 
-# if __name__=='__main__':
-#     pass
+if __name__=='__main__':
+    pass
+    #path_to_case = 
 

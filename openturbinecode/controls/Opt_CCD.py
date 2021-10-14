@@ -77,8 +77,8 @@ class ControlMDAOom(om.ExternalCodeComp):
         #self.add_output('WeAEP_Mass', val=0.0) 
         self.path_to_root =  os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         self.yamlfile = self.path_to_root+"/controls/OTCD_DTU10MW.yaml"
-        self.WorkFast_file= self.path_to_root+"/controls/DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
-        self.WorkFast_fileloc= self.path_to_root+"/controls/DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
+        self.WorkFast_file = self.path_to_root+"/controls/DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
+        self.WorkFast_fileloc = self.path_to_root+"/controls/DTU10MWAero15/DTU_10MW_NAUTILUS_GoM_A15_DLC1.2_Baseline.fst"
         # providing these is optional; the component will verify that any input
         # files exist before execution and that the output files exist after.
         self.options['external_input_files'] = [self.yamlfile]
@@ -103,10 +103,10 @@ class ControlMDAOom(om.ExternalCodeComp):
         # Section 1: aero update
         xc = np.array([0,0.1,0.25,0.4,0.55,0.7,0.85,1.0]) 
         v_chd = np.array([0.0,0.0,v_p,v_p,v_p,v_p,v_p,v_p])
-        xt = xt=np.array([0,0.1,0.25,0.4,0.55,0.7,0.85,1.0]) 
+        xt = xt = np.array([0,0.1,0.25,0.4,0.55,0.7,0.85,1.0]) 
         v_twst = np.array([0.0,0.0,v_t,v_t,v_t,v_t,v_t,v_t])
         # vc: control variables
-        vc=[v_c1,v_c2,v_c3,v_c4]
+        vc = [v_c1,v_c2,v_c3,v_c4]
         #%%
         # Aeromorphing
         # AeroTwstVar: twist varaition from original
