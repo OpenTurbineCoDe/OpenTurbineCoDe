@@ -423,6 +423,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.readFromUI()
         if self.myCtrl.C1 == "Mr":
             self.CV1.setText(str(self.myCtrl.Constraint_Mr))
+        if self.myCtrl.C1 == "RotThrust_max":
+            self.CV1.setText(str(self.myCtrl.Constraint_Thrust))
         if self.myCtrl.C1 == "DEL_Mbr":
             self.CV1.setText(str(self.myCtrl.Constraint_DEL_Mbr))
         if self.myCtrl.C1 == "DEL_Mtwr":
@@ -437,6 +439,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.readFromUI()
         if self.myCtrl.C2 == "Mr":
             self.CV2.setText(str(self.myCtrl.Constraint_Mr))
+        if self.myCtrl.C1 == "RotThrust_max":
+            self.CV1.setText(str(self.myCtrl.Constraint_Thrust))
         if self.myCtrl.C2 == "DEL_Mbr":
             self.CV2.setText(str(self.myCtrl.Constraint_DEL_Mbr))
         if self.myCtrl.C2 == "DEL_Mtwr":

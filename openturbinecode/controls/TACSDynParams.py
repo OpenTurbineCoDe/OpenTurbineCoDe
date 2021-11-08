@@ -68,10 +68,14 @@ class TACSParams:
     # define structural analysis function
     def StructuralAnalysis(self, evalFunclist):
         FEASolver = self.FEASolver
-        sp = StructProblem("aeroload", loadFile="force_allwalls_L3.txt", evalFuncs = FEASolver.functionList.keys())
+        # sp = StructProblem("aeroload", loadFile="force_allwalls_L3.txt", evalFuncs = FEASolver.functionList.keys())
+        sp = StructProblem("aeroload", evalFuncs = FEASolver.functionList.keys())
         # Add inertial (gravity) loads
         FEASolver.addInertialLoad(sp)
-
+        
+        # Add tip load
+        FEASolver.addPointLoads(sp,[0,0,80],[[100000.,0,0]],[[0,0,0]])
+        
         FEASolver(sp)
         # Evaluate the functions and save data to 'funcs'
         funcs = {}

@@ -147,7 +147,8 @@ class Control:
         self.Server   = "amarel.rutgers.edu"
         self.HPCPath  = "/scratch/xd101/Subroutine-ROSCODemo"
         # Optimization constraints: baseline model values
-        self.Constraint_Mr             = 41738.8      # rotor mass kg
+        self.Constraint_Mr             = 41738.8  
+        self.Constraint_Thrust         = 10000.
         self.Constraint_DEL_Mbr        = 399250.1
         self.Constraint_DEL_Mtwr       = 1055163.2
         self.Constraint_DEL_Fbr        = 7234.7

@@ -100,7 +100,7 @@ class ControlMDAOom(om.ExternalCodeComp):
         vc      = [v_c1,v_c2,v_c3,v_c4]
         #%%
         # Aeromorphing
-        # AeroTwstVar: twist varaition from original
+        # AeroTwstVar: Twist varaition from original
         # AeroBldNodes: aerodyn node distribution table
         # AeroChordVarunit: scaling factor for chord distribution to calculate mass and stiffness properties
         TurbineMorphs                               = TurbineMorph(yamlfile = self.yamlfile, WorkFast_file = self.WorkFast_file)
