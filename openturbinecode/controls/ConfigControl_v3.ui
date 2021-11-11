@@ -33,7 +33,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="ParametricSweep">
      <attribute name="title">
@@ -518,31 +518,6 @@
        </item>
        <item>
         <property name="text">
-         <string>mass_r</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>DEL_Mbr</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>DEL_Mtwr</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>DEL_Fbr</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>DEL_Ftwr</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
          <string>None</string>
         </property>
        </item>
@@ -594,31 +569,6 @@
        <item>
         <property name="text">
          <string>RotThrust_max</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>mass_r</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>DEL_Mbr</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>DEL_Mtwr</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>DEL_Fbr</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>DEL_Ftwr</string>
         </property>
        </item>
        <item>
@@ -1504,7 +1454,7 @@
      </item>
      <item>
       <property name="text">
-       <string>ROM_Mannual</string>
+       <string>ROM_Manual</string>
       </property>
      </item>
     </widget>
@@ -2608,17 +2558,12 @@
       </property>
       <item>
        <property name="text">
-        <string>RotThrust_max</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
         <string>RotTorq_max</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>AEP_max</string>
+        <string>RotThrust_max</string>
        </property>
       </item>
      </widget>

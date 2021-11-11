@@ -21,8 +21,15 @@ except ImportError as err:
 else:
     _has_pandas = True
 
-from openturbinecode.controls.TACSDynParams import TACSParams
+try:
+    import openmdao.api as om
+except ImportError as err:
+    _has_openmdao = False
+else:
+    _has_openmdao = True
 
+from openturbinecode.controls.TACSDynParams import TACSParams
+from openturbinecode.structure.Opt_Struct import StructMDAOom
 # import openturbinecode.structure.structure_module as stru
 import openturbinecode.structure.structure_module as stru
 
@@ -34,7 +41,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.setupUi(self)
 
         self.myStru = myStru #make the control module available
-              
+            
         # =================== INITIALIZE FIELD VALUES ==============================
         self.myStru.setDefaultValues()
         self.writeToUI()
@@ -48,17 +55,14 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.Solver.activated.connect(self.StructralSolverUI)
         # Load Model
         self.LoadModel.clicked.connect(self.caller_LoadModel)
-        # BeamDyn run
-        self.LocalRunBeamDyn.clicked.connect(self.caller_LocalRunBeamDyn)
-        self.BeamDynPlot.clicked.connect(self.caller_BeamDynPlot)
-        
-        # TACS run
-        self.LocalRunTACS.clicked.connect(self.caller_LocalRunTACS)
-        self.TACSPlot.clicked.connect(self.caller_TACSPlot)
-        self.SendTCAStoHPC.clicked.connect(self.caller_SendToHPCf)
-        self.LoadtoLocal.clicked.connect(self.caller_HPCloadf)
-        
-        
+        # Local run and plot
+        self.LocalRun.clicked.connect(self.caller_LocalRun)
+        self.Plot.clicked.connect(self.caller_Plot)
+        # Contraint default definition
+        self.Cst.activated.connect(self.SetContraintdefault)
+        # Optimization run
+        self.Optimization.clicked.connect(self.caller_Optimization)
+ 
     # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
 
     def writeToUI(self):
@@ -99,10 +103,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.TFFF2.setText(str(self.myStru.ThickSclF3L))
         self.TFFF3.setText(str(self.myStru.ThickSclF3U))
         self.TFFF4.setText(str(self.myStru.ThickSclF3STP))
-         # Set HPC parameters
-        self.Username.setText(str(self.myStru.Username))
-        self.server.setText(str(self.myStru.Server))
-        self.Dir.setText(str(self.myStru.HPCPath))
+        # Optimization
+        self.Iterations.setText(str(self.myStru.Iterations))
+        self.Tolerane.setText(str(self.myStru.Tolerane))
 
     def readFromUI(self):
         # set solver and model
@@ -110,45 +113,47 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myStru.Modelselection = self.Modelselection.currentText()
         
         # system: BeamDyn
-        self.myStru.TipLoadx = self.TipLoad_x1.text()
-        self.myStru.TipLoadxL = self.TipLoad_x2.text()
-        self.myStru.TipLoadxU = self.TipLoad_x3.text()
-        self.myStru.TipLoadxSTP = self.TipLoad_x4.text()
+        self.myStru.TipLoadx            = self.TipLoad_x1.text()
+        self.myStru.TipLoadxL           = self.TipLoad_x2.text()
+        self.myStru.TipLoadxU           = self.TipLoad_x3.text()
+        self.myStru.TipLoadxSTP         = self.TipLoad_x4.text()
         
-        self.myStru.DistrLoadx = self.DistrLoad_x1.text()
-        self.myStru.DistrLoadxL = self.DistrLoad_x2.text()
-        self.myStru.DistrLoadxU = self.DistrLoad_x3.text()
-        self.myStru.DistrLoadxSTP = self.DistrLoad_x4.text()
+        self.myStru.DistrLoadx          = self.DistrLoad_x1.text()
+        self.myStru.DistrLoadxL         = self.DistrLoad_x2.text()
+        self.myStru.DistrLoadxU         = self.DistrLoad_x3.text()
+        self.myStru.DistrLoadxSTP       = self.DistrLoad_x4.text()
         
-        self.myStru.TwstSclF = self.TwstF1.text()
-        self.myStru.TwstSclFL = self.TwstF2.text()
-        self.myStru.TwstSclFU = self.TwstF3.text()
-        self.myStru.TwstSclFSTP = self.TwstF4.text()
+        self.myStru.TwstSclF            = self.TwstF1.text()
+        self.myStru.TwstSclFL           = self.TwstF2.text()
+        self.myStru.TwstSclFU           = self.TwstF3.text()
+        self.myStru.TwstSclFSTP         = self.TwstF4.text()
         # system: TACS
-        self.myStru.ThickSclF1 = self.TF1.text()
-        self.myStru.ThickSclF1L = self.TF2.text()
-        self.myStru.ThickSclF1U = self.TF3.text()
-        self.myStru.ThickSclF1STP = self.TF4.text()
+        self.myStru.ThickSclF1          = self.TF1.text()
+        self.myStru.ThickSclF1L         = self.TF2.text()
+        self.myStru.ThickSclF1U         = self.TF3.text()
+        self.myStru.ThickSclF1STP       = self.TF4.text()
         
-        self.myStru.ThickSclF2 = self.TFF1.text()
-        self.myStru.ThickSclF2L = self.TFF2.text()
-        self.myStru.ThickSclF2U = self.TFF3.text()
-        self.myStru.ThickSclF2STP = self.TFF4.text()
+        self.myStru.ThickSclF2          = self.TFF1.text()
+        self.myStru.ThickSclF2L         = self.TFF2.text()
+        self.myStru.ThickSclF2U         = self.TFF3.text()
+        self.myStru.ThickSclF2STP       = self.TFF4.text()
         
-        self.myStru.ThickSclF3 = self.TFFF1.text()
-        self.myStru.ThickSclF3L = self.TFFF2.text()
-        self.myStru.ThickSclF3U = self.TFFF3.text()
-        self.myStru.ThickSclF3STP = self.TFFF4.text()
-        #
-        self.myStru.BeamResponse = self.BeamResponse.currentText()
-        self.myStru.TACSResponse = self.TACSResponse.currentText()
-        # HPC parameters
-        # self.output=""
-        self.myStru.Username        = str(self.Username.text())
-        self.myStru.Server          = str(self.server.text())
-        self.myStru.HPCPath         = str(self.Dir.text())
+        self.myStru.ThickSclF3          = self.TFFF1.text()
+        self.myStru.ThickSclF3L         = self.TFFF2.text()
+        self.myStru.ThickSclF3U         = self.TFFF3.text()
+        self.myStru.ThickSclF3STP       = self.TFFF4.text()
+        # response
+        self.myStru.BeamResponse        = self.BeamResponse.currentText()
+        self.myStru.TACSResponse        = self.TACSResponse.currentText()
+        # Optimization
+        self.myStru.Contraints          = self.Cst.currentText()
+        self.myStru.ContraintSymbol     = self.Cst_s.currentText()
+        self.myStru.ContraintValue      = self.Cst_v.text()
+        self.myStru.Optimizer           = self.Optimizer.currentText()
+        self.myStru.Display             = self.Display.currentText()
+        self.myStru.Iterations          = self.Iterations.text()
+        self.myStru.Tolerane            = self.Tolerane.text()
 
-  
     # ============== Caller functions: gather params from the GUI and calls specific function ==================
     def StructralSolverUI(self):
         self.readFromUI()
@@ -169,13 +174,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             print("NREL5MW BeamDyn model loaded from library for Paraetric sweep: "+ self.myStru.workingmodel)
         if self.myStru.Solver == "TACS" and self.myStru.Modelselection == "DTU10MW":
             self.myStru.workingmodel == self.myStru.DTU10MWTACS                    # should from yaml         
-            print("DTU10MW TACS model loaded from library for Paraetric sweep of eigen analysis: "+ self.myStru.workingmodel) 
+            print("DTU10MW TACS model loaded from library for Paraetric sweep: "+ self.myStru.workingmodel) 
         if self.myStru.Solver == "TACS" and self.myStru.Modelselection == "NREL5MW":
             raise ValueError("Model Mot implemented yet implemented for TACS!")
         if self.myStru.Modelselection == "User_Model":
             raise ValueError("Function not yet implemented!")
         
-    def caller_LocalRunBeamDyn(self):
+    def caller_LocalRun(self):
         self.myStru.setDefaultValues()
         self.readFromUI()
         if  self.myStru.Solver == "BeamDyn":
@@ -203,28 +208,14 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                         self.myStru.LocalRun()
                         self.myStru.postprocessBeamDyn()
                     self.myStru.TwstSclFCV = self.myStru.TwstSclF
-        self.myStru.sweep = sweep    
-    
-    def caller_BeamDynPlot(self):
-        self.readFromUI()
-        # plot
-        if self.myStru.BeamResponse == "RootFxr_max":
-             plt.plot(self.myStru.sweep,self.myStru.RootFxr_max,'r-s')
-        if self.myStru.BeamResponse == "RootFyr_max":
-             plt.plot(self.myStru.sweep,self.myStru.RootFyr_max,'r-s')
-        if self.myStru.BeamResponse == "RootMxr_max":
-             plt.plot(self.myStru.sweep,self.myStru.RootMxr_max,'r-s')
-        if self.myStru.BeamResponse == "RootMyr_max":
-             plt.plot(self.myStru.sweep,self.myStru.RootMyr_max,'r-s')
-        if self.myStru.BeamResponse == "TipTDxr_max":
-             plt.plot(self.myStru.sweep,self.myStru.TipTDxr_max,'r-s')
-        if self.myStru.BeamResponse == "TipTDyr_max":
-             plt.plot(self.myStru.sweep,self.myStru.TipTDyr_max,'r-s')   
-        plt.show()
-    
-    def caller_LocalRunTACS(self):
+        # TACS running updated
         if  self.myStru.Solver == "TACS":
-            self.frequency = []
+            T=self.myStru.T
+            self.Response = []
+            if str(self.myStru.TACSResponse)=="KSFailure":
+                ResItem = ["USkinKSFailure"]
+            if str(self.myStru.TACSResponse)=="Mass_bld":
+                ResItem = ["TotalMass"]
             if self.RB42.isChecked():
                 sweep = np.arange(float(self.myStru.ThickSclF1L),float(self.myStru.ThickSclF1U),float(self.myStru.ThickSclF1STP))
                 for i in range(len(sweep)):
@@ -234,10 +225,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                     self.myStru.thickness.extend(ones*self.myStru.ThickSclF1CV)
                     self.myStru.thickness.extend(ones*self.myStru.ThickSclF2CV)
                     self.myStru.thickness.extend(ones*self.myStru.ThickSclF3CV)
-                    TACS = TACSParams(self.myStru.DTU10MWTACS,self.myStru.thickness)
-                    TACS.Frequencyanalysis(9)
-                    frequency= TACS.Modeextractiion()
-                    self.frequency.append(frequency)
+                    TACS = TACSParams(self.myStru.DTU10MWTACS,self.myStru.thickness*np.array(T))
+                    Res, Res_dot = TACS.StructuralAnalysis(ResItem)
+                    self.Response.append(Res[ResItem[0]])
                 self.myStru.ThickSclF1CV = self.myStru.ThickSclF1
             if self.RB52.isChecked():
                 sweep = np.arange(float(self.myStru.ThickSclF2L),float(self.myStru.ThickSclF2U),float(self.myStru.ThickSclF2STP))
@@ -248,10 +238,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                     self.myStru.thickness.extend(ones*self.myStru.ThickSclF1CV)
                     self.myStru.thickness.extend(ones*self.myStru.ThickSclF2CV)
                     self.myStru.thickness.extend(ones*self.myStru.ThickSclF3CV)
-                    TACS = TACSParams(self.myStru.DTU10MWTACS,self.myStru.thickness)
-                    TACS.Frequencyanalysis(9)
-                    frequency = TACS.Modeextractiion()
-                    self.frequency.append(frequency)
+                    TACS = TACSParams(self.myStru.DTU10MWTACS,self.myStru.thickness*np.array(T))
+                    Res, Res_dot = TACS.StructuralAnalysis(ResItem)
+                    self.Response.append(Res[ResItem[0]])
                 self.myStru.ThickSclF2CV = self.myStru.ThickSclF2
             if self.RB62.isChecked():
                 sweep = np.arange(float(self.myStru.ThickSclF3L),float(self.myStru.ThickSclF3U),float(self.myStru.ThickSclF3STP))
@@ -262,38 +251,104 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                     self.myStru.thickness.extend(ones*self.myStru.ThickSclF1CV)
                     self.myStru.thickness.extend(ones*self.myStru.ThickSclF2CV)
                     self.myStru.thickness.extend(ones*self.myStru.ThickSclF3CV)
-                    TACS = TACSParams(self.myStru.DTU10MWTACS,self.myStru.thickness)
-                    TACS.Frequencyanalysis(9)
-                    frequency = TACS.Modeextractiion()
-                    self.frequency.append(frequency)
+                    TACS = TACSParams(self.myStru.DTU10MWTACS,self.myStru.thickness*np.array(T))
+                    Res, Res_dot = TACS.StructuralAnalysis(ResItem)
+                    self.Response.append(Res[ResItem[0]])
                 self.myStru.ThickSclF3CV = self.myStru.ThickSclF3
         self.myStru.sweep = sweep 
-    def caller_TACSPlot(self):
+    
+    def caller_Plot(self):
         self.readFromUI()
-        # plot
-        frequency = []
-        if self.myStru.TACSResponse == "NaturalFrequency1":
-            for i in self.frequency:
-                frequency.append(i[0])
-            plt.plot(self.myStru.sweep,frequency,'r-s')
-        if self.myStru.TACSResponse == "NaturalFrequency2":
-            for i in self.frequency:
-                frequency.append(i[1])
-            plt.plot(self.myStru.sweep,frequency,'r-s')
-        if self.myStru.TACSResponse == "NaturalFrequency3":
-            for i in self.frequency:
-                frequency.append(i[2])
-            plt.plot(self.myStru.sweep,frequency,'r-s')   
-        plt.show()
-    
-    def caller_SendToHPCf(self):
-        pass
-    
-    def caller_HPCloadf(self):
-        pass
-    
+        if  self.myStru.Solver == "BeamDyn":
+            # plot
+            if self.myStru.BeamResponse == "RootFxr_max":
+                 plt.plot(self.myStru.sweep,self.myStru.RootFxr_max,'r-s')
+            if self.myStru.BeamResponse == "RootFyr_max":
+                 plt.plot(self.myStru.sweep,self.myStru.RootFyr_max,'r-s')
+            if self.myStru.BeamResponse == "RootMxr_max":
+                 plt.plot(self.myStru.sweep,self.myStru.RootMxr_max,'r-s')
+            if self.myStru.BeamResponse == "RootMyr_max":
+                 plt.plot(self.myStru.sweep,self.myStru.RootMyr_max,'r-s')
+            if self.myStru.BeamResponse == "TipTDxr_max":
+                 plt.plot(self.myStru.sweep,self.myStru.TipTDxr_max,'r-s')
+            if self.myStru.BeamResponse == "TipTDyr_max":
+                 plt.plot(self.myStru.sweep,self.myStru.TipTDyr_max,'r-s')   
+            plt.show()
+        # TACS plot
+        if  self.myStru.Solver == "TACS":
+            plt.plot(self.myStru.sweep,self.Response,'r-s')  
+            plt.show()
+    def SetContraintdefault(self):
+        self.readFromUI()
+        constraint = str(self.myStru.Contraints)
+        print("Current Constraint:"+constraint)
+        if constraint == "TACS_KSFailure":
+            self.Cst_v.setText(str(self.myStru.ContraintValueKSF))         
+        if constraint == "TACS_Mass_bld":
+            self.Cst_v.setText(str(self.myStru.ContraintValueBldM))   
+    def caller_Optimization(self):
+        self.myStru.setDefaultValues()
+        self.readFromUI()
+        if self.myStru.Solver == "TACS":
+            prob = om.Problem()
+            MDAOObj = StructMDAOom()
+            prob.model.add_subsystem('p', MDAOObj)
+            # Default thickness values along the span
+            T=self.myStru.T
+            # Tacs parameterization for blade
+            if self.RB43.isChecked():
+                # Update first segment
+                prob.model.add_design_var('p.Thick1', lower= float(self.myStru.ThickSclF1L)*T[0], upper = float(self.myStru.ThickSclF1U)*T[0])
+                prob.model.add_design_var('p.Thick2', lower= float(self.myStru.ThickSclF1L)*T[1], upper = float(self.myStru.ThickSclF1U)*T[1])
+                prob.model.add_design_var('p.Thick3', lower= float(self.myStru.ThickSclF1L)*T[2], upper = float(self.myStru.ThickSclF1U)*T[2])
+            if self.RB53.isChecked():
+                # Update second segment
+                prob.model.add_design_var('p.Thick4', lower= float(self.myStru.ThickSclF2L)*T[3], upper = float(self.myStru.ThickSclF2U)*T[3])
+                prob.model.add_design_var('p.Thick5', lower= float(self.myStru.ThickSclF2L)*T[4], upper = float(self.myStru.ThickSclF2U)*T[4])
+                prob.model.add_design_var('p.Thick6', lower= float(self.myStru.ThickSclF2L)*T[5], upper = float(self.myStru.ThickSclF2U)*T[5])
+            if self.RB63.isChecked():
+                # Update third segment
+                prob.model.add_design_var('p.Thick7', lower= float(self.myStru.ThickSclF3L)*T[6], upper = float(self.myStru.ThickSclF3U)*T[6])
+                prob.model.add_design_var('p.Thick8', lower= float(self.myStru.ThickSclF3L)*T[7], upper = float(self.myStru.ThickSclF3U)*T[7])
+                prob.model.add_design_var('p.Thick9', lower= float(self.myStru.ThickSclF3L)*T[8], upper = float(self.myStru.ThickSclF3U)*T[8])
+            
+            if self.myStru.TACSResponse == "KSFailure":
+                prob.model.add_objective('p.USkinKSFailure')
+            if self.myStru.TACSResponse == "Mass_bld":
+                prob.model.add_objective('p.Mass')
+            # Constraint
+            if self.Cst.currentText() == "TACS_KSFailure" and self.Cst_s.currentText() == "<=":
+                prob.model.add_constraint('p.USkinKSFailure', upper=float(self.myStru.ContraintValue))
+            if self.Cst.currentText() == "TACS_Mass_bld" and self.Cst_s.currentText() == "<=":
+                prob.model.add_constraint('p.Mass', upper=float(self.myStru.ContraintValue))
+                
+            # Driver setup
+            driver = prob.driver = om.ScipyOptimizeDriver(optimizer=self.myStru.Optimizer, tol=float(self.myStru.Tolerane))
+            driver.options['maxiter'] = int(self.myStru.Iterations)
+            if self.myStru.Display == "True":
+                driver.options['disp'] = True
+            else:
+                driver.options['disp'] = False
+            
+            driver.recording_options['includes'] = ['*']
+            driver.recording_options['record_objectives'] = True
+            driver.recording_options['record_constraints'] = True
+            driver.recording_options['record_desvars'] = True
+            driver.recording_options['record_inputs'] = True
+            driver.recording_options['record_outputs'] = True
+            driver.recording_options['record_residuals'] = True
+            
+            recorder = om.SqliteRecorder("cases.sql")
+            driver.add_recorder(recorder)
         
-        
+            prob.setup()
+            prob.run_driver()
+            # Extract retuls
+            desvar_nd = prob.driver.desvar_nd
+            nd_obj = prob.driver.obj_nd
+            print('Optimal design:'+desvar_nd)
+            print('Optimal response:'+nd_obj)
+   
 if __name__=='__main__':
     
     app = QtWidgets.QApplication(sys.argv)

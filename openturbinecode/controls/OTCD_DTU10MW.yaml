@@ -35,6 +35,7 @@ turbine_params:
 BModes_params:
   BModes_directory: '/home/seager/Downloads/CCD_controller/Source/DTU10MWAero15/DTU10MW_ModeTracking'                   # Path for BModes analysis: Preconditions: BModes installed in system
   BModes_InputFile: 'DTU10MWBlade.bmi'                                                                                  # Main input file for BModes
+  BModes_exe: '/home/seager/Downloads/CCD_controller/Source/Modetracking/BModes-master/install/bin/bmodes'                   # Path for BModes analysis: Preconditions: BModes installed in system
 # -------------------------------- Blade_mass property ----------------------------------- 
 Bld_mass:
   Bldmass_ref:       41732.347                # Blade mass of baseline model[kg]

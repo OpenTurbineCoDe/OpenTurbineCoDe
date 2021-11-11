@@ -35,33 +35,68 @@ from openturbinecode.controls.tacs_setup import setup_DTU10MW
 # ==============================================================================
 class TACSParams:
     def __init__(self,Tacsfile,thicknesses):
-        # thicknesses a list contain 9 scale factors for the 9 stations
+        # thicknesses: a list contain 9 scale factors for the 9 stations
         self.thicknesses = thicknesses
         self.ThickScaling()
         self.bdffile = Tacsfile
-        self.FEASolver = setup_DTU10MW.setup(self.bdffile,self.tsn,self.ts,self.tw,self.to)
+        self.FEASolver = setup_DTU10MW.setup(self.bdffile,self.ts)
     def ThickScaling(self):
-        ts11 = [42,46,40,35,28,25,18,12,10]  # leadings
-        ts1=[float(d)*0.001 for d in ts11]
-        ts21 = [38,60,78,82,82,76,60,42,20]  # caps
-        ts2=[float(d)*0.001 for d in ts21]
-        ts31 = [40,70,80,70,66,58,40,30,18]  # trailing
-        ts3=[float(d)*0.001 for d in ts31]
-        # to = ts3   # Assume training = Web c
-        # distributed thicknesses
-        tsn1 = [42,46,40,35,28,25,18,12,10] # the nose thickness distribution along the span at 9 stations
-        tsn=[float(d)*0.001 for d in tsn1]
-        # ts = [ts1,ts2,ts3]  # leading->trailing
-        tw1 = [64,60,58,50,38,28,20,16,10]  # web
-        tw=[float(d)*0.001 for d in tw1]
-        self.tsn = np.multiply(tsn, self.thicknesses).tolist()
-        self.ts1 = np.multiply(ts1, self.thicknesses).tolist()
-        self.ts2 = np.multiply(ts2, self.thicknesses).tolist()
-        self.ts3 = np.multiply(ts3, self.thicknesses).tolist()
-        self.ts = [self.ts1,self.ts2,self.ts3]
-        self.tw = np.multiply(tw, self.thicknesses).tolist()
-        self.to = self.ts3
+        # Scaling to mm
+        self.ts = [float(d)*0.001 for d in self.thicknesses]
+        # scaling to a specified vector at each station
+        # ts11 = [42,46,40,35,28,25,18,12,10]  # leadings
+        # ts1=[float(d)*0.001 for d in ts11]
+        # ts21 = [38,60,78,82,82,76,60,42,20]  # caps
+        # ts2=[float(d)*0.001 for d in ts21]
+        # ts31 = [40,70,80,70,66,58,40,30,18]  # trailing
+        # ts3=[float(d)*0.001 for d in ts31]
+        # # to = ts3   # Assume training = Web c
+        # # distributed thicknesses
+        # tsn1 = [42,46,40,35,28,25,18,12,10] # the nose thickness distribution along the span at 9 stations
+        # tsn=[float(d)*0.001 for d in tsn1]
+        # # ts = [ts1,ts2,ts3]  # leading->trailing
+        # tw1 = [64,60,58,50,38,28,20,16,10]  # web
+        # tw=[float(d)*0.001 for d in tw1]
+        # self.tsn = np.multiply(tsn, self.thicknesses).tolist()
+        # self.ts1 = np.multiply(ts1, self.thicknesses).tolist()
+        # self.ts2 = np.multiply(ts2, self.thicknesses).tolist()
+        # self.ts3 = np.multiply(ts3, self.thicknesses).tolist()
+        # self.ts = [self.ts1,self.ts2,self.ts3]
+        # self.tw = np.multiply(tw, self.thicknesses).tolist()
+        # self.to = self.ts3
+    
+    # define structural analysis function
+    def StructuralAnalysis(self, evalFunclist):
+        FEASolver = self.FEASolver
+        # sp = StructProblem("aeroload", loadFile="force_allwalls_L3.txt", evalFuncs = FEASolver.functionList.keys())
+        sp = StructProblem("aeroload", evalFuncs = FEASolver.functionList.keys())
+        # Add inertial (gravity) loads
+        FEASolver.addInertialLoad(sp)
         
+        # Add tip load
+        FEASolver.addPointLoads(sp,[0,0,80],[[100000.,0,0]],[[0,0,0]])
+        
+        FEASolver(sp)
+        # Evaluate the functions and save data to 'funcs'
+        funcs = {}
+        FEASolver.evalFunctions(sp, funcs)
+        
+        # assgin response for return
+        response = {}
+        for func in evalFunclist:
+            funcName = sp.name+'_'+func
+            response[func] = funcs[funcName]
+        # Evaluate the functions sensitivity and save data to 'funcsSens'
+        funcsSens = {}
+        FEASolver.evalFunctionsSens(sp, funcsSens)
+        
+        # Sensitivity of response to variables
+        response_dot = {}
+        for func in evalFunclist:
+            funcName = sp.name+'_'+func
+            response_dot[func] = funcsSens[funcName]['struct']
+        return response, response_dot  
+    
     def Frequencyanalysis(self,N):
         FEASolver=self.FEASolver
         sigma = 200
@@ -146,14 +181,55 @@ class TACSParams:
 if __name__=="__main__":
     # initialize
     #%%
-    Thicks = [1.,1.,1.,1.,1.,1.,1.,1.,1.] # mm
+    Thicks = [42,46,40,35,28,25,18,12,10] # scaling factor
+    # TacsFile = 'tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf'
     TacsFile = 'tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf'
-    TACSsolver = TACSParams(TacsFile, Thicks)
+    evalFunclist = ['LSkinKSFailure','USkinKSFailure','TotalMass']
+    var = [30.0] #np.arange(Thicks[0]*0.5,Thicks[0]*1.5,1)
+    Response = {}
+    Response_d = {}
+    for i in range(len(var)):
+        Thicks[0] = var[i]
+        TACSsolver = TACSParams(TacsFile, Thicks)
+        FunRes, FunRes_d = TACSsolver.StructuralAnalysis(evalFunclist)
+        Response['VarThick'+str(i)] = FunRes
+        Response_d['VarThick'+str(i)] = FunRes_d
+    #%% plot
+    pltRes = []
+    pltRes_d = []
+    for i in range(len(var)):
+        tempres = []
+        temtes_d = []
+        for j in range(3):
+            tempres.append(Response['VarThick'+str(i)][evalFunclist[j]])
+            temtes_d.append(Response_d['VarThick'+str(i)][evalFunclist[j]][0])
+        pltRes.append(tempres)
+        pltRes_d.append(temtes_d)
+        
+    import matplotlib.pyplot as plt
+    pltRes = np.array(pltRes)
+    pltRes_d = np.array(pltRes_d)
+    
+    plt.figure(1,dpi=300,figsize=[8,4])
+    for i in range(3):
+        plt.subplot(2,3,i+1)
+        plt.plot(var,pltRes[:,i],'k-s')
+        plt.xlabel('T1 (mm)')
+        plt.ylabel(evalFunclist[i])
+    units = ['mm^{-1}','mm^{-1}','kg/mm']
+    for i in range(3):
+        plt.subplot(2,3,i+4)
+        plt.plot(var,pltRes_d[:,i],'k-s')
+        plt.xlabel('T1 (mm)')
+        plt.ylabel(r"$\delta {}({})$".format(evalFunclist[i], units[i]))
+
+    plt.tight_layout()
+    # plt.savefig('/home/seager/Desktop/ForQ6Presentation/Res-Sens_T1.png', bbox_inches='tight')
     #%%
-    N=9
-    TACSsolver.Frequencyanalysis(N) # N: number of modes for computation
-    freqValueN = TACSsolver.Modeextractiion()
-    bldeMass, sens_Mass2Thick = TACSsolver.extractMassstiffness()
+    # N=9
+    # TACSsolver.Frequencyanalysis(N) # N: number of modes for computation
+    # freqValueN = TACSsolver.Modeextractiion()
+    # bldeMass, sens_Mass2Thick = TACSsolver.extractMassstiffness()
 
     
     

@@ -61,7 +61,8 @@ class Structural:
             self.turb_data = io.load_yaml(turb_yaml)
 
         #TODO: read the parameters inside turb_yaml to fill all the following variables (if approprate):
-
+            # Default thickness distribution along blade span
+        self.T = [42.,46.,40.,35.,28.,25.,18.,12.,10.]
         # system: BeamDyn
         self.TipLoadx = self.TipLoadxCV = 1.0
         self.TipLoadxL = 0.5
@@ -93,17 +94,23 @@ class Structural:
         self.ThickSclF3U = 1.5
         self.ThickSclF3STP = 0.5
         
-        # HPC
-        self.Username = "xd101"
-        self.Server   = "amarel.rutgers.edu"
-        self.HPCPath  = "/scratch/xd101/Subroutine-Structural"
-        # response
+        # HPC setup
+        # self.Username = "xd101"
+        # self.Server   = "amarel.rutgers.edu"
+        # self.HPCPath  = "/scratch/xd101/Subroutine-Structural"
+        # Response of BeamDyn
         self.RootFxr_max = []
         self.RootFyr_max = []
         self.RootMxr_max = []
         self.RootMyr_max = []
         self.TipTDxr_max = []
         self.TipTDyr_max = []
+        
+        self.ContraintValueKSF              = 0.3
+        self.ContraintValueBldM             = 163432.3  # single blade
+        # Optimization parameters
+        self.Iterations                     = 10
+        self.Tolerane                       = 1e-6
             
     def setPathToCase(self,path_to_case):    
         self.path_to_case = path_to_case
