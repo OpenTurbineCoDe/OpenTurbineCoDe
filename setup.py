@@ -3,6 +3,8 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+pkg = setuptools.find_packages()
+
 setuptools.setup(
     name="OpenTurbineCoDe",
     version="0.0.2",
@@ -38,18 +40,6 @@ setuptools.setup(
     "openturbinecode.aerostructural": ["Config.ui"],
     "openturbinecode.controls": ["ConfigControl_v3.ui"],
     "openturbinecode.aerodynamics": ["Config.ui"]},
-    packages=[
-        "openturbinecode",
-        "openturbinecode.aerodynamics",
-        "openturbinecode.aerostructural",
-        "openturbinecode.controls",
-        "openturbinecode.master_GUI",
-        "openturbinecode.prepro",
-        "openturbinecode.structure",
-        "openturbinecode.utils",
-        "openturbinecode.DLC_manager",
-        "openturbinecode.meshing",
-        "openturbinecode.sample_module",
-    ],
+    packages=pkg,
     python_requires=">=3.6",
 )
