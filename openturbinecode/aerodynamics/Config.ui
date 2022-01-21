@@ -482,850 +482,705 @@
      </property>
      <widget class="QWidget" name="tab_13">
       <attribute name="title">
-       <string>Parametric sweep</string>
+       <string>Low Fidelity</string>
       </attribute>
-      <widget class="QStackedWidget" name="stackedWidget_2">
+      <widget class="QFrame" name="frame_9">
        <property name="geometry">
         <rect>
-         <x>20</x>
+         <x>40</x>
          <y>20</y>
-         <width>481</width>
-         <height>361</height>
+         <width>471</width>
+         <height>241</height>
         </rect>
        </property>
-       <property name="currentIndex">
-        <number>1</number>
+       <property name="autoFillBackground">
+        <bool>false</bool>
        </property>
-       <widget class="QWidget" name="MidFidelity_2">
-        <widget class="QFrame" name="frame_7">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>471</width>
-           <height>421</height>
-          </rect>
-         </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
-         </property>
-         <widget class="QLabel" name="label_31">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>30</y>
-            <width>231</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-            <underline>true</underline>
-           </font>
-          </property>
-          <property name="text">
-           <string>Adflow</string>
-          </property>
-         </widget>
-         <widget class="QFrame" name="frame_8">
-          <property name="geometry">
-           <rect>
-            <x>30</x>
-            <y>210</y>
-            <width>371</width>
-            <height>181</height>
-           </rect>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <widget class="QPushButton" name="pushButton_9">
-           <property name="geometry">
-            <rect>
-             <x>190</x>
-             <y>120</y>
-             <width>171</width>
-             <height>51</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Send files to HPC</string>
-           </property>
-          </widget>
-          <widget class="QLineEdit" name="lineEdit_22">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>40</y>
-             <width>91</width>
-             <height>20</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QLineEdit" name="lineEdit_23">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>90</y>
-             <width>351</width>
-             <height>20</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_37">
-           <property name="geometry">
-            <rect>
-             <x>180</x>
-             <y>20</y>
-             <width>131</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Server </string>
-           </property>
-          </widget>
-          <widget class="QLineEdit" name="lineEdit_24">
-           <property name="geometry">
-            <rect>
-             <x>180</x>
-             <y>40</y>
-             <width>181</width>
-             <height>20</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_38">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>70</y>
-             <width>151</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Destination in HPC</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_39">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>20</y>
-             <width>81</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>User name</string>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="pushButton_10">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>120</y>
-             <width>171</width>
-             <height>51</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Generate case files</string>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_20">
-          <property name="geometry">
-           <rect>
-            <x>140</x>
-            <y>60</y>
-            <width>261</width>
-            <height>31</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_39">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>60</y>
-            <width>111</width>
-            <height>31</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Load mesh</string>
-          </property>
-         </widget>
-        </widget>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <widget class="QPushButton" name="plot_cp">
+        <property name="geometry">
+         <rect>
+          <x>310</x>
+          <y>160</y>
+          <width>151</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Plot Cp</string>
+        </property>
        </widget>
-       <widget class="QWidget" name="LowFidelity_2">
-        <widget class="QFrame" name="frame_9">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>471</width>
-           <height>241</height>
-          </rect>
-         </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
-         </property>
-         <widget class="QProgressBar" name="progressBar_2">
-          <property name="geometry">
-           <rect>
-            <x>190</x>
-            <y>90</y>
-            <width>271</width>
-            <height>31</height>
-           </rect>
-          </property>
-          <property name="value">
-           <number>24</number>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="plot_cp">
-          <property name="geometry">
-           <rect>
-            <x>310</x>
-            <y>160</y>
-            <width>151</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Plot Cp</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="runAerodyn">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>90</y>
-            <width>151</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Run simulation</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="plot_thrust">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>160</y>
-            <width>151</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Plot Thrust</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="plot_torque">
-          <property name="geometry">
-           <rect>
-            <x>160</x>
-            <y>160</y>
-            <width>151</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Plot Torque</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="setFolderStruct_button">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>171</width>
-            <height>41</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Set working folder in:</string>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="str_pathToCase">
-          <property name="geometry">
-           <rect>
-            <x>180</x>
-            <y>20</y>
-            <width>281</width>
-            <height>31</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
+       <widget class="QPushButton" name="runAerodyn">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>90</y>
+          <width>151</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Run simulation</string>
+        </property>
        </widget>
-       <widget class="QWidget" name="Default_2">
-        <widget class="QFrame" name="frame_10">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>0</y>
-           <width>471</width>
-           <height>361</height>
-          </rect>
-         </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
-         </property>
-         <widget class="QLabel" name="label_44">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>30</y>
-            <width>231</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-            <underline>true</underline>
-           </font>
-          </property>
-          <property name="text">
-           <string>turbinesFoam simulation</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_45">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>100</y>
-            <width>131</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>End time</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_46">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>130</y>
-            <width>131</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Write interval</string>
-          </property>
-         </widget>
-         <widget class="QComboBox" name="comboBox_14">
-          <property name="geometry">
-           <rect>
-            <x>260</x>
-            <y>160</y>
-            <width>161</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <item>
-           <property name="text">
-            <string>off</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>on</string>
-           </property>
-          </item>
-         </widget>
-         <widget class="QLabel" name="label_47">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>160</y>
-            <width>131</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Dynamic stall</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_48">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>190</y>
-            <width>131</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>End effects model</string>
-          </property>
-         </widget>
-         <widget class="QComboBox" name="comboBox_15">
-          <property name="geometry">
-           <rect>
-            <x>260</x>
-            <y>190</y>
-            <width>161</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <item>
-           <property name="text">
-            <string>Shen</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Glauert</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>liftingLine</string>
-           </property>
-          </item>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_28">
-          <property name="geometry">
-           <rect>
-            <x>260</x>
-            <y>130</y>
-            <width>161</width>
-            <height>20</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_29">
-          <property name="geometry">
-           <rect>
-            <x>260</x>
-            <y>100</y>
-            <width>161</width>
-            <height>20</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QLabel" name="label_49">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>70</y>
-            <width>151</width>
-            <height>17</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <italic>true</italic>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Set case folder</string>
-          </property>
-         </widget>
-         <widget class="QLineEdit" name="lineEdit_30">
-          <property name="geometry">
-           <rect>
-            <x>160</x>
-            <y>70</y>
-            <width>261</width>
-            <height>20</height>
-           </rect>
-          </property>
-         </widget>
-         <widget class="QFrame" name="frame_11">
-          <property name="geometry">
-           <rect>
-            <x>50</x>
-            <y>230</y>
-            <width>371</width>
-            <height>121</height>
-           </rect>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <widget class="QPushButton" name="pushButton_15">
-           <property name="geometry">
-            <rect>
-             <x>190</x>
-             <y>120</y>
-             <width>171</width>
-             <height>51</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Send files to HPC</string>
-           </property>
-          </widget>
-          <widget class="QLineEdit" name="lineEdit_31">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>40</y>
-             <width>91</width>
-             <height>20</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QLineEdit" name="lineEdit_32">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>90</y>
-             <width>351</width>
-             <height>20</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_51">
-           <property name="geometry">
-            <rect>
-             <x>180</x>
-             <y>20</y>
-             <width>131</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Server </string>
-           </property>
-          </widget>
-          <widget class="QLineEdit" name="lineEdit_33">
-           <property name="geometry">
-            <rect>
-             <x>180</x>
-             <y>40</y>
-             <width>181</width>
-             <height>20</height>
-            </rect>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_52">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>70</y>
-             <width>151</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Destination in HPC</string>
-           </property>
-          </widget>
-          <widget class="QLabel" name="label_53">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>20</y>
-             <width>81</width>
-             <height>17</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>User name</string>
-           </property>
-          </widget>
-          <widget class="QPushButton" name="pushButton_18">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>120</y>
-             <width>171</width>
-             <height>51</height>
-            </rect>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Generate case files</string>
-           </property>
-          </widget>
-         </widget>
-        </widget>
+       <widget class="QPushButton" name="plot_thrust">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>160</y>
+          <width>151</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Plot Thrust</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="plot_torque">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>160</y>
+          <width>151</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Plot Torque</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="setFolderStruct_button">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>171</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Set working folder in:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="str_pathToCase">
+        <property name="geometry">
+         <rect>
+          <x>180</x>
+          <y>20</y>
+          <width>281</width>
+          <height>31</height>
+         </rect>
+        </property>
        </widget>
       </widget>
      </widget>
      <widget class="QWidget" name="tab_14">
       <attribute name="title">
-       <string>Optimization</string>
+       <string>Medium Fidelity</string>
       </attribute>
+      <widget class="QFrame" name="frame_12">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>20</y>
+         <width>471</width>
+         <height>361</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <widget class="QLabel" name="label_50">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>231</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+          <underline>true</underline>
+         </font>
+        </property>
+        <property name="text">
+         <string>turbinesFoam simulation</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_54">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>100</y>
+          <width>131</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>End time</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_55">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>130</y>
+          <width>131</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Write interval</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox_16">
+        <property name="geometry">
+         <rect>
+          <x>260</x>
+          <y>160</y>
+          <width>161</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <item>
+         <property name="text">
+          <string>off</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>on</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QLabel" name="label_56">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>160</y>
+          <width>131</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Dynamic stall</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_57">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>190</y>
+          <width>131</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>End effects model</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox_17">
+        <property name="geometry">
+         <rect>
+          <x>260</x>
+          <y>190</y>
+          <width>161</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <item>
+         <property name="text">
+          <string>Shen</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Glauert</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>liftingLine</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_34">
+        <property name="geometry">
+         <rect>
+          <x>260</x>
+          <y>130</y>
+          <width>161</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_35">
+        <property name="geometry">
+         <rect>
+          <x>260</x>
+          <y>100</y>
+          <width>161</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_58">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>70</y>
+          <width>151</width>
+          <height>17</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Set case folder</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_36">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>70</y>
+          <width>261</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QFrame" name="frame_13">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>230</y>
+          <width>371</width>
+          <height>121</height>
+         </rect>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <widget class="QPushButton" name="pushButton_16">
+         <property name="geometry">
+          <rect>
+           <x>190</x>
+           <y>120</y>
+           <width>171</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Send files to HPC</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEdit_37">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>40</y>
+           <width>91</width>
+           <height>20</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEdit_38">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>90</y>
+           <width>351</width>
+           <height>20</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_59">
+         <property name="geometry">
+          <rect>
+           <x>180</x>
+           <y>20</y>
+           <width>131</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Server </string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEdit_39">
+         <property name="geometry">
+          <rect>
+           <x>180</x>
+           <y>40</y>
+           <width>181</width>
+           <height>20</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_60">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>151</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Destination in HPC</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_61">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>81</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>User name</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_19">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>120</y>
+           <width>171</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Generate case files</string>
+         </property>
+        </widget>
+       </widget>
+      </widget>
      </widget>
-    </widget>
-    <widget class="QWidget" name="widget_7" native="true">
-     <property name="geometry">
-      <rect>
-       <x>530</x>
-       <y>350</y>
-       <width>471</width>
-       <height>241</height>
-      </rect>
-     </property>
-     <widget class="QLabel" name="label_9">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>251</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>14</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-        <underline>true</underline>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="text">
-       <string>Data handling</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="str_output_folder">
-      <property name="geometry">
-       <rect>
-        <x>210</x>
-        <y>50</y>
-        <width>251</width>
-        <height>31</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_15">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>50</y>
-        <width>121</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Case name</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_75">
-      <property name="geometry">
-       <rect>
-        <x>210</x>
-        <y>30</y>
-        <width>131</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-        <weight>50</weight>
-        <italic>true</italic>
-        <bold>false</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Defines output folder</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="Push_sendtoHPC">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>108</y>
-        <width>161</width>
-        <height>71</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>12</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>Send to 
- HPC</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="whichHPC">
-      <property name="geometry">
-       <rect>
-        <x>210</x>
-        <y>130</y>
-        <width>251</width>
-        <height>31</height>
-       </rect>
-      </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>High Fidelity</string>
+      </attribute>
+      <widget class="QFrame" name="frame_7">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>20</y>
+         <width>471</width>
+         <height>421</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <widget class="QLabel" name="label_31">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>231</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+          <underline>true</underline>
+         </font>
+        </property>
+        <property name="text">
+         <string>Adflow</string>
+        </property>
+       </widget>
+       <widget class="QFrame" name="frame_8">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>110</y>
+          <width>371</width>
+          <height>181</height>
+         </rect>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <widget class="QPushButton" name="pushButton_9">
+         <property name="geometry">
+          <rect>
+           <x>190</x>
+           <y>120</y>
+           <width>171</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Send files to HPC</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEdit_22">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>40</y>
+           <width>91</width>
+           <height>20</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEdit_23">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>90</y>
+           <width>351</width>
+           <height>20</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_37">
+         <property name="geometry">
+          <rect>
+           <x>180</x>
+           <y>20</y>
+           <width>131</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Server </string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEdit_24">
+         <property name="geometry">
+          <rect>
+           <x>180</x>
+           <y>40</y>
+           <width>181</width>
+           <height>20</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_38">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>151</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Destination in HPC</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_39">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>20</y>
+           <width>81</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>User name</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_10">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>120</y>
+           <width>171</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Generate case files</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_20">
+        <property name="geometry">
+         <rect>
+          <x>140</x>
+          <y>60</y>
+          <width>261</width>
+          <height>31</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_39">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>111</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Load mesh</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </widget>
    </widget>
