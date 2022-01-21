@@ -722,22 +722,22 @@
               <string>Twist</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="pitchAngle">
+            <widget class="QLineEdit" name="input_pitchAngle">
              <property name="geometry">
               <rect>
-               <x>340</x>
+               <x>290</x>
                <y>80</y>
-               <width>41</width>
+               <width>91</width>
                <height>31</height>
               </rect>
              </property>
             </widget>
-            <widget class="QLineEdit" name="twist">
+            <widget class="QLineEdit" name="input_twist">
              <property name="geometry">
               <rect>
-               <x>340</x>
+               <x>290</x>
                <y>120</y>
-               <width>251</width>
+               <width>301</width>
                <height>27</height>
               </rect>
              </property>
@@ -762,12 +762,12 @@
               <string>Chord</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="chord">
+            <widget class="QLineEdit" name="input_chord">
              <property name="geometry">
               <rect>
-               <x>340</x>
+               <x>290</x>
                <y>160</y>
-               <width>251</width>
+               <width>301</width>
                <height>27</height>
               </rect>
              </property>
@@ -792,12 +792,12 @@
               <string>Span</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="span">
+            <widget class="QLineEdit" name="input_span">
              <property name="geometry">
               <rect>
-               <x>340</x>
+               <x>290</x>
                <y>280</y>
-               <width>41</width>
+               <width>91</width>
                <height>27</height>
               </rect>
              </property>
@@ -842,22 +842,22 @@
               <string>Sweep</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="chord_2">
+            <widget class="QLineEdit" name="input_thickness">
              <property name="geometry">
               <rect>
-               <x>340</x>
+               <x>290</x>
                <y>200</y>
-               <width>251</width>
+               <width>301</width>
                <height>27</height>
               </rect>
              </property>
             </widget>
-            <widget class="QLineEdit" name="chord_3">
+            <widget class="QLineEdit" name="input_sweep">
              <property name="geometry">
               <rect>
-               <x>340</x>
+               <x>290</x>
                <y>240</y>
-               <width>251</width>
+               <width>301</width>
                <height>27</height>
               </rect>
              </property>
@@ -1106,7 +1106,7 @@
               <string>Optimizer settings</string>
              </property>
             </widget>
-            <widget class="QComboBox" name="comboBox_10">
+            <widget class="QComboBox" name="optimizer_selection">
              <property name="geometry">
               <rect>
                <x>380</x>
@@ -1268,7 +1268,7 @@
               <string>Twist</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="DV_chord">
+            <widget class="QCheckBox" name="DV_Chord">
              <property name="geometry">
               <rect>
                <x>360</x>
@@ -1289,7 +1289,7 @@
               <string>Chord</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="DV_Span">
+            <widget class="QCheckBox" name="DV_Thickness">
              <property name="geometry">
               <rect>
                <x>160</x>
@@ -1388,7 +1388,7 @@
               <rect>
                <x>10</x>
                <y>50</y>
-               <width>171</width>
+               <width>131</width>
                <height>31</height>
               </rect>
              </property>
@@ -1477,7 +1477,7 @@
               <string>Objective</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="checkBox_9">
+            <widget class="QCheckBox" name="obj_torque">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -1498,7 +1498,7 @@
               <string>Torque</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="checkBox_10">
+            <widget class="QCheckBox" name="obj_mass">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -1519,7 +1519,7 @@
               <string>Mass</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="Objective_Torque">
+            <widget class="QLineEdit" name="weight_Torque">
              <property name="geometry">
               <rect>
                <x>270</x>
@@ -1551,7 +1551,7 @@
               <string>Function weights</string>
              </property>
             </widget>
-            <widget class="QLineEdit" name="Objective_Mass">
+            <widget class="QLineEdit" name="weight_Mass">
              <property name="geometry">
               <rect>
                <x>270</x>
