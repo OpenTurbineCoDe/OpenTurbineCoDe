@@ -71,6 +71,24 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.input_sweep.setText(', '.join([str(el) for el in self.myAeroStruct.thickness]))
         self.input_span.setText(str(self.myAeroStruct.span))
 
+        self.output_torque.setChecked(True)
+        self.output_thrust.setChecked(True)
+        self.output_bending.setChecked(True)
+        self.output_mass.setChecked(True)
+        self.output_stress.setChecked(True)
+        self.output_liftdistr.setChecked(True)
+
+        self.DV_twist.setChecked(False)
+        self.DV_thickness.setChecked(False)
+        self.DV_chord.setChecked(False)
+        self.DV_sweep.setChecked(False)
+        self.DV_structThick.setChecked(True)
+
+        self.con_stress.setChecked(True)
+        self.con_displ.setChecked(False)
+        self.con_thrust.setChecked(False)
+
+
         self.obj_torque.setChecked(False)
         self.obj_mass.setChecked(True)
         self.weight_Torque.setText(str(self.myAeroStruct.torqueWeight))
@@ -108,8 +126,25 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         self.myAeroStruct.opt_obj = {'torque':True if self.obj_torque.checkState() == 2 else False,
                                      'mass':True if self.obj_mass.checkState() == 2 else False}
-        print(self.myAeroStruct.opt_obj)
-        quit()
+        
+        self.myAeroStruct.analysis_output = {'torque':True if self.output_torque.checkState() == 2 else False,
+                                            'thrust': True if self.output_thrust.checkState() == 2 else False,
+                                            'bending': True if self.output_bending.checkState() == 2 else False,
+                                            'mass': True if self.output_mass.checkState() == 2 else False,
+                                            'stress': True if self.output_stress.checkState() == 2 else False,
+                                            'lift_distr': True if self.output_liftdistr.checkState() == 2 else False,
+                                            }
+        self.myAeroStruct.opt_dvs = {'twist': True if self.DV_twist.checkState() == 2 else False,
+                                     'thickness': True if self.DV_thickness.checkState() == 2 else False,
+                                     'chord': True if self.DV_chord.checkState() == 2 else False,
+                                     'sweep': True if self.DV_sweep.checkState() == 2 else False,
+                                     'structThick': True if self.DV_structThick.checkState() == 2 else False,
+                                     }
+        self.myAeroStruct.opt_constraints = {'stress': True if self.con_stress.checkState() == 2 else False,
+                                             'displ': True if self.con_displ.checkState() == 2 else False,
+                                             'thrust': True if self.con_thrust.checkState() == 2 else False,}
+
+
 
         # --- Data Handling ---
         self.myAeroStruct.caseToHpc = self.whichHPC.text()

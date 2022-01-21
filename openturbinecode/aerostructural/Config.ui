@@ -893,7 +893,7 @@
               <string>Output</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="Output_Torque">
+            <widget class="QCheckBox" name="output_torque">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -914,7 +914,7 @@
               <string>Torque</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="Output_Thrust">
+            <widget class="QCheckBox" name="output_thrust">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -935,7 +935,7 @@
               <string>Thrust</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="Output_Bending">
+            <widget class="QCheckBox" name="output_bending">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -956,7 +956,7 @@
               <string>Bending</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="Output_LiftDistribution">
+            <widget class="QCheckBox" name="output_liftdistr">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -977,7 +977,7 @@
               <string>Lift distribution</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="Output_Mass">
+            <widget class="QCheckBox" name="output_mass">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -998,7 +998,7 @@
               <string>Mass</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="Output_Stress">
+            <widget class="QCheckBox" name="output_stress">
              <property name="geometry">
               <rect>
                <x>280</x>
@@ -1247,7 +1247,7 @@
               <string>Design variables</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="DV_Twist">
+            <widget class="QCheckBox" name="DV_twist">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -1268,7 +1268,7 @@
               <string>Twist</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="DV_Chord">
+            <widget class="QCheckBox" name="DV_chord">
              <property name="geometry">
               <rect>
                <x>360</x>
@@ -1289,7 +1289,7 @@
               <string>Chord</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="DV_Thickness">
+            <widget class="QCheckBox" name="DV_thickness">
              <property name="geometry">
               <rect>
                <x>160</x>
@@ -1310,7 +1310,7 @@
               <string>Thickness</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="DV_Panels_Thickness">
+            <widget class="QCheckBox" name="DV_structThick">
              <property name="geometry">
               <rect>
                <x>160</x>
@@ -1331,7 +1331,7 @@
               <string>Structural Thickness</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="DV_Sweep">
+            <widget class="QCheckBox" name="DV_sweep">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -1383,7 +1383,7 @@
               <string>Constraints</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="Constraints_Stress">
+            <widget class="QCheckBox" name="con_stress">
              <property name="geometry">
               <rect>
                <x>10</x>
@@ -1404,7 +1404,7 @@
               <string>Stress</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="Constraints_Thrust">
+            <widget class="QCheckBox" name="con_thrust">
              <property name="geometry">
               <rect>
                <x>450</x>
@@ -1425,7 +1425,7 @@
               <string>Thrust</string>
              </property>
             </widget>
-            <widget class="QCheckBox" name="Constraints_Displ">
+            <widget class="QCheckBox" name="con_displ">
              <property name="geometry">
               <rect>
                <x>160</x>
