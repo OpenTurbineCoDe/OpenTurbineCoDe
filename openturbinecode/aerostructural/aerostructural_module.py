@@ -33,6 +33,7 @@ class Aerostructural:
             pass
         else:
             #pre-load a turbine
+            # TODO: This works only with local install when running from the GUI, otherwise it will search into site-package
             path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
             path_to_TMP = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
             turb_yaml = path_to_TMP + os.sep + "./Madsen2019_10.yaml"
@@ -45,11 +46,12 @@ class Aerostructural:
 
         # geometric parameters - default scaling
         #TODO: read from models
+        self.pitchlist = np.array([0.]) #TODO: read from models
         self.twist = [0.0] * Nel  # Hardcoding vals and number of DVs now
         self.chord = [1.0] * Nel
-        self.span = 1.0
-        self.precone = 1.0
         self.thickness = [1.0] * Nel
+        self.sweep = [1.0] * Nel
+        self.span = 1.0        
 
         # global parameters
         self.fidelity = "MACH"  #TODO: read from models
@@ -62,11 +64,11 @@ class Aerostructural:
         # self.pitchlist = np.array([0.]) #TODO: read from models
         self.tsrlist = np.array([7.81]) #TODO: read from models
         self.Vlist = np.array([8.]) #TODO: read from models
-        self.pitchlist = np.array([0.]) #TODO: read from models
 
         # Optimization
         self.torqueWeight = 0.0
         self.massWeight = 1.0
+        self.optimizer = 'snopt'
         self.convergencetolerance = 1e-4
         self.maxiters = 500
 
@@ -97,7 +99,7 @@ class Aerostructural:
             print("CAUTION: I did not find a yaml file at "+path)
 
     def Run(self):
-
+        
         T = 273.25 #TODO: environment turb data give speend of sound instead
         rho = self.turb_data["environment"]["air_density"]
         R0 = self.turb_data["components"]["hub"]["diameter"] / 2.
@@ -116,6 +118,15 @@ class Aerostructural:
         # options["output"] = "..."
 
         options["plotonly"] = self.plotonly
+
+        # --- Passing  ---
+
+        analysis_input = {} # TODO: fill with all the default/modified geom DVs (analysis side) to be passed to the runfile
+        analysis_ouput = {} # TODO: list of output funcs
+        opt_dvs = {} # TODO: list of dvs for optimization
+        opt_cons = {} # TODO: list of dvs for optimization
+        opt_obj = {"torque":self.torqueWeight, "mass":self.massWeight} # optimization objective and relative weights
+        opt_options = {"max_iters": self.maxiters, "optimizer": self.optimizer, "tol":self.convergencetolerance} # optimizer options
 
         torque, thrust, cp = aerostruct_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options, self.optimize)
         
@@ -197,7 +208,6 @@ if __name__=='__main__':
     path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
     path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
     # TODO: split aero and aerostructural output folders
-    # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--plotonly", help="skip the analysis and plot directly", action="store_true")

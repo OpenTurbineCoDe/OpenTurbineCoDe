@@ -29,7 +29,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myAeroStruct = myAeroStruct 
               
         # =================== INITIALIZE FIELD VALUES ==============================
-        self.myAeroStruct.setDefaultValues()
+        # self.myAeroStruct.setDefaultValues()  # redundant, it's done on init
         self.writeToUI()
 
         # =================== FORCE INTERNAL VALUES WHEN RUNNING WITH MASTER ==============================
@@ -53,11 +53,6 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # self.plot_thrust.clicked.connect(self.myAeroStructPlotThrust)               
         # self.plot_torque.clicked.connect(self.myAeroStructPlotTorque)
         self.Push_sendtoHPC.clicked.connect(self.caller_SendToHPC)               
-        
-        
-    # --- Setting default values ---
-
-    # --- Reading input values ---
 
     # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
 
@@ -69,19 +64,24 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         # self.windSpeed.setText(', '.join([str(el) for el in self.myAeroStruct.Vlist]))
         # self.TSR.setText(', '.join([str(el) for el in self.myAeroStruct.tsrlist]))
-        self.pitchAngle.setText(', '.join([str(el) for el in self.myAeroStruct.pitchlist]))
-        self.twist.setText(', '.join([str(el) for el in self.myAeroStruct.twist]))
-        self.chord.setText(', '.join([str(el) for el in self.myAeroStruct.chord]))
-        self.span.setText(str(self.myAeroStruct.span))
-        self.precone.setText(str(self.myAeroStruct.precone))
-        self.thickness.setText(', '.join([str(el) for el in self.myAeroStruct.thickness]))
-        self.whichHPC.setText(str(self.myAeroStruct.CaseToHPC))
-        self.Objective_Torque.setText(str(self.myAeroStruct.torqueWeight))
-        self.Objective_Mass.setText(str(self.myAeroStruct.massWeight))
+        self.input_pitchAngle.setText(', '.join([str(el) for el in self.myAeroStruct.pitchlist]))
+        self.input_twist.setText(', '.join([str(el) for el in self.myAeroStruct.twist]))
+        self.input_chord.setText(', '.join([str(el) for el in self.myAeroStruct.chord]))
+        self.input_thickness.setText(', '.join([str(el) for el in self.myAeroStruct.thickness]))
+        self.input_sweep.setText(', '.join([str(el) for el in self.myAeroStruct.thickness]))
+        self.input_span.setText(str(self.myAeroStruct.span))
+
+        self.obj_torque.setChecked(False)
+        self.obj_mass.setChecked(True)
+        self.weight_Torque.setText(str(self.myAeroStruct.torqueWeight))
+        self.weight_Mass.setText(str(self.myAeroStruct.massWeight))
         self.conv_tol.setText(str(self.myAeroStruct.convergencetolerance))
         self.max_iters.setText(str(self.myAeroStruct.maxiters))
+
         self.Wind_V.setText(str(self.myAeroStruct.Vlist))
         self.rpm.setText(str(self.myAeroStruct.rpmlist))
+
+        self.whichHPC.setText(str(self.myAeroStruct.CaseToHPC))
 
     def readFromUI(self):
         #Get user inputs data
@@ -89,20 +89,27 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # self.myAeroStruct.XXX = self.model_list.currentText()
         # self.myAeroStruct.path_to_case = self.rotorPath.text()
 
-        # self.myAeroStruct.Vlist = np.array( ast.literal_eval(self.windSpeed.text()) )
-        # self.myAeroStruct.tsrlist = np.array( ast.literal_eval(self.TSR.text()) )
-        # self.myAeroStruct.pitchlist = np.array( ast.literal_eval(self.pitchAngle.text()) )
-
-        # self.myAeroStruct.fidelity = self.solver_list.currentText()
-        # self.myAeroStruct.mesh_level = self.mesh_list.currentText()
-
         self.myAeroStruct.fidelity = str(self.Fidelity_selection.currentText())
-        self.myAeroStruct.pitchlist = np.array( ast.literal_eval(self.pitchAngle.text()) )
-        self.myAeroStruct.twist = np.array( ast.literal_eval(self.twist.text()) )
-        self.myAeroStruct.chord = np.array( ast.literal_eval(self.chord.text()) )
-        self.myAeroStruct.span = np.array( ast.literal_eval(self.span.text()) )
-        self.myAeroStruct.precone = np.array( ast.literal_eval(self.precone.text()) )
-        self.myAeroStruct.thickness = np.array( ast.literal_eval(self.thickness.text()) )
+        self.myAeroStruct.optimizer = str(self.optimizer_selection.currentText())
+
+        self.myAeroStruct.pitchlist = np.array( ast.literal_eval(self.input_pitchAngle.text()) )
+        self.myAeroStruct.twist = np.array( ast.literal_eval(self.input_twist.text()) )
+        self.myAeroStruct.chord = np.array( ast.literal_eval(self.input_chord.text()) )
+        self.myAeroStruct.thickness = np.array( ast.literal_eval(self.input_thickness.text()) )
+        self.myAeroStruct.sweep = np.array( ast.literal_eval(self.input_sweep.text()) )
+        self.myAeroStruct.span = np.array( ast.literal_eval(self.input_span.text()) )
+        
+        self.myAeroStruct.torqueWeight = np.float( ast.literal_eval(self.weight_Torque.text()) )
+        self.myAeroStruct.massWeight = np.float( ast.literal_eval(self.weight_Mass.text()) )
+        self.myAeroStruct.convergencetolerance = np.float( ast.literal_eval(self.conv_tol.text()) )
+        self.myAeroStruct.maxiters = np.float( ast.literal_eval(self.max_iters.text()) )
+        self.myAeroStruct.Vlist = np.array( ast.literal_eval(self.Wind_V.text()) )
+        self.myAeroStruct.rpmlist = np.array( ast.literal_eval(self.rpm.text()) )
+
+        self.myAeroStruct.opt_obj = {'torque':True if self.obj_torque.checkState() == 2 else False,
+                                     'mass':True if self.obj_mass.checkState() == 2 else False}
+        print(self.myAeroStruct.opt_obj)
+        quit()
 
         # --- Data Handling ---
         self.myAeroStruct.caseToHpc = self.whichHPC.text()
@@ -145,9 +152,7 @@ if __name__=='__main__':
 
     path_to_root =  os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) )))
     path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep 
-    # path_to_case = os.getcwd() + os.sep + "Madsen2019" + os.sep 
 
-    #empty aero object
     myAeroStruct = aerostruct.Aerostructural(path_to_case, plotonly=args.plotonly)
 
     myWindow = Mapper(myAeroStruct)
