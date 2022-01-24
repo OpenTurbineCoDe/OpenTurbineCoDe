@@ -78,7 +78,7 @@ def setup(comm, gridFile, hifimesh, restart, outputDirectory, rotRate_z, spanDir
         "ASMOverlap": 1,
         "outerPreconIts": 3,
         # Special
-        "monitorvariables": ["cpu", "resrho", "cl", "cd", "resturb", "cfx", "cmx", "yplus"],
+        "monitorvariables": ["cpu", "resrho", "resturb", "cfx", "cmx"],
         # Output files
         "volumevariables": ["resrho", "resturb"],
         "surfacevariables": ["cp", "mach", "yplus", "sepsensor", "p", "temp"],
