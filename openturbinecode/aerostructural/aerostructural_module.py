@@ -140,6 +140,12 @@ class Aerostructural:
 
         options["plotonly"] = self.plotonly
 
+        # append ticks
+        options['analysis_output'] = self.analysis_output
+        options['opt_obj'] = self.opt_obj
+        options['opt_dvs'] = self.opt_dvs
+        options['opt_constraints'] = self.opt_constraints
+
         # --- Passing  ---
 
         analysis_input = {} # TODO: fill with all the default/modified geom DVs (analysis side) to be passed to the runfile
@@ -149,7 +155,7 @@ class Aerostructural:
         opt_obj = {"torque":self.torqueWeight, "mass":self.massWeight} # optimization objective and relative weights
         opt_options = {"max_iters": self.maxiters, "optimizer": self.optimizer, "tol":self.convergencetolerance} # optimizer options
 
-        torque, thrust, cp = aerostruct_Wrapper(self.tsrlist, self.Vlist, self.pitchlist, T, rho, R0, R, Nblade, options, self.optimize)
+        torque, thrust, cp = aerostruct_Wrapper(tsrlist=self.tsrlist, Vlist=self.Vlist, pitchlist=self.pitchlist, T=T, rho=rho, R0=R0, R=R, Nblade=Nblade, options=options, optimize=self.optimize,)
         
         self.torque = np.array(torque)
         self.thrust = np.array(thrust)
