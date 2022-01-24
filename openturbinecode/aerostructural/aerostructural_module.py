@@ -84,6 +84,27 @@ class Aerostructural:
 
         self.CaseToHPC = self.path_to_case
 
+        # GUI ticks
+        self.opt_obj = {'torque':False,
+                                     'mass':True}
+        
+        self.analysis_output = {'torque':True,
+                                            'thrust': True,
+                                            'bending': True,
+                                            'mass': True,
+                                            'stress': True,
+                                            'lift_distr': True,
+                                            }
+        self.opt_dvs = {'twist': False,
+                                     'thickness': False,
+                                     'chord': False,
+                                     'sweep': False,
+                                     'structThick': True,
+                                     }
+        self.opt_constraints = {'stress': True,
+                                             'displ': False,
+                                             'thrust': False,}
+
     def setPathToCase(self,path_to_case):    
         self.path_to_case = path_to_case
  
