@@ -2,6 +2,8 @@
 #         Import modules
 # ======================================================================
 import numpy as np
+import os
+import json
 from mpi4py import MPI
 import pickle
 from pprint import pprint
@@ -65,6 +67,7 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
 
     rotRate_z = tsr * Vel / spanRef
     rpm = rotRate_z / (2 * np.pi) * 60
+    init_funcs_file = f"{outputDirectory}/init_funcs.json"
 
     print("Rotation Rate:", rotRate_z)
     print("RPM:", rpm)
@@ -120,8 +123,8 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
             pprint(x)
         funcs = {}
         printfuncs = {}
+        # DVGeoG.setDesignVars(x)
         FEASolver.setDesignVars(x)
-        # asp.setDesignVars(x)
         AS(asp)
         AS.evalFunctions(asp, funcs, evalFuncs=objConFuncs)
         AS.checkSolutionFailure(asp, funcs)
@@ -133,14 +136,18 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
             print("MDA results")
             print("+ ----------------------------- +")
             pprint(printfuncs)
+        if not os.path.exists(init_funcs_file):
+            with open(init_funcs_file, "w") as outfile:
+                fun = funcs.copy()
+                json.dump(fun, outfile)
 
         return funcs
 
     def Sens(x, funcs):
         funcsSens = {}
-        AS.evalFunctionsSens(asp, funcsSens, evalFuncs=objConFuncs)  # + aero_problems[i].evalFuncs)
+        AS.evalFunctionsSens(asp, funcsSens, evalFuncs=objConFuncs)
         AS.checkAdjointSolutionFailure(asp, funcsSens)
-        # DVCon.evalFunctionsSens(funcsSens)
+
         if comm.rank == 0:
             print("MDA sensitivites")
             print("+ ----------------------------- +")
@@ -149,8 +156,25 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
 
     def objCon(funcs, printOK):
         funcs["obj"] = 0.0
+        with open(init_funcs_file) as confile:
+            init_funcs = json.load(confile)
+        MP.gcomm.barrier()
 
-        funcs["obj"] += funcs[f"{ap.name}_TotalMass"]
+        if options["opt_obj"]["mass"] is True:
+            funcs["obj"] += options["opt_obj"]["massWeight"] * (
+                funcs[f"{ap.name}_TotalMass"] / init_funcs[f"{ap.name}_TotalMass"]
+            )
+        if options["opt_obj"]["torque"] is True:
+            funcs["obj"] += options["opt_obj"]["torqueWeight"] * (funcs[f"{ap.name}_mx"] / init_funcs[f"{ap.name}_mx"])
+
+        if options["opt_constraints"]["thrust"] is True:
+            funcs["thrust_con_" + ap.name] = funcs[f"{ap.name}_fx"] / (
+                init_funcs[f"{ap.name}_fx"] * 1.05  # Hardcoded 5% increase
+            )
+
+        if options["opt_constraints"]["displ"] is True:
+            fname = f"{ap.name}_displacement_u"
+            funcs[f"displacement_con_{ap.name}"] = funcs[fname] / 1.05  # Hardcoded 5% increase
 
         if printOK:
             pprint(funcs)
@@ -158,19 +182,27 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
 
     if optimize:
 
-        optProb = Optimization("Mass minimization", MP.obj, comm=MPI.COMM_WORLD)
+        optProb = Optimization("Optimization", MP.obj, comm=MPI.COMM_WORLD)
 
         # Add variables from aeroProblem
         ap.addVariablesPyOpt(optProb)
 
-        FEASolver.addVariablesPyOpt(optProb)
+        if options["opt_dvs"]["structThick"] is True:
+            FEASolver.addVariablesPyOpt(optProb)
+            FEASolver.addConstraintsPyOpt(optProb)
 
-        for f in FEASolver.functionList:
-            if "KSFailure" in f:
-                optProb.addCon(f"{ap.name}_{f}", upper=1.0)
+        if options["opt_constraints"]["stress"] is True:
+            for f in FEASolver.functionList:
+                if "KSFailure" in f:
+                    optProb.addCon(f"{ap.name}_{f}", upper=1.0)
 
+        if options["opt_constraints"]["stress"] is True:
+            optProb.addCon("thrust_con_" + ap.name, upper=1.0)
+
+        if options["opt_constraints"]["displ"] is True:
+            optProb.addCon("displacement_con_" + ap.name, upper=1.0)
         # Add Objective
-        optProb.addObj("obj", scale=1e-5)
+        optProb.addObj("obj")
 
         MP.setProcSetObjFunc("standard", Obj)
         MP.setProcSetSensFunc("standard", Sens)
@@ -179,18 +211,28 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
         optProb.printSparsity()
 
         # Optimizer option
-        optOptions = {
-            "Major feasibility tolerance": 1.0e-4,  # target nonlinear constraint violation
-            "Major optimality tolerance": 1.0e-4,  # target complementarity gap
-            "Function precision": 1.0e-5,  # TODO we might want to be more conservative?
-            "Major iterations limit": 500,
-            "Verify level": -1,  # check on gradients : -1 means disable the check
-            "Violation limit": 0.01,
-            "Major step limit": 0.1,
-            "Penalty parameter": 1e1,
-            "Print file": f"{outputDirectory}/SNOPT_print.out",
-            "Summary file": f"{outputDirectory}/SNOPT_summary.out",
-        }
+        if options["opt_options"]["optimizer"].lower() == "snopt":
+            optOptions = {
+                "Major feasibility tolerance": options["opt_options"]["tol"],  # target nonlinear constraint violation
+                "Major optimality tolerance": options["opt_options"]["tol"],  # target complementarity gap
+                "Function precision": 1.0e-5,  # TODO we might want to be more conservative?
+                "Major iterations limit": options["opt_options"]["max_iters"],
+                "Verify level": -1,  # check on gradients : -1 means disable the check
+                "Violation limit": 0.01,
+                "Major step limit": 0.1,
+                "Penalty parameter": 1e1,
+                "Print file": f"{outputDirectory}/SNOPT_print.out",
+                "Summary file": f"{outputDirectory}/SNOPT_summary.out",
+            }
+        elif options["opt_options"]["optimizer"].lower() == "slsqp":
+            optOptions = {"MAXIT": options["opt_options"]["max_iters"], "ACC": options["opt_options"]["tol"]}
+        elif options["opt_options"]["optimizer"].lower() == "ipopt":
+            optOptions = {
+                "max_iter": options["opt_options"]["max_iters"],
+                "tol": options["opt_options"]["tol"],
+            }
+        else:
+            raise Warning("Invalid optimizer selected")
         # Instantiate Optimizer object
         opt = OPT("snopt", options=optOptions)
 
