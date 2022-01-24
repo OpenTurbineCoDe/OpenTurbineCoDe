@@ -45,7 +45,6 @@ def pickleWrite(fname, obj, comm=None):  # TODO: move this somewhere more approp
 # TODO: add another dictionary for parameter sweeps?
 @requires_adflow
 def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
-    # TODO: use the pitch variable!
 
     # ======================================================================
     #         Unpack options/params

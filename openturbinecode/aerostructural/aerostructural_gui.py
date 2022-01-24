@@ -67,11 +67,11 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # self.windSpeed.setText(', '.join([str(el) for el in self.myAeroStruct.Vlist]))
         # self.TSR.setText(', '.join([str(el) for el in self.myAeroStruct.tsrlist]))
         self.input_pitchAngle.setText(", ".join([str(el) for el in self.myAeroStruct.pitchlist]))
-        self.input_twist.setText(", ".join([str(el) for el in self.myAeroStruct.twist]))
-        self.input_chord.setText(", ".join([str(el) for el in self.myAeroStruct.chord]))
-        self.input_thickness.setText(", ".join([str(el) for el in self.myAeroStruct.thickness]))
-        self.input_sweep.setText(", ".join([str(el) for el in self.myAeroStruct.thickness]))
-        self.input_span.setText(str(self.myAeroStruct.span))
+        self.input_twist.setText(", ".join([str(el) for el in self.myAeroStruct.analysis_input["twist"]]))
+        self.input_chord.setText(", ".join([str(el) for el in self.myAeroStruct.analysis_input["chord"]]))
+        self.input_thickness.setText(", ".join([str(el) for el in self.myAeroStruct.analysis_input["thickness"]]))
+        self.input_sweep.setText(", ".join([str(el) for el in self.myAeroStruct.analysis_input["sweep"]]))
+        self.input_span.setText(str(self.myAeroStruct.analysis_input["span"]))
 
         self.output_torque.setChecked(self.myAeroStruct.analysis_output["torque"])
         self.output_thrust.setChecked(self.myAeroStruct.analysis_output["thrust"])
@@ -109,25 +109,25 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # self.myAeroStruct.path_to_case = self.rotorPath.text()
 
         self.myAeroStruct.fidelity = str(self.Fidelity_selection.currentText())
-        self.myAeroStruct.optimizer = str(self.optimizer_selection.currentText())
 
         self.myAeroStruct.pitchlist = np.array(ast.literal_eval(self.input_pitchAngle.text()))
-        self.myAeroStruct.twist = np.array(ast.literal_eval(self.input_twist.text()))
-        self.myAeroStruct.chord = np.array(ast.literal_eval(self.input_chord.text()))
-        self.myAeroStruct.thickness = np.array(ast.literal_eval(self.input_thickness.text()))
-        self.myAeroStruct.sweep = np.array(ast.literal_eval(self.input_sweep.text()))
-        self.myAeroStruct.span = np.array(ast.literal_eval(self.input_span.text()))
 
-        self.myAeroStruct.torqueWeight = np.float(ast.literal_eval(self.weight_Torque.text()))
-        self.myAeroStruct.massWeight = np.float(ast.literal_eval(self.weight_Mass.text()))
-        self.myAeroStruct.convergencetolerance = np.float(ast.literal_eval(self.conv_tol.text()))
-        self.myAeroStruct.maxiters = np.float(ast.literal_eval(self.max_iters.text()))
         self.myAeroStruct.Vlist = np.array(ast.literal_eval(self.Wind_V.text()))
         self.myAeroStruct.rpmlist = np.array(ast.literal_eval(self.rpm.text()))
 
         self.myAeroStruct.opt_obj = {
             "torque": True if self.obj_torque.checkState() == 2 else False,
             "mass": True if self.obj_mass.checkState() == 2 else False,
+            "torqueWeight": np.float(ast.literal_eval(self.weight_Torque.text())),
+            "massWeight": np.float(ast.literal_eval(self.weight_Mass.text())),
+        }
+
+        self.myAeroStruct.analysis_input = {
+            "twist": np.array(ast.literal_eval(self.input_twist.text())),
+            "chord": np.array(ast.literal_eval(self.input_chord.text())),
+            "thickness": np.array(ast.literal_eval(self.input_thickness.text())),
+            "sweep": np.array(ast.literal_eval(self.input_sweep.text())),
+            "span": np.array(ast.literal_eval(self.input_span.text())),
         }
 
         self.myAeroStruct.analysis_output = {
@@ -150,6 +150,12 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             "displ": True if self.con_displ.checkState() == 2 else False,
             "thrust": True if self.con_thrust.checkState() == 2 else False,
         }
+
+        self.myAeroStruct.opt_options = {
+            "max_iters": np.float(ast.literal_eval(self.max_iters.text())),
+            "optimizer": str(self.optimizer_selection.currentText()),
+            "tol": np.float(ast.literal_eval(self.conv_tol.text())),
+        }  # optimizer options
 
         # --- Data Handling ---
         self.myAeroStruct.caseToHpc = self.whichHPC.text()

@@ -46,26 +46,15 @@ class Aerostructural:
         Nel = 7  # number of stations spanwise
         # Nel = len(self.turb_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"])
 
-        # geometric parameters - default scaling
-        # TODO: read from models
-        self.pitchlist = np.array([0.0])  # TODO: read from models
-        self.twist = [0.0] * Nel  # Hardcoding vals and number of DVs now
-        self.chord = [1.0] * Nel
-        self.thickness = [1.0] * Nel
-        self.sweep = [1.0] * Nel
-        self.span = 1.0
-
         # global parameters
-        self.fidelity = "MACH"  # TODO: read from models
-        self.mesh_level = "3"  # TODO: read from models
+        self.fidelity = "MACH"
+        self.mesh_level = "3"
 
         # parameters for sweep:
-        # self.tsrlist = np.array([9.6]) #TODO: read from models
-        self.rpmlist = np.array([6.8])  # TODO: read from models
-        self.Vlist = np.array([8.0])  # TODO: read from models
-        # self.pitchlist = np.array([0.]) #TODO: read from models
-        self.tsrlist = np.array([7.81])  # TODO: read from models
-        self.Vlist = np.array([8.0])  # TODO: read from models
+        self.rpmlist = np.array([6.8])
+        self.Vlist = np.array([8.0])
+        self.pitchlist = np.array([0.0])
+        self.tsrlist = np.array([7.81])
 
         # Optimization
         self.torqueWeight = 0.0
@@ -86,7 +75,14 @@ class Aerostructural:
         self.CaseToHPC = self.path_to_case
 
         # GUI ticks
-        self.opt_obj = {"torque": False, "torqueWeight": self.torqueWeight, "mass": True, "massWeight": self.massWeight}
+        # geometric parameters - default scaling
+        self.analysis_input = {
+            "twist": [0.0] * Nel,  # Hardcoding vals and number of DVs now,
+            "chord": [1.0] * Nel,
+            "thickness": [1.0] * Nel,
+            "sweep": [1.0] * Nel,
+            "span": 1.0,
+        }
 
         self.analysis_output = {
             "torque": True,
@@ -96,6 +92,9 @@ class Aerostructural:
             "stress": True,
             "lift_distr": True,
         }
+
+        self.opt_obj = {"torque": False, "torqueWeight": self.torqueWeight, "mass": True, "massWeight": self.massWeight}
+
         self.opt_dvs = {
             "twist": False,
             "thickness": False,
@@ -150,6 +149,7 @@ class Aerostructural:
         options["plotonly"] = self.plotonly
 
         # append ticks
+        options["analysis_input"] = self.analysis_input
         options["analysis_output"] = self.analysis_output
         options["opt_obj"] = self.opt_obj
         options["opt_dvs"] = self.opt_dvs
