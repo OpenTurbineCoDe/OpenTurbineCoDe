@@ -31,7 +31,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="SetupTab">
           <attribute name="title">
@@ -725,9 +725,9 @@
             <widget class="QLineEdit" name="input_pitchAngle">
              <property name="geometry">
               <rect>
-               <x>290</x>
+               <x>200</x>
                <y>80</y>
-               <width>91</width>
+               <width>71</width>
                <height>31</height>
               </rect>
              </property>
@@ -735,9 +735,9 @@
             <widget class="QLineEdit" name="input_twist">
              <property name="geometry">
               <rect>
-               <x>290</x>
+               <x>200</x>
                <y>120</y>
-               <width>301</width>
+               <width>391</width>
                <height>27</height>
               </rect>
              </property>
@@ -765,9 +765,9 @@
             <widget class="QLineEdit" name="input_chord">
              <property name="geometry">
               <rect>
-               <x>290</x>
+               <x>200</x>
                <y>160</y>
-               <width>301</width>
+               <width>391</width>
                <height>27</height>
               </rect>
              </property>
@@ -795,9 +795,9 @@
             <widget class="QLineEdit" name="input_span">
              <property name="geometry">
               <rect>
-               <x>290</x>
+               <x>200</x>
                <y>280</y>
-               <width>91</width>
+               <width>71</width>
                <height>27</height>
               </rect>
              </property>
@@ -845,9 +845,9 @@
             <widget class="QLineEdit" name="input_thickness">
              <property name="geometry">
               <rect>
-               <x>290</x>
+               <x>200</x>
                <y>200</y>
-               <width>301</width>
+               <width>391</width>
                <height>27</height>
               </rect>
              </property>
@@ -855,9 +855,9 @@
             <widget class="QLineEdit" name="input_sweep">
              <property name="geometry">
               <rect>
-               <x>290</x>
+               <x>200</x>
                <y>240</y>
-               <width>301</width>
+               <width>391</width>
                <height>27</height>
               </rect>
              </property>
