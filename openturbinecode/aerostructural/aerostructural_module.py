@@ -6,6 +6,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from mpi4py import MPI
 
 # import subprocess
 import time
@@ -257,5 +258,5 @@ if __name__ == "__main__":
     myAeroStruct = Aerostructural(path_to_case, plotonly=args.plotonly, optimize=args.optimize)
     myAeroStruct.setDefaultValues()
     myAeroStruct.Run()
-    if not args.plotonly:
+    if not args.plotonly and MPI.COMM_WORLD.rank == 0:
         myAeroStruct.PlotCp()
