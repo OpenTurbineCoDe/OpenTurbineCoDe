@@ -13,7 +13,7 @@ try:
     from adflow import ADFLOW
     from multipoint import multiPointSparse
     from pyoptsparse import Optimization, OPT
-except ImportError as err:
+except ImportError as err:  # noqa
     _has_adflow = False
 else:
     _has_adflow = True
@@ -21,12 +21,16 @@ else:
 """
 Definition of a decorator to be used on every function that requires the sprcific module
 """
+
+
 def requires_adflow(function):  # TODO turn this into requires_MACH
-    def check_requirement(*args,**kwargs):
+    def check_requirement(*args, **kwargs):
         if not _has_adflow:
             raise ImportError("adflow is required to do this.")
-        function(*args,*kwargs)
+        function(*args, *kwargs)
+
     return check_requirement
+
 
 def pickleWrite(fname, obj, comm=None):  # TODO: move this somewhere more appropriate
     """
@@ -41,8 +45,8 @@ def pickleWrite(fname, obj, comm=None):  # TODO: move this somewhere more approp
 
 # TODO: add another dictionary for parameter sweeps?
 @requires_adflow
-def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
-    #TODO: use the pitch variable!
+def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
+    # TODO: use the pitch variable!
 
     # ======================================================================
     #         Unpack options/params
@@ -51,12 +55,12 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
     outputDirectory = options["outputDirectory"]
     case_tag = options["case_tag"]
     casename = options["casename"]
-    spanRef  = options["spanRef"]
-    spanDir  = options["spanDir"]
-    areaRef  = options["areaRef"]
-    restart  = options["restart"] if "restart" in options else None
+    spanRef = options["spanRef"]
+    spanDir = options["spanDir"]
+    areaRef = options["areaRef"]
+    restart = options["restart"] if "restart" in options else None
     hifimesh = options["hifimesh"]
-    
+
     # ======================================================================
     #         Input Information
     # ======================================================================
@@ -66,7 +70,6 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
 
     print("Rotation Rate:", rotRate_z)
     print("RPM:", rpm)
-
 
     # TODO: we need to clarify if / how we loop over V and tsr
 
@@ -185,7 +188,6 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
     # --- pyAeroStrucuture - Create aerostructural solver ---
     AS = setup_aerostruct.setup(outputDirectory, comm, CFDSolver, FEASolver)
 
-
     # ---- Structproblem instantiation
     sp = setup_structprob.setup(dispFuncs, comm, ap)
 
@@ -218,7 +220,6 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
 
         return funcs
 
-
     def Sens(x, funcs):
         funcsSens = {}
         AS.evalFunctionsSens(asp, funcsSens, evalFuncs=objConFuncs)  # + aero_problems[i].evalFuncs)
@@ -229,11 +230,11 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
             print("+ ----------------------------- +")
             pprint(funcsSens)
         return funcsSens
-    
+
     def objCon(funcs, printOK):
         funcs["obj"] = 0.0
 
-        funcs["obj"] += funcs[f"{ap.name}_TotalMass"] / numDesignPoints
+        funcs["obj"] += funcs[f"{ap.name}_TotalMass"]
 
         if printOK:
             pprint(funcs)
@@ -254,7 +255,7 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
 
         # Add Objective
         optProb.addObj("obj", scale=1e-5)
-        
+
         MP.setProcSetObjFunc("standard", Obj)
         MP.setProcSetSensFunc("standard", Sens)
         MP.setObjCon(objCon)
@@ -298,7 +299,6 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
     funcs["mx"] = funcs[f"{ap.name}_mx"]
     funcs["fx"] = funcs[f"{ap.name}_fx"]
 
-
     pickleWrite(f"{outputDirectory}/Funcs.pkl", funcs)
-    
+
     return funcs, ap
