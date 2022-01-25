@@ -1,10 +1,30 @@
 # ================================
 #         Import modules
 # ================================
-from pygeo import DVGeometry
+
 import numpy as np
 
+try:
+    from pygeo import DVGeometry
+except ImportError as err:  # noqa
+    _has_pygeo = False
+else:
+    _has_pygeo = True
 
+"""
+Definition of a decorator to be used on every function that requires the sprcific module
+"""
+
+def requires_pygeo(function):
+    def check_requirement(*args, **kwargs):
+        if not _has_pygeo:
+            raise ImportError("pygeo is required to do this.")
+        return function(*args, *kwargs)
+
+    return check_requirement
+
+
+@requires_pygeo
 def setup(fix_root_sect, geom_dvs, comm, caseName, FFDfldr):
 
     # ==============================

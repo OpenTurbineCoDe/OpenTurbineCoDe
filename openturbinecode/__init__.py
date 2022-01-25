@@ -55,6 +55,13 @@ try: # check adflow import
 except ImportError as err:
     failed_imports.append("TACS/pyTACS")
     
+# -------------------- TACS ----------------------------
+try: # check adflow import
+    from pygeo import DVGeometry
+    
+except ImportError as err:
+    failed_imports.append("pygeo")
+
 # -------------------- AeroelasticSE ----------------------------
 try:
     from weis.aeroelasticse.CaseGen_IEC import CaseGen_IEC
