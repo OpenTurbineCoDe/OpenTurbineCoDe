@@ -72,11 +72,6 @@
         <string>DTU 10 MW</string>
        </property>
       </item>
-      <item>
-       <property name="text">
-        <string>external</string>
-       </property>
-      </item>
      </widget>
      <widget class="QPushButton" name="loadRotor">
       <property name="geometry">
