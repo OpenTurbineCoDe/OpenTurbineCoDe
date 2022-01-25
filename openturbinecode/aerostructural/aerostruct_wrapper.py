@@ -169,7 +169,7 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
                         print("+ ------------------------------------ +")
                         print("Starting Optimization")
                         print("+ ------------------------------------ +")
-                        HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize)
+                    HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=optimize)
 
                 else:
                     if MPI.COMM_WORLD.rank == 0:

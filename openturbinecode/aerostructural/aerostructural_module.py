@@ -44,7 +44,7 @@ class Aerostructural:
 
         self.case_tag = "DTU_10MW"  # TODO: this should be read from turbdata!
 
-        Nel = 7  # number of stations spanwise
+        Nel = 6  # number of stations spanwise
         # Nel = len(self.turb_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"])
 
         # global parameters
@@ -81,7 +81,7 @@ class Aerostructural:
             "twist": [0.0] * Nel,  # Hardcoding vals and number of DVs now,
             "chord": [1.0] * Nel,
             "thickness": [1.0] * Nel,
-            "sweep": [1.0] * Nel,
+            "sweep": [1.0] * 3,
             "span": 1.0,
         }
 
@@ -255,7 +255,7 @@ if __name__ == "__main__":
     parser.add_argument("--optimize", help="perform optimization instead of single point analysis", action="store_true")
     args = parser.parse_args()
 
-    myAeroStruct = Aerostructural(path_to_case, plotonly=args.plotonly, optimize=args.optimize)
+    myAeroStruct = Aerostructural(path_to_case, plotonly=args.plotonly, optimize=False)
     myAeroStruct.setDefaultValues()
     myAeroStruct.Run()
     if not args.plotonly and MPI.COMM_WORLD.rank == 0:

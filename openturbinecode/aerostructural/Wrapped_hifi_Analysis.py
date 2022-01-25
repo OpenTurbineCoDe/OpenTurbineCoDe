@@ -76,9 +76,9 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
     rotRate_z = tsr * Vel / spanRef
     rpm = rotRate_z / (2 * np.pi) * 60
     init_funcs_file = f"{outputDirectory}/init_funcs.json"
-
-    print("Rotation Rate:", rotRate_z)
-    print("RPM:", rpm)
+    if MPI.COMM_WORLD.rank == 0:
+        print("Rotation Rate:", rotRate_z)
+        print("RPM:", rpm)
 
     # TODO: we need to clarify if / how we loop over V and tsr
 
@@ -112,7 +112,6 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
         for key in options["analysis_input"]:
             geom_dvs.append(key)
             geom_dvs.append("pitch")
-
     DVGeoG, DVGeoc1, DVGeoc2, DVGeoc3 = setup_geometry.setup(fix_root_sect, geom_dvs, comm, ap.name, FFDfldr)
 
     # ---- ADflow setup
@@ -128,7 +127,9 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
     FEASolver = setup_tacs.setup(comm, bdfFile)
     FEASolver.setDVGeo(DVGeoG)
     dispFuncs = FEASolver.functionList.keys()  # Functions to keep track of
-    objConFuncs = ["TotalMass"] + [f for f in dispFuncs if "KSFailure" in f]
+    objConFuncs = (
+        ["TotalMass"] + [f for f in dispFuncs if "KSFailure" in f] + [f for f in dispFuncs if "displacement" in f]
+    )
     objConFuncs += ["mx", "fx"]
 
     # --- pyAeroStrucuture - Create aerostructural solver ---
@@ -282,9 +283,6 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
         for key in options["analysis_input"]:
             x[key] = options["analysis_input"][key]
         x["pitch"] = pitch
-
-        print(x)
-        quit()
 
         coords = mesh.getSurfaceCoordinates()
         DVGeoG.addPointSet(coords, "coords")

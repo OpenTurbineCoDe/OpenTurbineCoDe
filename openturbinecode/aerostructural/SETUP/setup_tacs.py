@@ -1,7 +1,7 @@
 try:
     import pytacs
     from tacs_orig import functions, constitutive
-except ImportError as err:
+except ImportError as err:  # noqa
     _has_tacs = False
 else:
     _has_tacs = True
@@ -9,12 +9,15 @@ else:
 """
 Definition of a decorator to be used on every function that requires the sprcific module
 """
+
+
 def requires_tacs(function):
-    def check_requirement(*args,**kwargs):
+    def check_requirement(*args, **kwargs):
         if not _has_tacs:
             raise ImportError("TACS and pyTACS are required to do this.")
-        FEASolver = function(*args,*kwargs)
+        FEASolver = function(*args, *kwargs)
         return FEASolver
+
     return check_requirement
 
 
@@ -27,7 +30,6 @@ def setup(comm, bdfFile):
         "useMonitor": True,
         "monitorFrequency": 1,
     }
-
 
     FEASolver = pytacs.pyTACS(bdfFile, comm=comm, options=structOptions)
 
@@ -124,5 +126,9 @@ def setup(comm, bdfFile):
         FEASolver.addFunction(
             name + "KSFailure", functions.AverageKSFailure, include=comps, KSWeight=KSWeight, safetyFactor=safetyFactor
         )
-
+    FEASolver.addFunction(
+        "displacement_u", functions.AggregateDisplacement, include="U_SKIN", KSWeight=KSWeight, axisIndex=0
+    )  # Only checking the lower skin
+    FEASolver.functionList["displacement_u"].setAggregateType(1)  # TODO: figure out the best kind of setting
+    FEASolver.functionList["displacement_u"].setQuadratureType(0)
     return FEASolver
