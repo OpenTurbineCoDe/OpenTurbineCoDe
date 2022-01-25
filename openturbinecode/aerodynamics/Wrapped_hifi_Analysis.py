@@ -3,6 +3,7 @@
 # ======================================================================
 import numpy as np
 from mpi4py import MPI
+import os
 
 try:
     from baseclasses import AeroProblem
@@ -66,6 +67,10 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
     MGSTART = -1
     nCycles = 200000
 
+    #No need to go further if we can't find the mesh
+    if not os.path.isfile(gridFile):
+        print(f"ERROR: could not find the mesh in {gridFile}. Consider copying it from models.")
+        return {},{}
 
     aeroOptions = {
         # Common Parameters

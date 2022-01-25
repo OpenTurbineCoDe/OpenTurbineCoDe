@@ -168,6 +168,17 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
     shutil.rmtree(workingDirectory,True)
     os.mkdir(workingDirectory)
 
+    #Check that the files exist. If not, advise the user and return
+    flag = False
+    for file in config["files"]["fileList"]:
+        checkFile = os.path.join(fileDirectory,file)
+        if not os.path.isfile( checkFile ):
+            print(f"CAUTION: file {checkFile} is missing. Consider copying it from the models.")
+            flag = True
+    if flag:
+        return
+
+    #Prepare the folder tree
     for file in config["files"]["fileList"]:
         shutil.copy(os.path.join(fileDirectory,file), os.path.join(workingDirectory,file))
     for dir in config["files"]["dirList"]:

@@ -81,7 +81,7 @@ class Aerodynamics:
         elif DLCtype < 0 :
             #TODO: set DLC to the internal value !
             #TODO: adapt fidelity if needed!
-            pass
+            print("CAUTION: the use of DLC computed from the main tab is not yet available!")
 
     # ==================== MODULE-SPECIFIC FUNCTIONS ==========================================
 
