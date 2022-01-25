@@ -24,8 +24,6 @@ from .Wrapped_hifi_Analysis import HiFiAero
 from .Wrapped_lofi_Analysis import LoFiAero
 
 
-# TODO: add the ability to specify blade pitch
-# TODO: add another dictionary for parameter sweeps?
 def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlist = None):
 
     # baseDir = os.path.dirname(os.path.abspath(__file__))
@@ -48,7 +46,6 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
         rotsign = options["rotsign"]
     if "hifimesh" in options:
         hifimesh = options["hifimesh"]
-    #TODO: set default values ?
 
     if not "case_tag" in options:
         raise ValueError("case_tag missing in options") 
@@ -79,8 +76,6 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
         
     # =============================================================
     # File names for the lofi analysis
-    # TODO: use read values instead of HARDCODED VALUES
-    # TODO: need a better management of file lists for OF/AD - more uniformity across files, etc.
     # =============================================================
 
     config["lofi"]["files"]["fstFile"] = case_tag + ".fst"
@@ -130,7 +125,6 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
             options["spanRef"] = spanRef
             options["areaRef"] = areaRef
             
-            #TODO: use Tag instead of the long name of the configuration
             name = f"{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
             options["casename"] = name
             if not plotonly:
@@ -138,17 +132,27 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 if MPI.COMM_WORLD.rank == 0:
                     print(f"Starting Hi-fi analysis at tsr={tsr}")
                 funcs, ap = HiFiAero(tsr,Vel,pitch,rho,T,options, Rscale=Rlist[i])
-                trq = funcs[f"{ap.name}_mx"]
-                thr = funcs[f"{ap.name}_fx"]
+                if funcs:
+                    trq = funcs[f"{ap.name}_mx"]
+                    thr = funcs[f"{ap.name}_fx"]
+                else:
+                    trq = np.nan
+                    thr = np.nan
             else:
                 #Name used for plotting purposes only
-                outsname = name + f"_000_lift.dat"
-                res = parser.getLiftDistribution(os.path.join(outputDirectory,outsname))
-                
-                Ico = 'Coordinate' + str.capitalize(spanDir)
-                trq = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
-                thr = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
+                outsname = os.path.join(outputDirectory, name + f"_000_lift.dat")
 
+                if os.path.isfile(outsname):
+                    res = parser.getLiftDistribution(outsname)
+                    Ico = 'Coordinate' + str.capitalize(spanDir)
+
+                    trq = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
+                    thr = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
+                else:
+                    print(f"ERROR: could not find output file {outsname}.")
+                    trq = np.nan
+                    thr = np.nan
+                
             # Extracting performance information
             CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
 
@@ -171,7 +175,8 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
 
         if MPI.COMM_WORLD.rank == 0:
             if not os.path.exists(outputDirectory):
-                os.mkdir(outputDirectory)
+                os.makedirs(outputDirectory, exist_ok=True)
+
             for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
@@ -179,7 +184,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 pitch = pitchlist[i]*180./np.pi
                 spanRef = Rlist[i]*R
                 areaRef = np.pi*spanRef**2
-                outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out") #TODO:REFLECT SPAN
+                outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
                 options["outputFile"] = outputFile 
 
                 #computing results
@@ -191,10 +196,16 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 else:
                     print(f"Reading from {outputFile}")
                 
-                #postprocessing output files
-                thr, trq, power, fN, fT = parser.OFparse(outputFile)
+                if os.path.isfile(outputFile):
+                    #postprocessing output files
+                    thr, trq, power, fN, fT = parser.OFparse(outputFile)
 
-                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
+                    CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
+                else:
+                    print(f"ERROR: could not find output file {outputFile}.")
+                    trq = np.nan
+                    thr = np.nan
+                    CP = np.nan
 
                 torque.append(trq)
                 thrust.append(thr)
@@ -213,8 +224,8 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
         
         if MPI.COMM_WORLD.rank == 0:
             if not os.path.exists(outputDirectory):
-                os.mkdir(outputDirectory)
-            #TODO: use a single drive file with multiple inflow velocities instead
+                os.makedirs(outputDirectory, exist_ok=True)
+
             for i in range(len(Vlist)):
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
@@ -234,10 +245,16 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 else:
                     print(f"Reading from {outputFile}")
                     
-                #postprocessing output files
-                thr, trq, power, fN, fT = parser.OFparse(outputFile)
-
-                CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
+                if os.path.isfile(outputFile):
+                    #postprocessing output files
+                    thr, trq, power, fN, fT = parser.OFparse(outputFile)
+                    
+                    CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
+                else:
+                    print(f"ERROR: could not find output file {outputFile}.")
+                    trq = np.nan
+                    thr = np.nan
+                    CP = np.nan
 
                 torque.append(trq)
                 thrust.append(thr)
@@ -297,11 +314,12 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 fname.write("Processors \t" + str(MPI.COMM_WORLD.Get_size())  + ';\n')
                 fname.close()   
 
+                print(f"INFO: created input file in {subfolder + os.sep + 'initialConditions'}")
+
             #TODO: enable this in a safer way:
             # subprocess.run(["of4x"])
             # subprocess.run(["mpirun -np " + self.comBox_11.currentText() + " pimpleFoam -parallel > log&" ])
         
-        #TODO: manage post-processing
         torque.append(nan)
         thrust.append(nan)
         cp.append(nan)
