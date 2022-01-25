@@ -13,9 +13,9 @@ try:
     from multipoint import multiPointSparse
     from pyoptsparse import Optimization, OPT
 except ImportError as err:  # noqa
-    _has_adflow = False
+    _has_mach = False
 else:
-    _has_adflow = True
+    _has_mach = True
 
 from .SETUP import (
     setup_adflow,
@@ -32,10 +32,10 @@ Definition of a decorator to be used on every function that requires the sprcifi
 """
 
 
-def requires_adflow(function):  # TODO turn this into requires_MACH
+def requires_MACH(function):
     def check_requirement(*args, **kwargs):
-        if not _has_adflow:
-            raise ImportError("adflow is required to do this.")
+        if not _has_mach:
+            raise ImportError("MACH dependencies are required to do this.")
         function(*args, *kwargs)
 
     return check_requirement
@@ -52,7 +52,7 @@ def pickleWrite(fname, obj, comm=None):
         comm.barrier()
 
 
-@requires_adflow
+@requires_MACH
 def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
 
     # ======================================================================
