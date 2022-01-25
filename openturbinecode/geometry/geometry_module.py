@@ -210,11 +210,11 @@ class Geometry:
         bl.write("------- AERODYN v15.04.* BLADE DEFINITION INPUT FILE ------------------------------------- \n")
         bl.write("File generated with OpenTurbineCoDe \n")
         bl.write("======  Blade Properties ================================================================= \n")
-        bl.write("   " + str(table.rowCount()-1) + "              NumBlNds           - Number of blade nodes used in the analysis (-) \n")
+        bl.write("   " + str(table.rowCount()) + "              NumBlNds           - Number of blade nodes used in the analysis (-) \n")
         bl.write("  BlSpn     BlCrvAC    BlSwpAC    BlCrvAng    BlTwist    BlChord    BlAFID \n")
         bl.write("  (m)       (m)        (m)        (deg)       (deg)      (m)        (-) \n")
         for row in range(0, table.rowCount()):
-            bl.write(str(table.item(row, 0).text()) + "\t 0 \t 0 \t 0 \t" + str(table.item(row, 1).text()) + "\t" + str(table.item(row, 3).text()) + "\t" + str(table.item(row, 2).text()) + "\n")
+            bl.write("%6.4e  %6.4e  %6.4e  %6.4e  %6.4e  %6.4e  %2i\n"%( float(table.item(row, 0).text()), 0 , 0 , 0 , float(table.item(row, 2).text()), float(table.item(row, 1).text()) , float(table.item(row, 3).text()) ) )
         bl.close()
         print("Done writing AeroDyn blade file. The file is stored in " + bladeFile1)
         shutil.copy(bladeFile1, bladeFile2)
