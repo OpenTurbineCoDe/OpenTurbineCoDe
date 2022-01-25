@@ -10,7 +10,6 @@ authors: Denis-Gabriel Caprace, Marco Mangano
 
 import numpy as np
 import os
-import time
 from mpi4py import MPI
 import pickle
 from sqlitedict import SqliteDict
@@ -170,8 +169,7 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
                         print("+ ------------------------------------ +")
                         print("Starting Optimization")
                         print("+ ------------------------------------ +")
-                        time.sleep(3)
-                        HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=optimize)
+                        HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize)
 
                 else:
                     if MPI.COMM_WORLD.rank == 0:

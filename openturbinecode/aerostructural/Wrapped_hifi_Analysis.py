@@ -17,7 +17,15 @@ except ImportError as err:  # noqa
 else:
     _has_adflow = True
 
-from .SETUP import setup_adflow, setup_aerostruct, setup_aerostructprob, setup_tacs, setup_structprob, setup_warping
+from .SETUP import (
+    setup_adflow,
+    setup_aerostruct,
+    setup_aerostructprob,
+    setup_geometry,
+    setup_tacs,
+    setup_structprob,
+    setup_warping,
+)
 
 """
 Definition of a decorator to be used on every function that requires the sprcific module
@@ -91,9 +99,25 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
     #         Create aerostruct solver
     # ======================================================================
 
+    # ---- pyGeo setup
+    FFDfldr = f"{path_to_case}/ADflow/INPUT/"
+    fix_root_sect = 1
+    geom_dvs = []
+    if optimize is True:
+        for key in options["opt_dvs"]:
+            print(options["opt_dvs"][key])
+            if options["opt_dvs"][key] is True and key != "structThick":
+                geom_dvs.append(key)
+    else:
+        for key in options["analysis_input"]:
+            geom_dvs.append(key)
+
+    DVGeoG, DVGeoc1, DVGeoc2, DVGeoc3 = setup_geometry.setup(fix_root_sect, geom_dvs, comm, ap.name, FFDfldr)
+
+    # ---- ADflow setup
     gridFile = f"{path_to_case}/ADflow/INPUT/{case_tag}_L{hifimesh}.cgns"
     CFDSolver = setup_adflow.setup(comm, gridFile, hifimesh, restart, outputDirectory, rotRate_z, spanDir, spanRef)
-
+    CFDSolver.setDVGeo(DVGeoG)
     # ---- IDwarp - Warping setup
     mesh = setup_warping.setup(comm, gridFile)
     CFDSolver.setMesh(mesh)
@@ -101,8 +125,10 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
     # ---- TACS - Create structurual solver
     bdfFile = f"{path_to_case}/ADflow/INPUT/DTU_10MW_RWT_blade3D_rotated_3in1_AprilMay2021.bdf"
     FEASolver = setup_tacs.setup(comm, bdfFile)
+    FEASolver.setDVGeo(DVGeoG)
     dispFuncs = FEASolver.functionList.keys()  # Functions to keep track of
     objConFuncs = ["TotalMass"] + [f for f in dispFuncs if "KSFailure" in f]
+    objConFuncs += ["mx", "fx"]
 
     # --- pyAeroStrucuture - Create aerostructural solver ---
     AS = setup_aerostruct.setup(outputDirectory, comm, CFDSolver, FEASolver)
@@ -123,7 +149,7 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
             pprint(x)
         funcs = {}
         printfuncs = {}
-        # DVGeoG.setDesignVars(x)
+        DVGeoG.setDesignVars(x)
         FEASolver.setDesignVars(x)
         AS(asp)
         AS.evalFunctions(asp, funcs, evalFuncs=objConFuncs)
@@ -187,6 +213,9 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
         # Add variables from aeroProblem
         ap.addVariablesPyOpt(optProb)
 
+        # --- Add DVGeo variables ---
+        DVGeoG.addVariablesPyOpt(optProb)
+
         if options["opt_dvs"]["structThick"] is True:
             FEASolver.addVariablesPyOpt(optProb)
             FEASolver.addConstraintsPyOpt(optProb)
@@ -196,7 +225,7 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
                 if "KSFailure" in f:
                     optProb.addCon(f"{ap.name}_{f}", upper=1.0)
 
-        if options["opt_constraints"]["stress"] is True:
+        if options["opt_constraints"]["thrust"] is True:
             optProb.addCon("thrust_con_" + ap.name, upper=1.0)
 
         if options["opt_constraints"]["displ"] is True:
