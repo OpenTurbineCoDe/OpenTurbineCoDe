@@ -32,21 +32,20 @@ class Aerostructural:
 
         # Initialization of attributes
         if self.turb_data and self.models:
-            # TODO: what do we need here?
-            # Will read directly from turb_data, so nothing to do here
+            # Will read directly from turb_data from master
             pass
         else:
             # pre-load a turbine
-            # TODO: This works only with local install when running from the GUI, otherwise it will search into site-package
+            # This works only with local install when running from the GUI, otherwise it will search into site-package
             path_to_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
             path_to_TMP = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep
             turb_yaml = path_to_TMP + os.sep + "./Madsen2019_10.yaml"
             self.reload_turbdata(turb_yaml)
 
-        self.case_tag = "DTU_10MW"  # TODO: this should be read from turbdata!
+        self.case_tag = "DTU_10MW"
 
         Nel = 6  # number of stations spanwise
-        # TODO: defining number of spanwise sections?
+        # TODO DG: double check if fine or we need to have the default ffd
         # Nel = len(self.turb_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"])
 
         # global parameters
@@ -132,7 +131,7 @@ class Aerostructural:
 
     def Run(self):
 
-        T = 273.25  # TODO: environment turb data give speend of sound instead
+        T = 273.25
         rho = self.turb_data["environment"]["air_density"]
         R0 = self.turb_data["components"]["hub"]["diameter"] / 2.0
         R = self.turb_data["assembly"]["rotor_diameter"] / 2.0
@@ -144,10 +143,9 @@ class Aerostructural:
         options["case_tag"] = self.case_tag
         options["fidelity"] = self.fidelity
 
-        options["spanDir"] = "y"  # TODO: this should come from turbine definition
-        options["rotsign"] = 1  # TODO: this should come from turbine definition
+        options["spanDir"] = "y"
+        options["rotsign"] = 1
         options["hifimesh"] = self.mesh_level
-        # options["output"] = "..."
 
         options["plotonly"] = self.plotonly
 
@@ -178,8 +176,6 @@ class Aerostructural:
 
     def PlotCp(self):
         plt.ion()
-        # TODO: call a proper postpro function, common with aero_compute_standalone
-        # f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
         f = plt.figure(num=1, figsize=(10, 7.5))  # (8, 3.2)
 
         plt.plot(self.Vlist, self.cp, label=self.fidelity, marker="+", markersize=14)
@@ -196,8 +192,6 @@ class Aerostructural:
     def PlotThrust(self):
         plt.ion()
 
-        # TODO: call a proper postpro function, common with aero_compute_standalone
-        # f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
         f = plt.figure(num=2, figsize=(10, 7.5))  # (8, 3.2)
 
         plt.plot(self.Vlist, self.thrust / 1.0e6, label=self.fidelity, marker="+")
@@ -214,8 +208,6 @@ class Aerostructural:
     def PlotTorque(self):
         plt.ion()
 
-        # TODO: call a proper postpro function, common with aero_compute_standalone
-        # f, ax = plt.subplots(figsize=(10, 7.5))
         f = plt.figure(num=3, figsize=(10, 7.5))  # (8, 3.2)
 
         plt.plot(self.Vlist, self.torque / 1.0e6, label=self.fidelity, marker="+")
@@ -249,7 +241,6 @@ if __name__ == "__main__":
 
     path_to_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
     path_to_case = path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep
-    # TODO: split aero and aerostructural output folders
     import argparse
 
     parser = argparse.ArgumentParser()

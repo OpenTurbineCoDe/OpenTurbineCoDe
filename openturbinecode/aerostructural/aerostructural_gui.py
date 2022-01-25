@@ -42,13 +42,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
 
-        # TODO: connect buttons:
-        # # self.loadRotor.clicked.connect(self.load_case)
         self.RunAnalysis.clicked.connect(self.caller_Run)
         self.RunOptimization.clicked.connect(self.caller_Opt)
-        # self.plot_cp.clicked.connect(self.myAeroStructPlotCp)
-        # self.plot_thrust.clicked.connect(self.myAeroStructPlotThrust)
-        # self.plot_torque.clicked.connect(self.myAeroStructPlotTorque)
         self.Push_sendtoHPC.clicked.connect(self.caller_SendToHPC)
 
     # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
@@ -56,11 +51,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     def writeToUI(self):
 
         # Set interface values
-        # TODO: clean
-        # model list
-        # self.rotorPath.setText(self.myAeroStruct.path_to_case)
 
-        # self.TSR.setText(', '.join([str(el) for el in self.myAeroStruct.tsrlist]))
         self.input_pitchAngle.setText(", ".join([str(el) for el in self.myAeroStruct.pitchlist]))
         self.input_twist.setText(", ".join([str(el) for el in self.myAeroStruct.analysis_input["twist"]]))
         self.input_chord.setText(", ".join([str(el) for el in self.myAeroStruct.analysis_input["chord"]]))
@@ -99,10 +90,6 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
     def readFromUI(self):
         # Get user inputs data
-        # TODO: injecting attributes in a class is technically very bad, might want to think about an alternative soon
-        # self.myAeroStruct.XXX = self.model_list.currentText()
-        # self.myAeroStruct.path_to_case = self.rotorPath.text()
-
         self.myAeroStruct.fidelity = str(self.Fidelity_selection.currentText())
 
         self.myAeroStruct.pitchlist = np.array(ast.literal_eval(self.input_pitchAngle.text()))

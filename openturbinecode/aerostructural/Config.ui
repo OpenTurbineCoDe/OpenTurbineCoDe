@@ -145,16 +145,6 @@
                <string>DTU 10 MW</string>
               </property>
              </item>
-             <item>
-              <property name="text">
-               <string>NREL Phase VI</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>NREL 5 MW</string>
-              </property>
-             </item>
             </widget>
             <widget class="QLineEdit" name="lineEdit_5">
              <property name="geometry">

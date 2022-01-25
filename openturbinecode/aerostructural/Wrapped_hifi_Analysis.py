@@ -41,7 +41,7 @@ def requires_adflow(function):  # TODO turn this into requires_MACH
     return check_requirement
 
 
-def pickleWrite(fname, obj, comm=None):  # TODO: move this somewhere more appropriate
+def pickleWrite(fname, obj, comm=None):
     """
     Parallel pickle.dump function, only performs operations on the root proc
     """
@@ -52,7 +52,6 @@ def pickleWrite(fname, obj, comm=None):  # TODO: move this somewhere more approp
         comm.barrier()
 
 
-# TODO: add another dictionary for parameter sweeps?
 @requires_adflow
 def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
 
@@ -79,8 +78,6 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
     if MPI.COMM_WORLD.rank == 0:
         print("Rotation Rate:", rotRate_z)
         print("RPM:", rpm)
-
-    # TODO: we need to clarify if / how we loop over V and tsr
 
     if restart is not None:
         casename = casename + "_restart"
@@ -251,7 +248,7 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
             optOptions = {
                 "Major feasibility tolerance": options["opt_options"]["tol"],  # target nonlinear constraint violation
                 "Major optimality tolerance": options["opt_options"]["tol"],  # target complementarity gap
-                "Function precision": 1.0e-5,  # TODO we might want to be more conservative?
+                "Function precision": 1.0e-5,
                 "Major iterations limit": options["opt_options"]["max_iters"],
                 "Verify level": -1,  # check on gradients : -1 means disable the check
                 "Violation limit": 0.01,

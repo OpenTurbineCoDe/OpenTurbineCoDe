@@ -15,20 +15,13 @@ import time
 import pickle
 from sqlitedict import SqliteDict
 from collections import OrderedDict
-
-# TODO: clean?
-# sys.path.insert(1, './scripts')
-# from OTCDparser import OFparse, getLiftDistribution
-# from utilities import WT_performance
-# # from Wrapped_lofi_Analysis import compute_lofi
-
 from ..utils import OTCDparser as parser
 from ..utils import utilities as ut
 from .Wrapped_hifi_Analysis import HiFiAeroStruct
 from .Wrapped_lofi_Analysis import LoFiAeroStruct
 
 
-def pickleRead(fname, comm=None):  # TODO: move this somewhere more appropriate
+def pickleRead(fname, comm=None):
     """
     This is a paralle pickle.load function, which is performed on the root proc only.
     Error checking is necessary to provide py2 compatibility.
@@ -50,10 +43,7 @@ def pickleRead(fname, comm=None):  # TODO: move this somewhere more appropriate
     return b
 
 
-# TODO: add another dictionary for parameter sweeps?
 def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, optimize):
-
-    # baseDir = os.path.dirname(os.path.abspath(__file__))
 
     # =============================================================
     # Parse additional config input file(s)
@@ -73,7 +63,6 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
         rotsign = options["rotsign"]
     if "hifimesh" in options:
         hifimesh = options["hifimesh"]
-    # TODO: set default values ?
 
     if "case_tag" not in options:
         raise ValueError("case_tag missing in options")
@@ -106,8 +95,8 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
 
     # =============================================================
     # File names for the lofi analysis
-    # TODO: use read values instead of HARDCODED VALUES
-    # TODO: need a better management of file lists for OF/AD - more uniformity across files, etc.
+    # TODO DG: use read values instead of HARDCODED VALUES
+    # TODO DG: need a better management of file lists for OF/AD - more uniformity across files, etc.
     # =============================================================
 
     config["lofi"]["files"]["fstFile"] = case_tag + ".fst"
@@ -115,7 +104,7 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
     config["lofi"]["files"]["IWfile"] = case_tag + "_IW.dat"
     config["lofi"]["files"]["ADdrvfile"] = case_tag + "_ADdriver.inp"
 
-    # TODO: define standard names and look for the proper file instead of hardcoding it
+    # TODO DG: define standard names and look for the proper file instead of hardcoding it
     config["lofi"]["files"]["OFfileList"] = [
         config["lofi"]["files"]["IWfile"],
         case_tag + "_ADBlade.dat",
@@ -135,7 +124,7 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
     config["lofi"]["files"]["dirList"] = ["AeroData"]
 
     # ================================================
-    # Definition of the ouptus. TODO: pre-allocate...
+    # Definition of the ouptus
     # ================================================
     torque = []
     thrust = []
@@ -160,7 +149,6 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
             except IndexError:  # Hack due to the fact that numpy.array returns a weird float if the input is just a scalar
                 pitch = pitchlist
 
-            # TODO: use Tag instead of the long name of the configuration
             name = f"MDA_{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
             options["casename"] = name
             if not plotonly:
@@ -192,23 +180,6 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
                 example_plots = os.path.join(exampleDirectory, "example_param_studies.py")
                 os.system(f"python {example_plots}")
 
-                # TODO: clean?
-                # Name used for plotting purposes only
-                # outsname = name + f"_000_lift.dat"
-                # res = parser.getLiftDistribution(os.path.join(outputDirectory,outsname))
-
-                # Ico = 'Coordinate' + str.capitalize(spanDir)
-                # trq = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
-                # thr = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
-
-            # TODO: temporarily disabling the "generalized" output vector
-            # # Extracting performance information
-            # CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
-
-            # thrust.append(thr)
-            # torque.append(trq)
-            # cp.append(abs(CP))
-
     # ================================================
     # Low-Fidelity runs with OpenFAST
     # ================================================
@@ -218,9 +189,6 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
         options["outputDirectory"] = outputDirectory
         config["lofi"]["lofi_code"] = "OpenFAST"
         config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["OFfileList"]
-        # TODO: clean?
-        # omlist
-        # rpmlist ...
 
         if MPI.COMM_WORLD.rank == 0:
             if not os.path.exists(outputDirectory):
