@@ -28,7 +28,8 @@ setuptools.setup(
             "adflow",
             "multipoint",
             "baseclasses",
-            "pytacs"
+            "pytacs",
+            "pygeo"
         ],
         "gui": ["PyQt5", "pyqtgraph"],
         "meshing": ["PGL"],

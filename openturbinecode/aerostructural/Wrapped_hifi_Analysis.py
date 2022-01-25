@@ -2,33 +2,46 @@
 #         Import modules
 # ======================================================================
 import numpy as np
+import os
+import json
 from mpi4py import MPI
 import pickle
 from pprint import pprint
 
-from .SETUP import setup_aerostruct, setup_aerostructprob, setup_tacs, setup_structprob, setup_warping
-
 try:
     from baseclasses import AeroProblem
-    from adflow import ADFLOW
     from multipoint import multiPointSparse
     from pyoptsparse import Optimization, OPT
-except ImportError as err:
-    _has_adflow = False
+except ImportError as err:  # noqa
+    _has_mach = False
 else:
-    _has_adflow = True
+    _has_mach = True
+
+from .SETUP import (
+    setup_adflow,
+    setup_aerostruct,
+    setup_aerostructprob,
+    setup_geometry,
+    setup_tacs,
+    setup_structprob,
+    setup_warping,
+)
 
 """
 Definition of a decorator to be used on every function that requires the sprcific module
 """
-def requires_adflow(function):  # TODO turn this into requires_MACH
-    def check_requirement(*args,**kwargs):
-        if not _has_adflow:
-            raise ImportError("adflow is required to do this.")
-        function(*args,*kwargs)
+
+
+def requires_MACH(function):
+    def check_requirement(*args, **kwargs):
+        if not _has_mach:
+            raise ImportError("MACH dependencies are required to do this.")
+        function(*args, *kwargs)
+
     return check_requirement
 
-def pickleWrite(fname, obj, comm=None):  # TODO: move this somewhere more appropriate
+
+def pickleWrite(fname, obj, comm=None):
     """
     Parallel pickle.dump function, only performs operations on the root proc
     """
@@ -39,10 +52,8 @@ def pickleWrite(fname, obj, comm=None):  # TODO: move this somewhere more approp
         comm.barrier()
 
 
-# TODO: add another dictionary for parameter sweeps?
-@requires_adflow
-def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
-    #TODO: use the pitch variable!
+@requires_MACH
+def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
 
     # ======================================================================
     #         Unpack options/params
@@ -51,103 +62,26 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
     outputDirectory = options["outputDirectory"]
     case_tag = options["case_tag"]
     casename = options["casename"]
-    spanRef  = options["spanRef"]
-    spanDir  = options["spanDir"]
-    areaRef  = options["areaRef"]
-    restart  = options["restart"] if "restart" in options else None
+    spanRef = options["spanRef"]
+    spanDir = options["spanDir"]
+    areaRef = options["areaRef"]
+    restart = options["restart"] if "restart" in options else None
     hifimesh = options["hifimesh"]
-    
+
     # ======================================================================
     #         Input Information
     # ======================================================================
 
     rotRate_z = tsr * Vel / spanRef
     rpm = rotRate_z / (2 * np.pi) * 60
-
-    print("Rotation Rate:", rotRate_z)
-    print("RPM:", rpm)
-
-
-    # TODO: we need to clarify if / how we loop over V and tsr
+    init_funcs_file = f"{outputDirectory}/init_funcs.json"
+    if MPI.COMM_WORLD.rank == 0:
+        print("Rotation Rate:", rotRate_z)
+        print("RPM:", rpm)
 
     if restart is not None:
         casename = casename + "_restart"
     ap = AeroProblem(name=casename, V=Vel, T=T, rho=rho, areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx", "fx"])
-
-    AEROSOLVER = ADFLOW
-    gridFile = f"{path_to_case}/ADflow/INPUT/{case_tag}_L{hifimesh}.cgns"
-    CFL = 1.5
-    MGCYCLE = "sg"
-    MGSTART = -1
-    nCycles = 200000
-
-    # TODO: for future maintainability, we might need to take the aeroOptions and ADflow instantiation to a separate file
-    # to be also accessed by the optimization script
-
-    aeroOptions = {
-        # Common Parameters
-        "gridFile": gridFile,
-        "restartFile": restart,
-        "outputDirectory": outputDirectory,
-        # Physics Parameters
-        "equationType": "RANS",
-        "smoother": "DADI",
-        "lowspeedpreconditioner": True,
-        "userotationsa": True,
-        "useqcr": True,
-        "useblockettes": False,
-        "vis2": 0.250,
-        "restrictionrelaxation": 1.0,
-        # Common Parameters
-        "CFL": CFL,
-        "CFLCoarse": CFL,
-        "MGCycle": MGCYCLE,
-        "MGStartLevel": MGSTART,
-        "nCyclesCoarse": 250,
-        "nCycles": nCycles,
-        # Newton-Krylov Parameters
-        "usenksolver": True,
-        "nkswitchtol": 1e-14,
-        "nkinnerpreconits": 2,
-        "nkjacobianlag": 3,
-        "nkouterpreconits": 3,
-        "nkpcilufill": 2,
-        "nksubspacesize": 100,
-        # Approximate Newton-Krylov Parameters
-        "useanksolver": True,
-        "ankswitchtol": 1.0,
-        "anklinearsolvetol": 0.05,
-        "ankcflexponent": 0.5,
-        "ankmaxiter": 60,
-        "ankpcilufill": 2,
-        "nsubiterturb": 10,
-        "ankstepmin": 0.01,
-        "anksecondordswitchtol": 1e-2,
-        # 'ankcfllimit':500.,
-        "anklinresmax": 0.1,
-        # Convergence Parameters
-        "L2Convergence": 1e-11,
-        "L2ConvergenceCoarse": 1e-6,
-        # Adjoint Parameters
-        "adjointL2Convergence": 1e-9,
-        "ADPC": True,
-        "adjointMaxIter": 500000,
-        "adjointSubspaceSize": 500,
-        "ILUFill": 2,
-        "ASMOverlap": 1,
-        "outerPreconIts": 3,
-        # Special
-        "monitorvariables": ["cpu", "resrho", "cl", "cd", "resturb", "cfx", "cmx", "yplus"],
-        # Output files
-        "volumevariables": ["resrho", "resturb"],
-        "surfacevariables": ["cp", "mach", "yplus", "sepsensor", "p", "temp"],
-    }
-
-    if int(hifimesh) >= 2:
-        # Different options for coarser meshes
-        aeroOptions["nkswitchtol"] = 1e-8
-        aeroOptions["anklinresmax"] = 0.9
-        aeroOptions["ankcfllimit"] = 500.0
 
     # ======================================================================
     #         Create multipoint communication object
@@ -162,16 +96,26 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
     #         Create aerostruct solver
     # ======================================================================
 
-    # Create solver
-    CFDSolver = AEROSOLVER(options=aeroOptions, comm=comm)
+    # ---- pyGeo setup
+    FFDfldr = f"{path_to_case}/ADflow/INPUT/"
+    fix_root_sect = 1
+    geom_dvs = []
 
-    # setRotationRate(self, rotCenter, rotRate, cgnsBlocks=None)
-    CFDSolver.setRotationRate([0, 0, 0], [rotRate_z, 0, 0])
+    if optimize:
+        for key in options["opt_dvs"]:
+            if options["opt_dvs"][key] is True and key != "structThick":
+                geom_dvs.append(key)
+    else:
+        for key in options["analysis_input"]:
+            geom_dvs.append(key)
+            geom_dvs.append("pitch")
 
-    pos = np.array([0.1, 0.25, 0.5, 0.75, 0.9]) * spanRef
-    CFDSolver.addSlices(spanDir, pos, sliceType="absolute")
-    CFDSolver.addLiftDistribution(150, spanDir)
+    DVGeoG, DVGeoc1, DVGeoc2, DVGeoc3 = setup_geometry.setup(fix_root_sect, geom_dvs, comm, ap.name, FFDfldr)
 
+    # ---- ADflow setup
+    gridFile = f"{path_to_case}/ADflow/INPUT/{case_tag}_L{hifimesh}.cgns"
+    CFDSolver = setup_adflow.setup(comm, gridFile, hifimesh, restart, outputDirectory, rotRate_z, spanDir, spanRef)
+    CFDSolver.setDVGeo(DVGeoG)
     # ---- IDwarp - Warping setup
     mesh = setup_warping.setup(comm, gridFile)
     CFDSolver.setMesh(mesh)
@@ -179,12 +123,19 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
     # ---- TACS - Create structurual solver
     bdfFile = f"{path_to_case}/ADflow/INPUT/DTU_10MW_RWT_blade3D_rotated_3in1_AprilMay2021.bdf"
     FEASolver = setup_tacs.setup(comm, bdfFile)
-    dispFuncs = FEASolver.functionList.keys()  # Functions to keep track of
+    FEASolver.setDVGeo(DVGeoG)
+    dispFuncs = FEASolver.functionList.keys()
+    # Functions to keep track of for sensitivity evaluation
     objConFuncs = ["TotalMass"] + [f for f in dispFuncs if "KSFailure" in f]
+    if options["opt_constraints"]["displ"] is True:
+        objConFuncs += [f for f in dispFuncs if "displacement" in f]
+    if options["opt_constraints"]["thrust"] is True:
+        objConFuncs += ["fx"]
+    if options["opt_obj"]["torque"] is True:
+        objConFuncs += ["mx"]
 
     # --- pyAeroStrucuture - Create aerostructural solver ---
     AS = setup_aerostruct.setup(outputDirectory, comm, CFDSolver, FEASolver)
-
 
     # ---- Structproblem instantiation
     sp = setup_structprob.setup(dispFuncs, comm, ap)
@@ -202,8 +153,8 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
             pprint(x)
         funcs = {}
         printfuncs = {}
+        DVGeoG.setDesignVars(x)
         FEASolver.setDesignVars(x)
-        # asp.setDesignVars(x)
         AS(asp)
         AS.evalFunctions(asp, funcs, evalFuncs=objConFuncs)
         AS.checkSolutionFailure(asp, funcs)
@@ -215,25 +166,45 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
             print("MDA results")
             print("+ ----------------------------- +")
             pprint(printfuncs)
+        if not os.path.exists(init_funcs_file):
+            with open(init_funcs_file, "w") as outfile:
+                fun = funcs.copy()
+                json.dump(fun, outfile)
 
         return funcs
 
-
     def Sens(x, funcs):
         funcsSens = {}
-        AS.evalFunctionsSens(asp, funcsSens, evalFuncs=objConFuncs)  # + aero_problems[i].evalFuncs)
+        AS.evalFunctionsSens(asp, funcsSens, evalFuncs=objConFuncs)
         AS.checkAdjointSolutionFailure(asp, funcsSens)
-        # DVCon.evalFunctionsSens(funcsSens)
+
         if comm.rank == 0:
             print("MDA sensitivites")
             print("+ ----------------------------- +")
             pprint(funcsSens)
         return funcsSens
-    
+
     def objCon(funcs, printOK):
         funcs["obj"] = 0.0
+        with open(init_funcs_file) as confile:
+            init_funcs = json.load(confile)
+        MP.gcomm.barrier()
 
-        funcs["obj"] += funcs[f"{ap.name}_TotalMass"] / numDesignPoints
+        if options["opt_obj"]["mass"] is True:
+            funcs["obj"] += options["opt_obj"]["massWeight"] * (
+                funcs[f"{ap.name}_TotalMass"] / init_funcs[f"{ap.name}_TotalMass"]
+            )
+        if options["opt_obj"]["torque"] is True:
+            funcs["obj"] += options["opt_obj"]["torqueWeight"] * (funcs[f"{ap.name}_mx"] / init_funcs[f"{ap.name}_mx"])
+
+        if options["opt_constraints"]["thrust"] is True:
+            funcs["thrust_con_" + ap.name] = funcs[f"{ap.name}_fx"] / (
+                init_funcs[f"{ap.name}_fx"] * 1.05  # Hardcoded - 5% increase allowed
+            )
+
+        if options["opt_constraints"]["displ"] is True:
+            fname = f"{ap.name}_displacement_u"
+            funcs[f"displacement_con_{ap.name}"] = funcs[fname] / 1.05  # Hardcoded - 5% increase allowed
 
         if printOK:
             pprint(funcs)
@@ -241,20 +212,31 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
 
     if optimize:
 
-        optProb = Optimization("Mass minimization", MP.obj, comm=MPI.COMM_WORLD)
+        optProb = Optimization("Optimization", MP.obj, comm=MPI.COMM_WORLD)
 
         # Add variables from aeroProblem
         ap.addVariablesPyOpt(optProb)
 
-        FEASolver.addVariablesPyOpt(optProb)
+        # --- Add DVGeo variables ---
+        DVGeoG.addVariablesPyOpt(optProb)
 
-        for f in FEASolver.functionList:
-            if "KSFailure" in f:
-                optProb.addCon(f"{ap.name}_{f}", upper=1.0)
+        if options["opt_dvs"]["structThick"] is True:
+            FEASolver.addVariablesPyOpt(optProb)
+            FEASolver.addConstraintsPyOpt(optProb)
 
+        if options["opt_constraints"]["stress"] is True:
+            for f in FEASolver.functionList:
+                if "KSFailure" in f:
+                    optProb.addCon(f"{ap.name}_{f}", upper=1.0)
+
+        if options["opt_constraints"]["thrust"] is True:
+            optProb.addCon("thrust_con_" + ap.name, upper=1.0)
+
+        if options["opt_constraints"]["displ"] is True:
+            optProb.addCon("displacement_con_" + ap.name, upper=1.0)
         # Add Objective
-        optProb.addObj("obj", scale=1e-5)
-        
+        optProb.addObj("obj")
+
         MP.setProcSetObjFunc("standard", Obj)
         MP.setProcSetSensFunc("standard", Sens)
         MP.setObjCon(objCon)
@@ -262,35 +244,57 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
         optProb.printSparsity()
 
         # Optimizer option
-        optOptions = {
-            "Major feasibility tolerance": 1.0e-4,  # target nonlinear constraint violation
-            "Major optimality tolerance": 1.0e-4,  # target complementarity gap
-            "Function precision": 1.0e-5,  # TODO we might want to be more conservative?
-            "Major iterations limit": 500,
-            "Verify level": -1,  # check on gradients : -1 means disable the check
-            "Violation limit": 0.01,
-            "Major step limit": 0.1,
-            "Penalty parameter": 1e1,
-            "Print file": f"{outputDirectory}/SNOPT_print.out",
-            "Summary file": f"{outputDirectory}/SNOPT_summary.out",
-        }
+        if options["opt_options"]["optimizer"].lower() == "snopt":
+            optOptions = {
+                "Major feasibility tolerance": options["opt_options"]["tol"],  # target nonlinear constraint violation
+                "Major optimality tolerance": options["opt_options"]["tol"],  # target complementarity gap
+                "Function precision": 1.0e-5,
+                "Major iterations limit": options["opt_options"]["max_iters"],
+                "Verify level": -1,  # check on gradients : -1 means disable the check
+                "Violation limit": 0.01,
+                "Major step limit": 0.1,
+                "Penalty parameter": 1e1,
+                "Print file": f"{outputDirectory}/SNOPT_print.out",
+                "Summary file": f"{outputDirectory}/SNOPT_summary.out",
+            }
+        elif options["opt_options"]["optimizer"].lower() == "slsqp":
+            optOptions = {
+                "MAXIT": options["opt_options"]["max_iters"],
+                "ACC": options["opt_options"]["tol"],
+                "IFILE": f"{outputDirectory}/SLSQP.out",
+            }
+        elif options["opt_options"]["optimizer"].lower() == "ipopt":
+            optOptions = {
+                "max_iter": options["opt_options"]["max_iters"],
+                "tol": options["opt_options"]["tol"],
+                "output_file": f"{outputDirectory}/IPOPT.out",
+            }
+        else:
+            raise Warning("Invalid optimizer selected")
         # Instantiate Optimizer object
-        opt = OPT("snopt", options=optOptions)
+        opt = OPT(options["opt_options"]["optimizer"], options=optOptions)
 
         # Run Optimization
-        histFile = f"{outputDirectory}/snopt_hist.hst"
+        histFile = f"{outputDirectory}/{options['opt_options']['optimizer']}_hist.hst"
         sol = opt(optProb, MP.sens, storeHistory=histFile)
         if MPI.COMM_WORLD.rank == 0:
             print(sol)
     else:
 
+        # initial DV values
+        x = DVGeoG.getValues()
         # Retrieve thickness defined in the setup file
         thk = FEASolver.getValues()
-        funcs = Obj(thk)
+        x.update(thk)
 
-    # AS(asp)
-    # AS.evalFunctions(asp, funcs)
-    # AS.checkSolutionFailure(asp, funcs)
+        # updating DVs with user inputs
+        for key in options["analysis_input"]:
+            x[key] = options["analysis_input"][key]
+        x["pitch"] = pitch
+
+        coords = mesh.getSurfaceCoordinates()
+        DVGeoG.addPointSet(coords, "coords")
+        funcs = Obj(x)
 
     if MPI.COMM_WORLD.rank == 0:
         print(funcs)
@@ -298,7 +302,6 @@ def HiFiAeroStruct(tsr,Vel,pitch,rho,T,options,optimize=False):
     funcs["mx"] = funcs[f"{ap.name}_mx"]
     funcs["fx"] = funcs[f"{ap.name}_fx"]
 
-
     pickleWrite(f"{outputDirectory}/Funcs.pkl", funcs)
-    
+
     return funcs, ap
