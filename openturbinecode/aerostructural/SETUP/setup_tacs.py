@@ -44,7 +44,6 @@ def setup(comm, bdfFile):
     FEASolver.addDVGroup("SPARS", include="SPAR.00", nGroup=9)
     FEASolver.addDVGroup("SPARS", include="SPAR.01", nGroup=9)
     FEASolver.addDVGroup("SPARS", include="SPAR.02", nGroup=9)
-    # FEASolver.addDVGroup("SPARS", include="SPAR.03", nGroup=9)
 
     # Now create the skin groups, from side of body outwards, 2 skin panels per group
     for skin in ["U", "L"]:
@@ -112,7 +111,7 @@ def setup(comm, bdfFile):
     #       Add functions
     # ==============================================================================
 
-    funcGroups = {"USkin": "U_SKIN", "LSkin": "L_SKIN", "LESpar": "SPAR.02", "TESpar": "SPAR.01", "LEPatch": "SPAR.03"}
+    funcGroups = {"USkin": "U_SKIN", "LSkin": "L_SKIN", "Spars": ["SPAR.01", "SPAR.02", "SPAR.03"]}
     safetyFactor = 1.5
     KSWeight = 100.0
 
@@ -129,6 +128,6 @@ def setup(comm, bdfFile):
     FEASolver.addFunction(
         "displacement_u", functions.AggregateDisplacement, include="U_SKIN", KSWeight=KSWeight, axisIndex=0
     )  # Only checking the lower skin
-    FEASolver.functionList["displacement_u"].setAggregateType(1)  # TODO: figure out the best kind of setting
+    FEASolver.functionList["displacement_u"].setAggregateType(1)
     FEASolver.functionList["displacement_u"].setQuadratureType(0)
     return FEASolver
