@@ -21,14 +21,11 @@ def requires_adflow(function):
         if not _has_adflow:
             raise ImportError("adflow is required to do this.")
         function(*args,*kwargs)
-        # TODO: should return the outputs of the function for correct info passing
     return check_requirement
 
 
-# TODO: add another dictionary for parameter sweeps?
 @requires_adflow
 def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
-    #TODO: use the pitch variable!
 
     # ======================================================================
     #         Unpack options/params
@@ -58,9 +55,6 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
     print("Rotation Rate:", rotRate_z)
     print("RPM:", rpm)
 
-
-    # TODO: we need to clarify if / how we loop over V and tsr
-
     if restart is not None:
         casename = casename + "_restart"
     ap = AeroProblem(name=casename, V=Vel, T=T, rho=rho, areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx", "fx"])
@@ -72,8 +66,6 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
     MGSTART = -1
     nCycles = 200000
 
-    # TODO: for future maintainability, we might need to take the aeroOptions and ADflow instantiation to a separate file
-    # to be also accessed by the optimization script
 
     aeroOptions = {
         # Common Parameters

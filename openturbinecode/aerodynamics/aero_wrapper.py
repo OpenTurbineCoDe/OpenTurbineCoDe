@@ -24,8 +24,6 @@ from .Wrapped_hifi_Analysis import HiFiAero
 from .Wrapped_lofi_Analysis import LoFiAero
 
 
-# TODO: add the ability to specify blade pitch
-# TODO: add another dictionary for parameter sweeps?
 def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlist = None):
 
     # baseDir = os.path.dirname(os.path.abspath(__file__))
@@ -48,7 +46,6 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
         rotsign = options["rotsign"]
     if "hifimesh" in options:
         hifimesh = options["hifimesh"]
-    #TODO: set default values ?
 
     if not "case_tag" in options:
         raise ValueError("case_tag missing in options") 
@@ -79,8 +76,6 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
         
     # =============================================================
     # File names for the lofi analysis
-    # TODO: use read values instead of HARDCODED VALUES
-    # TODO: need a better management of file lists for OF/AD - more uniformity across files, etc.
     # =============================================================
 
     config["lofi"]["files"]["fstFile"] = case_tag + ".fst"
@@ -130,7 +125,6 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
             options["spanRef"] = spanRef
             options["areaRef"] = areaRef
             
-            #TODO: use Tag instead of the long name of the configuration
             name = f"{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
             options["casename"] = name
             if not plotonly:
@@ -301,7 +295,6 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
             # subprocess.run(["of4x"])
             # subprocess.run(["mpirun -np " + self.comBox_11.currentText() + " pimpleFoam -parallel > log&" ])
         
-        #TODO: manage post-processing
         torque.append(nan)
         thrust.append(nan)
         cp.append(nan)

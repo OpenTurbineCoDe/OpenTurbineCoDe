@@ -37,7 +37,7 @@ class Aerodynamics:
             turb_yaml = path_to_TMP + os.sep + "Madsen2019_10.yaml"
             self.reload_turbdata(turb_yaml)
             
-        self.case_tag = "DTU_10MW" #TODO: this should be read from turbdata!
+        self.case_tag = "DTU_10MW"
             
         # global parameters
         self.fidelity = "AeroDyn"
@@ -46,9 +46,6 @@ class Aerodynamics:
         self.mesh_level = "2" #TODO: read from models
 
         #parameters for sweep:
-        # self.tsrlist = np.array([9.6]) #TODO: read from models
-        # self.Vlist = np.array([8.]) #TODO: read from models
-        # self.pitchlist = np.array([0.]) #TODO: read from models
         self.tsrlist = np.array([9.34,7.81,7.81,7.47]) #TODO: read from models
         self.Vlist = np.array([6.,8.,10.,12.]) #TODO: read from models
         self.pitchlist = np.array([0.,0.,0.,0.]) #TODO: read from models
@@ -98,20 +95,20 @@ class Aerodynamics:
 
     def Run(self):
 
-        T = 273.25 #TODO: environment turb data give speend of sound instead
+        T = 273.25 
         rho = self.turb_data["environment"]["air_density"]
         R0 = self.turb_data["components"]["hub"]["diameter"] / 2.
         R = self.turb_data["assembly"]["rotor_diameter"] / 2.
         Nblade =  self.turb_data["assembly"]["number_of_blades"]
 
-        options = {} #TODO:  fill that with whatever is needed...
+        options = {}
 
         options["path_to_case"] = self.path_to_case
         options["case_tag"] = self.case_tag
         options["fidelity"] = self.fidelity
 
-        options["spanDir"] = "y" #TODO: this should come from turbine definition
-        options["rotsign"] = 1 #TODO: this should come from turbine definition
+        options["spanDir"] = "y" 
+        options["rotsign"] = 1 
         options["hifimesh"] = self.mesh_level
         # options["output"] = "..."
 
@@ -139,8 +136,6 @@ class Aerodynamics:
 
     def PlotCp(self):
         plt.ion()
-        #TODO: call a proper postpro function, common with aero_compute_standalone
-        # f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
         f = plt.figure(num=1,figsize=(10, 7.5)) #(8, 3.2)
     
         plt.plot(self.Vlist, self.cp, label=self.fidelity, marker="+")
@@ -156,9 +151,6 @@ class Aerodynamics:
 
     def PlotThrust(self):
         plt.ion()
-
-        #TODO: call a proper postpro function, common with aero_compute_standalone
-        # f, ax = plt.subplots(figsize=(10, 7.5)) #(8, 3.2)
         f = plt.figure(num=2,figsize=(10, 7.5)) #(8, 3.2)
     
         plt.plot(self.Vlist, self.thrust / 1.e6, label=self.fidelity, marker="+")
@@ -174,9 +166,6 @@ class Aerodynamics:
 
     def PlotTorque(self):
         plt.ion()
-
-        #TODO: call a proper postpro function, common with aero_compute_standalone
-        # f, ax = plt.subplots(figsize=(10, 7.5)) 
         f = plt.figure(num=3,figsize=(10, 7.5)) #(8, 3.2)
     
         plt.plot(self.Vlist, self.torque / 1.e6, label=self.fidelity, marker="+")

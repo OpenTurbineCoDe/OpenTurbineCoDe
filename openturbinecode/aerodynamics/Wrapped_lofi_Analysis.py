@@ -119,7 +119,6 @@ def replaceInFileTable(filename, inputDir, outputDir, iline, icol, value, mod=0,
     ofh.close()
 
 
-# TODO: add another dictionary for parameter sweeps?
 def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
 
     # ======================================================================
@@ -130,9 +129,6 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
     case_tag = options["case_tag"]
     # casename = options["casename"]
     # spanDir  = options["spanDir"]
-    
-    #TODO: do something with rho
-    #TODO: do something with T
 
     if Rscale != None:
         R *= Rscale
