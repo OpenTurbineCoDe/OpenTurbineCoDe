@@ -111,6 +111,7 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
     else:
         for key in options["analysis_input"]:
             geom_dvs.append(key)
+            geom_dvs.append("pitch")
 
     DVGeoG, DVGeoc1, DVGeoc2, DVGeoc3 = setup_geometry.setup(fix_root_sect, geom_dvs, comm, ap.name, FFDfldr)
 
@@ -272,9 +273,22 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
             print(sol)
     else:
 
+        # initial DV values
+        x = DVGeoG.getValues()
         # Retrieve thickness defined in the setup file
         thk = FEASolver.getValues()
-        funcs = Obj(thk)
+        x.update(thk)
+
+        for key in options["analysis_input"]:
+            x[key] = options["analysis_input"][key]
+        x["pitch"] = pitch
+
+        print(x)
+        quit()
+
+        coords = mesh.getSurfaceCoordinates()
+        DVGeoG.addPointSet(coords, "coords")
+        funcs = Obj(x)
 
     # AS(asp)
     # AS.evalFunctions(asp, funcs)
