@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np 
 import subprocess
-import scp
+import shutil
 import pandas as pd
 
 import openturbinecode.meshing.surf_mesher_PGL as pgl
@@ -33,6 +33,8 @@ class Geometry:
         self.lofts = 2
 
         ## End of BB3D default settings
+
+        self.case_tag = "DTU_10MW"
 
         self.afNum = 0
         self.AFID = []
@@ -197,28 +199,39 @@ class Geometry:
 
     def Geo_generateAeroDyn(self, table):
         print("Generating AeroDyn blade file")
-        # TODO: replace file name and location
-        bl = open(self.path_to_case+'/AeroDynBL.dat', 'w')
+
+        os.makedirs(self.path_to_case + os.sep + "AeroDyn", exist_ok=True)
+        os.makedirs(self.path_to_case + os.sep + "OpenFAST", exist_ok=True)
+        bladeFile1 = self.path_to_case + os.sep + "AeroDyn" + os.sep + self.case_tag + "_ADBlade.dat"
+        bladeFile2 = self.path_to_case + os.sep + "OpenFAST" + os.sep + self.case_tag + "_ADBlade.dat"
+        # TODO: do not hardcode file name and location
+
+        bl = open(bladeFile1, 'w')
         bl.write("------- AERODYN v15.04.* BLADE DEFINITION INPUT FILE ------------------------------------- \n")
-        bl.write("Description line for this file -- file corresponds to inputs in Test01_UAE_AeroDyn.dat \n") # TODO: change description
+        bl.write("File generated with OpenTurbineCoDe \n")
         bl.write("======  Blade Properties ================================================================= \n")
         bl.write("   " + str(table.rowCount()-1) + "              NumBlNds           - Number of blade nodes used in the analysis (-) \n")
         bl.write("  BlSpn     BlCrvAC    BlSwpAC    BlCrvAng    BlTwist    BlChord    BlAFID \n")
         bl.write("  (m)       (m)        (m)        (deg)       (deg)      (m)        (-) \n")
         for row in range(0, table.rowCount()):
             bl.write(str(table.item(row, 0).text()) + "\t 0 \t 0 \t 0 \t" + str(table.item(row, 1).text()) + "\t" + str(table.item(row, 3).text()) + "\t" + str(table.item(row, 2).text()) + "\n")
-        print("Done writing AeroDyn blade file. The file is stored in " + self.path_to_case+'/AeroDynBL.dat')
         bl.close()
+        print("Done writing AeroDyn blade file. The file is stored in " + bladeFile1)
+        shutil.copy(bladeFile1, bladeFile2)
+
 
     def Geo_generateTurbinesFoam(self, table):
         print("Generate turbinesFoam file")
-        # TODO: replace file name and location
-        bl = open(self.path_to_case+'/turbFoam.dat', 'w')
-        af = open(self.path_to_case+'/AF.dat', 'w')
+        # TODO: do not hardcode file name and location
+        os.makedirs(self.path_to_case+os.sep+"turbineFoam", exist_ok=True)
+        bl = open(self.path_to_case+os.sep+"turbineFoam"+os.sep+'turbFoam.dat', 'w')
+        af = open(self.path_to_case+os.sep+"turbineFoam"+os.sep+'AF.dat', 'w')
         for row in range(0, table.rowCount()):
             bl.write("(0 \t " + str(table.item(row, 0).text()) + "\t 0 \t" + str(table.item(row, 1).text()) + "\t 0.25 \t" + str(table.item(row, 2).text()) + ")\n")
             af.write(str(table.item(row,3).text())+'\n')
-        print("Done writing turbinesFoam blade file. The file is stored at "+self.path_to_case+"/turbFoam.dat and AF.dat")
+        bl.close()
+        af.close()
+        print("Done writing turbinesFoam blade file. The file is stored at "+self.path_to_case+"turbineFoam/turbFoam.dat and AF.dat")
 
     
     #=====  PGL FUNCTIONS ===============================================

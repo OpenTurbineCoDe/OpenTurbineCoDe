@@ -140,7 +140,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
     def load_case(self):
 
-        #TODO: select the right path depending on the case_list combobox
+        #TODO: select the right path depending on the case_list combobox. As there is only 1 option there for now, let's just hardcode it.
         path = self.pathToMadsen
 
         self.OTCD.turb_yaml = path
