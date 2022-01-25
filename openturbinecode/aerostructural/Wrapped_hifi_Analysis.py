@@ -103,15 +103,16 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
     FFDfldr = f"{path_to_case}/ADflow/INPUT/"
     fix_root_sect = 1
     geom_dvs = []
-    if optimize is True:
+
+    if optimize:
         for key in options["opt_dvs"]:
-            print(options["opt_dvs"][key])
             if options["opt_dvs"][key] is True and key != "structThick":
                 geom_dvs.append(key)
     else:
         for key in options["analysis_input"]:
             geom_dvs.append(key)
             geom_dvs.append("pitch")
+
     DVGeoG, DVGeoc1, DVGeoc2, DVGeoc3 = setup_geometry.setup(fix_root_sect, geom_dvs, comm, ap.name, FFDfldr)
 
     # ---- ADflow setup
@@ -126,11 +127,15 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
     bdfFile = f"{path_to_case}/ADflow/INPUT/DTU_10MW_RWT_blade3D_rotated_3in1_AprilMay2021.bdf"
     FEASolver = setup_tacs.setup(comm, bdfFile)
     FEASolver.setDVGeo(DVGeoG)
-    dispFuncs = FEASolver.functionList.keys()  # Functions to keep track of
-    objConFuncs = (
-        ["TotalMass"] + [f for f in dispFuncs if "KSFailure" in f] + [f for f in dispFuncs if "displacement" in f]
-    )
-    objConFuncs += ["mx", "fx"]
+    dispFuncs = FEASolver.functionList.keys()
+    # Functions to keep track of for sensitivity evaluation
+    objConFuncs = ["TotalMass"] + [f for f in dispFuncs if "KSFailure" in f]
+    if options["opt_constraints"]["displ"] is True:
+        objConFuncs += [f for f in dispFuncs if "displacement" in f]
+    if options["opt_constraints"]["thrust"] is True:
+        objConFuncs += ["fx"]
+    if options["opt_obj"]["torque"] is True:
+        objConFuncs += ["mx"]
 
     # --- pyAeroStrucuture - Create aerostructural solver ---
     AS = setup_aerostruct.setup(outputDirectory, comm, CFDSolver, FEASolver)
@@ -197,12 +202,12 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
 
         if options["opt_constraints"]["thrust"] is True:
             funcs["thrust_con_" + ap.name] = funcs[f"{ap.name}_fx"] / (
-                init_funcs[f"{ap.name}_fx"] * 1.05  # Hardcoded 5% increase
+                init_funcs[f"{ap.name}_fx"] * 1.05  # Hardcoded - 5% increase allowed
             )
 
         if options["opt_constraints"]["displ"] is True:
             fname = f"{ap.name}_displacement_u"
-            funcs[f"displacement_con_{ap.name}"] = funcs[fname] / 1.05  # Hardcoded 5% increase
+            funcs[f"displacement_con_{ap.name}"] = funcs[fname] / 1.05  # Hardcoded - 5% increase allowed
 
         if printOK:
             pprint(funcs)
@@ -256,19 +261,24 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
                 "Summary file": f"{outputDirectory}/SNOPT_summary.out",
             }
         elif options["opt_options"]["optimizer"].lower() == "slsqp":
-            optOptions = {"MAXIT": options["opt_options"]["max_iters"], "ACC": options["opt_options"]["tol"]}
+            optOptions = {
+                "MAXIT": options["opt_options"]["max_iters"],
+                "ACC": options["opt_options"]["tol"],
+                "IFILE": f"{outputDirectory}/SLSQP.out",
+            }
         elif options["opt_options"]["optimizer"].lower() == "ipopt":
             optOptions = {
                 "max_iter": options["opt_options"]["max_iters"],
                 "tol": options["opt_options"]["tol"],
+                "output_file": f"{outputDirectory}/IPOPT.out",
             }
         else:
             raise Warning("Invalid optimizer selected")
         # Instantiate Optimizer object
-        opt = OPT("snopt", options=optOptions)
+        opt = OPT(options["opt_options"]["optimizer"], options=optOptions)
 
         # Run Optimization
-        histFile = f"{outputDirectory}/snopt_hist.hst"
+        histFile = f"{outputDirectory}/{options['opt_options']['optimizer']}_hist.hst"
         sol = opt(optProb, MP.sens, storeHistory=histFile)
         if MPI.COMM_WORLD.rank == 0:
             print(sol)
@@ -280,6 +290,7 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
         thk = FEASolver.getValues()
         x.update(thk)
 
+        # updating DVs with user inputs
         for key in options["analysis_input"]:
             x[key] = options["analysis_input"][key]
         x["pitch"] = pitch
@@ -287,10 +298,6 @@ def HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=False):
         coords = mesh.getSurfaceCoordinates()
         DVGeoG.addPointSet(coords, "coords")
         funcs = Obj(x)
-
-    # AS(asp)
-    # AS.evalFunctions(asp, funcs)
-    # AS.checkSolutionFailure(asp, funcs)
 
     if MPI.COMM_WORLD.rank == 0:
         print(funcs)

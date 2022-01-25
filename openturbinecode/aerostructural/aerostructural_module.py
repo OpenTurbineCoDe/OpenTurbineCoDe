@@ -32,6 +32,7 @@ class Aerostructural:
 
         # Initialization of attributes
         if self.turb_data and self.models:
+            # TODO: what do we need here?
             # Will read directly from turb_data, so nothing to do here
             pass
         else:
@@ -45,6 +46,7 @@ class Aerostructural:
         self.case_tag = "DTU_10MW"  # TODO: this should be read from turbdata!
 
         Nel = 6  # number of stations spanwise
+        # TODO: defining number of spanwise sections?
         # Nel = len(self.turb_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"])
 
         # global parameters
@@ -60,7 +62,7 @@ class Aerostructural:
         # Optimization
         self.torqueWeight = 0.0
         self.massWeight = 1.0
-        self.optimizer = "snopt"
+        self.optimizer = "slsqp"
         self.convergencetolerance = 1e-4
         self.maxiters = 500
 
@@ -136,7 +138,7 @@ class Aerostructural:
         R = self.turb_data["assembly"]["rotor_diameter"] / 2.0
         Nblade = self.turb_data["assembly"]["number_of_blades"]
 
-        options = {}  # TODO:  fill that with whatever is needed...
+        options = {}
 
         options["path_to_case"] = self.path_to_case
         options["case_tag"] = self.case_tag
@@ -255,7 +257,7 @@ if __name__ == "__main__":
     parser.add_argument("--optimize", help="perform optimization instead of single point analysis", action="store_true")
     args = parser.parse_args()
 
-    myAeroStruct = Aerostructural(path_to_case, plotonly=args.plotonly, optimize=False)
+    myAeroStruct = Aerostructural(path_to_case, plotonly=args.plotonly, optimize=args.optimize)
     myAeroStruct.setDefaultValues()
     myAeroStruct.Run()
     if not args.plotonly and MPI.COMM_WORLD.rank == 0:

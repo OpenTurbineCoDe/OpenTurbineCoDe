@@ -11,10 +11,12 @@ authors: Denis-Gabriel Caprace, Marco Mangano
 import numpy as np
 import os
 from mpi4py import MPI
+import time
 import pickle
 from sqlitedict import SqliteDict
 from collections import OrderedDict
 
+# TODO: clean?
 # sys.path.insert(1, './scripts')
 # from OTCDparser import OFparse, getLiftDistribution
 # from utilities import WT_performance
@@ -48,7 +50,6 @@ def pickleRead(fname, comm=None):  # TODO: move this somewhere more appropriate
     return b
 
 
-# TODO: add the ability to specify blade pitch
 # TODO: add another dictionary for parameter sweeps?
 def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, optimize):
 
@@ -169,6 +170,7 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
                         print("+ ------------------------------------ +")
                         print("Starting Optimization")
                         print("+ ------------------------------------ +")
+                        time.sleep(2)
                     HiFiAeroStruct(tsr, Vel, pitch, rho, T, options, optimize=optimize)
 
                 else:
@@ -190,6 +192,7 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
                 example_plots = os.path.join(exampleDirectory, "example_param_studies.py")
                 os.system(f"python {example_plots}")
 
+                # TODO: clean?
                 # Name used for plotting purposes only
                 # outsname = name + f"_000_lift.dat"
                 # res = parser.getLiftDistribution(os.path.join(outputDirectory,outsname))
@@ -215,6 +218,7 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
         options["outputDirectory"] = outputDirectory
         config["lofi"]["lofi_code"] = "OpenFAST"
         config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["OFfileList"]
+        # TODO: clean?
         # omlist
         # rpmlist ...
 
