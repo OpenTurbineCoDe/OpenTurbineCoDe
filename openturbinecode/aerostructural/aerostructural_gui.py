@@ -4,13 +4,9 @@
 
 import sys
 import os
-
-# import matplotlib.pyplot as plt
 import numpy as np
 import ast
 import argparse
-
-# import subprocess
 
 # conditional imports
 try:
@@ -31,11 +27,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         self.myAeroStruct = myAeroStruct
 
-        # =================== INITIALIZE FIELD VALUES ==============================
-        # self.myAeroStruct.setDefaultValues()  # redundant, it's done on init
+        # --- Initialize field values ---
         self.writeToUI()
 
-        # =================== FORCE INTERNAL VALUES WHEN RUNNING WITH MASTER ==============================
+        # --- Force intenral values when runnning from master ---
         if withMasterGUI:
             self.lineEdit_5.setEnabled(False)
 
@@ -61,10 +56,10 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     def writeToUI(self):
 
         # Set interface values
+        # TODO: clean
         # model list
         # self.rotorPath.setText(self.myAeroStruct.path_to_case)
 
-        # self.windSpeed.setText(', '.join([str(el) for el in self.myAeroStruct.Vlist]))
         # self.TSR.setText(', '.join([str(el) for el in self.myAeroStruct.tsrlist]))
         self.input_pitchAngle.setText(", ".join([str(el) for el in self.myAeroStruct.pitchlist]))
         self.input_twist.setText(", ".join([str(el) for el in self.myAeroStruct.analysis_input["twist"]]))

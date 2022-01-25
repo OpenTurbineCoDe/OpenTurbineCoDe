@@ -584,11 +584,6 @@
               <string>Aluminum</string>
              </property>
             </item>
-            <item>
-             <property name="text">
-              <string>Composite</string>
-             </property>
-            </item>
            </widget>
           </widget>
          </widget>
@@ -1577,7 +1572,7 @@
      <x>0</x>
      <y>0</y>
      <width>1410</width>
-     <height>39</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuAerostructural_analysis_and_optimization">
