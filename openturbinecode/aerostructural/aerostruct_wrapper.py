@@ -95,8 +95,6 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
 
     # =============================================================
     # File names for the lofi analysis
-    # TODO DG: use read values instead of HARDCODED VALUES
-    # TODO DG: need a better management of file lists for OF/AD - more uniformity across files, etc.
     # =============================================================
 
     config["lofi"]["files"]["fstFile"] = case_tag + ".fst"
@@ -104,7 +102,6 @@ def aerostruct_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options
     config["lofi"]["files"]["IWfile"] = case_tag + "_IW.dat"
     config["lofi"]["files"]["ADdrvfile"] = case_tag + "_ADdriver.inp"
 
-    # TODO DG: define standard names and look for the proper file instead of hardcoding it
     config["lofi"]["files"]["OFfileList"] = [
         config["lofi"]["files"]["IWfile"],
         case_tag + "_ADBlade.dat",

@@ -44,9 +44,7 @@ class Aerostructural:
 
         self.case_tag = "DTU_10MW"
 
-        Nel = 6  # number of stations spanwise
-        # TODO DG: double check if fine or we need to have the default ffd
-        # Nel = len(self.turb_data["components"]["blade"]["outer_shape_bem"]["twist"]["values"])
+        Nel = 6  # number of stations spanwise (for FFD deformation)
 
         # global parameters
         self.fidelity = "MACH"
