@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 # import shutil, tempfile, math, string
 # import numpy as np
 # import subprocess
+import ast
 
 #conditional imports
 try:
@@ -139,7 +140,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
     def load_case(self):
 
-        #TODO: select the right path depending on the case_list combobox
+        #TODO: select the right path depending on the case_list combobox. As there is only 1 option there for now, let's just hardcode it.
         path = self.pathToMadsen
 
         self.OTCD.turb_yaml = path
@@ -208,11 +209,12 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
     # from UI to internal DLC options
     def save_DLC_options(self):
-        DLC_list = [float(dlc) for dlc in self.Main_DLC_listDlc.text().split(',')]
-        n_ws     = float(self.Main_DLC_nws.text())
-        n_seeds  = float(self.Main_DLC_nseeds.text())
-        Tmax     = float(self.Main_DLC_TMax.text())
-        Vrated   = float(self.Main_DLC_VRated.text())
+        DLC_list = ast.literal_eval(self.Main_DLC_listDlc.text()) if self.Main_DLC_listDlc.text() else []
+        # [float(dlc) for dlc in self.Main_DLC_listDlc.text().split(',')]
+        n_ws     = float(self.Main_DLC_nws.text()) if self.Main_DLC_nws.text() else 0.
+        n_seeds  = float(self.Main_DLC_nseeds.text()) if self.Main_DLC_nseeds.text() else 0.
+        Tmax     = float(self.Main_DLC_TMax.text()) if self.Main_DLC_TMax.text() else 0.
+        Vrated   = float(self.Main_DLC_VRated.text()) if self.Main_DLC_VRated.text() else 0.
         
         self.OTCD.update_DLCoptions(DLC_list, n_ws    , n_seeds , Tmax    , Vrated  ) 
 

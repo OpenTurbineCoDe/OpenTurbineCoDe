@@ -1,36 +1,69 @@
 # Open Turbine Control co-Design
 
-This is a repository for the Open Turbine Control co-Designm code, under construction. We provide
-- installation instructions
-- quick start guide
-- developer's guidelines
-- preliminary instructions to run part of the code/examples
-- other explanations
+This is a repository for the Open Turbine Control co-Designm code.
+*This software is in BETA version.*
+ 
+The Master framework provides:  
+1) a library of models and examples,  
+2) a GUI with capabilities of  
+    -  top-level pre-processing,   
+    -  simple analysis and optimization execution, 
+    -  top-level post-processing, 
+    -  case data display, comparison, storage and recall. 
 
+The purpose of the GUI is to familiarize the user with basic functionalities explored in the Open Turbine Control co-Design project (https://arpa-e.energy.gov/technologies/projects/computationally-efficient-control-co-design-optimization-framework-mixed). However, it does **NOT** provide access to the entire set of functionalities and code developed during the project, which rely on dedicated user scripts. The examples provided in this repository merely constitute an introduction to more complex case studies. One of the main limitations to the use of the GUI is that it is currently not compatible with MPI, nor with HPC architectures. However, it is still possible to run separate case with MPI on HPC, and then plot the results with the GUI. 
+
+Please refer to the documentation of each module for more details.
+
+<!-- ------------------------------------------------------------------------------ -->
+## TODO
+ - [ ] license
+ - [ ] see most recent PR for additional TODO items
+
+<!-- ------------------------------------------------------------------------------ -->
 
 ## Installation / Configuration
 
-Make sure you `pip installed` the following dependencies:
-- numpy
-- mpi4py
-- ...
+This software was tested under unix and windows environments. 
 
-If `openfast` and `aerodyn` are not already in your path, you may adapt `openturbinecode/config.json` to specify the path to your executables. They are usually located respectively under `/path/to/openfast/build/glue-codes/openfast/openfast` and `/path/to/openfast/build/modules/aerodyn/aerodyn_driver`.
+### Dependencies
+
+Make sure you `pip installed` the following dependencies:
+- Base Package:  
+  - Python ≥ 3.6 
+  - Numpy 
+  - jsonschema 
+  - Matplotlib 
+  - scp 
+- GUI 
+  - PyQt5 
+  - pyqtgraph 
+
+Optional dependencies: 
+  - Conventional analysis 
+    - OpenFAST v2.4.0 : https://github.com/OpenFAST/openfast 
+    - Geometry 
+    - BB3D : https://github.com/smbarr/BB3D 
+    - Salome : https://salome-platform.org/downloads/current-version  
+    - PGL : https://gitlab.windenergy.dtu.dk/frza/PGL  
+  - High-Fidelity analysis 
+    - ADflow: https://github.com/mdolab/adflow  
+    - MACH-Aero : https://github.com/mdolab/MACH-Aero  
+    - TACS/pyTACS: https://github.com/mdolab/pytacs 
+    - PyAeroStructure: https://github.com/mdolab/pyaerostructure  
+  - Controls 
+    - pandas 
+    - ROSCO_toolbox (through WEIS, see below) 
+    - PCrunch (through WEIS, see below)
+  - DLC generation 
+    - AeroelasticSE (through WEIS, see below) 
+
+This wrapper code was made tolerant to missing optional dependencies. This means that you may install only the optional dependencies that you need. For example, if you aim to run low-fidelity aerodynamic analysis, OpenFAST should be sufficient. Please refer to the documentation of each module to determine your needs. Please follow the instructions provided by the external dependencies to install them.
+
+If `OpenFAST` and `AeroDyn` are not already in your path, you may adapt `openturbinecode/config.json` to specify the path to your executables. They are usually located respectively under `/path/to/openfast/build/glue-codes/openfast/openfast` and `/path/to/openfast/build/modules/aerodyn/aerodyn_driver`.
 :warning: we currently only support OpenFAST v2.4.
 
-To install this package, run 
-```
-pip3 install -e .
-```
-
-If you need to use the GUI, ensure that you have all the requirements by installing with:
-```
-pip3 install -e .[gui]
-```
-
-Some part of [WEIS](https://github.com/WISDEM/WEIS/tree/master/weis) are required to enable all the functionalities of this package. 
-We recommend using the guidelines provided in WEIS documentation for the full install.
-However, since only some parts of WEIS are necessary (mainly `AeroelasticSE`), a light install should be sufficient:
+Some of the optional dependencies are distributed through WEIS. We recommend using the guidelines provided in WEIS documentation for the full install. However, since only some parts of WEIS are necessary, a light install should be sufficient. After having downloaded the WEIS sources from https://github.com/WISDEM/WEIS, proceed with:
 ```
 export PYTHONPATH=$PYTHONPATH:/path/to/WEIS
 cd /path/to/WEIS/ROSCO_toolbox
@@ -39,34 +72,109 @@ cd /path/to/WEIS/pCrunch
 python3 install -e .
 ```
 Some dependencies of `AeroelasticSE` might need to be installed manually, e.g. `ruamel_yaml`.
+
+### Installation
+
+We recommend in-place installation (`-e`). To install this package, run 
+```
+pip3 install -e .
+```
+
+If you want to ensure you have all the requirements for a specific application, you can install with the following command: 
+```
+pip3 install -e .[gui, high-fidelity, meshing, controls] 
+```
+where you can select only what you need from the list in the brackets. This should at least ensure that the python dependencies are installed. 
+
+<!-- ------------------------------------------------------------------------------ -->
+
 ## Quick start guide
 
 **To run the master GUI**, from the root of the folder, execute
 
     python3 openturbinecode/main.py --GUI
 
-The GUI should pop up. There are other ways to run the main function without the GUI. For example, you can start the GUI and load turbine data at the same time (*functionality yet to come*):
+The GUI should pop up. There are other ways to run the main function without the GUI. For example, you can start the GUI and load turbine data at the same time:
 
     python3 openturbinecode/main.py --GUI --turbine ./models/DTU_10MW/Madsen2019/Madsen2019_10.yaml 
 
-More documentation to come...
+The turbine file must follow the WindIO onthology format. Examples are provided in the `/models` subfolder. 
 
 **To run any standalone GUI**, from the root of the folder, execute (*replace MODULE with the specific module you want):
 
 python3 openturbinecode/MODULE/MODULE_gui.py 
 
-## TODO
- - [ ] license
- - [ ] include dependencies in `setup.py`
- - [ ] consider using git lfs for managing cgns files
- - [ ] see most recent PR for additional TODO items
+## Models
+This folder gathers a collection of test cases for the ARPA-E Atlantis project on Open Turbine control Co-Design (originally part of OpenTurbineTestCases).
 
-## Developer guidelines
+Folders are organized as follows:
+- level 0: reference turbine
+- level 1: variants
+- level 2: solver/level of fidelity
+- level 3+: all *input* files/folders required to run the test cases
 
-*What follows is just a proposition for arranging the entire code, data structures, workflows.*
+We invite the user to copy the example folder in a working location before starting experimenting with the code.
 
-**See also specific guidelines for developments hereafter**.
+<!-- ------------------------------------------------------------------------------ -->
 
+## Examples
+
+### Aerodynamics wrapper
+
+The aerodynamic standalone wrapper runs ADflow, OpenFAST (v2.4) and/or AeroDyn over a set of tsr and inflow velocities, and returns a plot of Cp over tsr. To use it in command line, first 
+
+    cd ./examples/01_Aerodynamics_Standalone/
+
+To check the available input options type:
+
+    python3 aero_compute_standalone.py --help
+
+Before running anything, you need to define a case folder. We recommend starting from one of those provided in `./models`:
+
+    cp -r ../../models/NREL_PhaseVI_UAE/original case_aero_standalone
+
+Recall that you can also call the related GUI by running
+
+    python3 openturbinecode/aerodynamics/aerodynamics_gui.py  
+
+from the OTCD root folder.
+
+### Mesh Generation
+
+This is just a demo of how the framework can be used to call functions of different modules.
+
+To run the example in command line, do:
+
+    cd ./examples/02_Mesh_Generation_PGL
+    python3 ../../openturbinecode/main.py --runoptions ./run_options.yaml --turbine ./Madsen2019_10.yaml --models ./modeling_options.yaml
+
+It should generate the PGL geometry files and the surface mesh. Options for the operations to perform are passed through the `run_options.yaml` file.
+
+You can also call the GUI by running
+
+    python3 openturbinecode/geometry/geometry_gui.py 
+
+from the OTCD root folder.
+
+
+### DLC generation (DEMO)
+
+You can generate DLC files im command line:
+
+    cd ./examples/03_DLC_Generation
+    python3 ../../openturbinecode/main.py --runoptions ./run_options.yaml --turbine ./Madsen2019_10.yaml --models ./modeling_options.yaml
+
+Options for the operations to perform are passed through the `run_options.yaml` file.
+
+You can also generate DLC from the master GUI. For example, still from the example folder, run
+
+    python3 ../../openturbinecode/main.py --GUI --turbine ./Madsen2019_10.yaml --models ./modeling_options.yaml
+
+From the main panel, jump to the DLC tab. Adjust the parameters there as needed, and hit `generate DLCs`.
+
+<!-- ------------------------------------------------------------------------------ -->
+
+## User guidelines
 ### Case management, data handling, 
 Every time the user will want to start a project, a case study, etc. we suggest that he starts from one of the examples given in the `models` folder. He should create a working copy of an entire model at a location of his choice, e.g. doing 
  
@@ -76,6 +184,8 @@ At a later stage in this project, we might provide the ability to perform that o
 
 From there, all the actions performed from OpenTurbineCoDe will either modify or create new files in the file-tree under /path/to/case. For example, we can imagine that we generate the case files for an OpenFOAM run in some sub-folder there. Having everything centralized in a single, well-organized folder will allow us for example to sync the entire file-tree between a local machine and a cluster, so that some of the computationally expensive operations are performed on HPC and results are then synced back.
 
+<!-- ------------------------------------------------------------------------------ -->
+## Developers guidelines
 ### Code philosophy
 
 We work with a "parent-child" organization. There is a single, overarching entity that controls the entire execution of the code, that is, the `main` file of OpenTurbineCoDe. The code in there is in charge of interpreting user commands and data (either provided in command line or through a GUI) and then, from this information, call the relevant submodule functions. One big advantage of this approach is the following: we intend to be able to execute the exact same code either on a local computer, or on a supercomputer. For instance, a user can pull up the GUI on his local computer, generate some geometry files and set up and save a case; them, he can take the exact same file architecture to a supercomputer and execute the same code without the GUI in order to produce the results he asked for in the case file. This way, we ensure portability and maintainability.
@@ -114,67 +224,20 @@ from a super-computer).
 
 The `OpenTurbineCoDe` class defines its own `print` function. Please use it to display informative, non-essential messages. They will be shown in terminal if the code is set to be verbose. All critical messages (warnings/errors) should however use std/err print functions.
 
+<!-- ------------------------------------------------------------------------------ -->
 
 ## Specific guidelines for development
 
 ### GUI
+
+**Editing the UI file** requires the QTDesigner app.
 
 **Naming conventions**: When designing the UI with Qt tools, be very careful to **give a name** to every graphical object you create. For instance, if you add a line object, it will automatically be named something like `lineEdit_XX`. Please change this to a name meaningful to your module, e.g. `struct_line_YoungModulus`. This is to make sure that, when we develop the UI in parallel, there will be no duplicates in the named objects.
 
 ### Single modules
 
 **Dependencies**: specific external python modules should ideally not be hard requirements. Ideally, the code should be able to run a specific module with only the related dependencies, and without the dependencies of all the other modules. This means that we guarantee standalone execution of each module. 
-For example, to run the low-fidelity aerodynamics, I don't need to have `adflow` installed. See how this is managed at the top of `Wrapped_hifi_Analysis.py`. If you need to add external dependencies, please also amend the `./openturbinecode/__init__.py` file so that the user gets a warning on all the modules he needs to install.
+For example, to run the low-fidelity aerodynamics, I don't need to have `adflow` installed. See how this is managed at the top of `Wrapped_hifi_Analysis.py`. If you need to add external dependencies, please also amend the `./openturbinecode/setup.py` file so that the user gets a warning on all the modules he needs to install.
 
 <!-- ------------------------------------------------------------------------------ -->
 
-## Models
-This folder gathers a collection of test cases for the ARPA-E Atlantis project on Open Turbine control Co-Design (originally part of OpenTurbineTestCases).
-
-Folders are organized as follows:
-- level 0: reference turbine
-- level 1: variants
-- level 2: solver/level of fidelity
-- level 3+: all *input* files/folders required to run the test cases
-
-This repository does *not* contain the main pieces of software for the coupled optimization and for the control co-design loop.
-
-## Mesh Generation (DEMO)
-
-This is just a demo of how the glue code can be used to call functions of different modules.
-
-To run the example, do:
-
-    cd ./examples/02_Mesh_Generation_PGL
-    python3 ../../openturbinecode/main.py --runoptions ./run_options.yaml --turbine ./Madsen2019_10.yaml --models ./modeling_options.yaml
-
-It should generate the PGL geometry files and the surface mesh.
-
-## Aerodynamics wrapper (DEMO)
-
-The aerodynamic standalone wrapper runs ADflow, OpenFAST (v2.4) and/or AeroDyn over a set of tsr and inflow velocities, and returns a plot of Cp over tsr. To use it, first 
-
-    cd ./examples/01_Aerodynamics_Standalone/
-
-To check the available input options type:
-
-    python3 aero_compute_standalone.py --help
-
-Before running anything, you need to define a case folder. We recommend starting from one of those provided in `./models`:
-
-    cp -r ../../models/NREL_PhaseVI_UAE/original case_aero_standalone
-
-### Usage
-
-To run the aero wrapper use e.g. the following command:
-
-    mpirun -np <number of procs> python3 aero_compute_standalone.py --V <V1 V2 V3> --tsrlist <TSR1 TSR2 TSR3>
-
-To produce the plot comparing data from all the available sources on the UAE turbine, run:
-
-    python3 aero_compute_standalone.py --V 5. 6. 7. 8. 9. 10. 12. 15. 20. --tsrlist 7.58 6.32 5.42 4.74 4.21 3.78 3.16 2.53 1.90 --plotonly --fidelities AeroDyn OpenFAST ADflow --withEllipsys
-
-For DTU 10MW (provided you did `cp -r ../../models/DTU_10MW/Madsen2019 case_aero_standalone`):
-    python3 aero_compute_standalone.py --V 6. 8. 10. 12. --tsrlist 9.34 7.81 7.81 7.474 --configuration DTU_10MW --plotonly --withEllipsys 
-
-:warning: some parameters (turbine data, file names, etc.) are currently hardcoded, see the first sections in `aero_wrapper.py` and `aero_compute_standalone.py`.
