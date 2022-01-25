@@ -85,7 +85,7 @@
             </item>
             <item>
              <property name="text">
-              <string>OpenFAST</string>
+              <string>OpenFAST (analysis only)</string>
              </property>
             </item>
            </widget>
@@ -370,16 +370,6 @@
              <item>
               <property name="text">
                <string>Uniform flow</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>DLC 1.1</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>DLC 2.2</string>
               </property>
              </item>
             </widget>
