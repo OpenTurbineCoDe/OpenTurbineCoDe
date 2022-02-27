@@ -1,6 +1,6 @@
 # Open Turbine Control co-Design
 
-This is a repository for the Open Turbine Control co-Designm code.
+This is a repository for the Open Turbine Control co-Design code.
 *This software is in BETA version.*
  
 The Master framework provides:  
