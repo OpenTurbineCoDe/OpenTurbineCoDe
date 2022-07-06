@@ -14,7 +14,7 @@ else:
 
 
 """
-Definition of a decorator to be used on every function that requires the sprcific module
+Definition of a decorator to be used on every function that requires the specific module
 """
 def requires_aeroelasticse(function):
     def check_requirement(*args,**kwargs):

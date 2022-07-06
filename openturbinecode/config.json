@@ -5,6 +5,12 @@
         "path_to_beamdyn" : "beamdyn_driver"
     },
     "mefi": {
-        "path_to_pimpleFoam" : "pimpleFoam"
+        "path_to_pimpleFoam": "pimpleFoam",
+        "path_to_BB3D": "C:\\Users\\tanig\\Wind\\BB3D\\src\\make_blade.cpp",
+            "_comment1": "Previous line added by TG on 7/5"
+    },
+    "hifi": {
+        "path_to_Salome": "C:\\Users\\tanig\\Wind\\SALOME-9.8.0\\salome",
+            "_comment2": "Previous line added by TG on 7/5"
     }
 }
