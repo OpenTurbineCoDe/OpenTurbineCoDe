@@ -3,10 +3,6 @@ import sys
 import os
 import numpy as np
 
-
-#sys.path.insert(0,"C:\\Users\\tanig\\Wind\\WEIS")
-
-
 import openturbinecode.utils.io as io
     #There may be a message "Using weis.aeroelasticse in ROSCO_toolbox..." This is not an error message and comes from WEIS/ROSCO/ROSCO_toolbox/turbine.py
     #Associated message: Warning - The following packages/executables are not found: ['pCrunch', 'pyFAST', 'adflow', 'pgl', 'TACS/pyTACS', 'pygeo', 'AeroelasticSE', 'pimpleFoam']
@@ -180,6 +176,7 @@ class OpenTurbineCoDe:
 
     #TODO: move the definition of this function to IO?
     def update_DLCoptions(self, DLC_list, n_ws, n_seeds, TMax, Vrated):
+
         # check that DLC exists
         if not "DLC" in self.modeling_options["OpenTurbineCoDe"]:
             self.modeling_options["OpenTurbineCoDe"]["DLC"] = {}
@@ -196,6 +193,7 @@ class OpenTurbineCoDe:
 
 
     def call_generateDLC(self):
+
         DLC_list = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["DLC_list"]
         n_ws = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_ws"]
         n_seeds = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_seeds"]
