@@ -17,6 +17,8 @@ def OFparse(outfile,nodeR=[]):
    iPwr = np.nan
    iThr = np.nan
    iTrq = np.nan
+
+   #Assigns a numerical value of i for each parameter, corresponding to the column number where the values of that parameter are located.    TG
    for str in head:
       # if "B1N1Fn" in str:  #in the frame of the root chord
       # if "AB1N001Fn" in str:  #in the frame of the root chord

@@ -61,9 +61,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.Geo_pushButton_6.clicked.connect(self.caller_Geo_setBB3DExe)
         self.Geo_lineEdit_4.setText(self.myGeom.salomeExe)
         self.Geo_lineEdit_2.setText("")
-
-
+        
         self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDyn" + os.sep + "DTU_10MW_ADblade.dat")
+
     # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
 
     def writeToUI(self):
@@ -74,7 +74,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
         if self.myGeom.turb_data:
             R0 = self.myGeom.turb_data["components"]["hub"]["diameter"] / 2
+                #For Madsen2019 turbine, hub diameter is 5.6 m, so R0 is 2.8 m.    TG
             R  = self.myGeom.turb_data["assembly"]["rotor_diameter"] / 2
+                #For Madsen2019 turbine, rotor diameter is 178.3 m, so R is 89.15 m.    TG
 
             r =  self.myGeom.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["grid"]  
             chord = self.myGeom.turb_data["components"]["blade"]["outer_shape_bem"]["chord"]["values"]
@@ -83,7 +85,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             table = self.Geo_Table1
             table.setRowCount(len(r))
             for i in range(len(r)):
-                table.setItem(i, 0, QtWidgets.QTableWidgetItem(str(r[i] * (R-R0) + R0 )))
+#                table.setItem(i, 0, QtWidgets.QTableWidgetItem(str(r[i] * (R-R0) + R0 )))    #Commented out by TG 7/14
+                table.setItem(i, 0, QtWidgets.QTableWidgetItem(str(r[i] * (R-R0))))    #Added by TG 7/14
+                    #r in the yaml file goes from 0 to 1, so it needs to be scaled to the actual size of the blade.    TG
                 table.setItem(i, 1, QtWidgets.QTableWidgetItem(str(chord[i])))
                 table.setItem(i, 2, QtWidgets.QTableWidgetItem(str(twist[i] * 180. / np.pi)))
                 table.setItem(i, 3, QtWidgets.QTableWidgetItem(self.myGeom.AFlist[i]))

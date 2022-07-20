@@ -4,9 +4,11 @@ import sys, os, platform
 import numpy as np
 
 try:
-    # from weis.aeroelasticse.runFAST_pywrapper   import runFAST_pywrapper, runFAST_pywrapper_batch
-    from weis.aeroelasticse.CaseGen_IEC         import CaseGen_IEC
-    # from wisdem.commonse.mpi_tools              import MPI
+    # from weis.aeroelasticse.runfast_pywrapper   import runfast_pywrapper, runfast_pywrapper_batch
+    #from weis.aeroelasticse.CaseGen_IEC         import CaseGen_IEC    Commented out by TG 6/29
+    from ROSCO_toolbox.ofTools.case_gen.CaseGen_IEC import CaseGen_IEC    #TG 6/29
+        #the casegen_iec module no longer exists under aeroelasticse -- that's an old version of weis. an updated version of the module is under rosco.    TG
+    # from wisdem.commonse.mpi_tools              import mpi
 except ImportError as err:
     _has_aeroelasticse = False
 else:
@@ -14,11 +16,11 @@ else:
 
 
 """
-Definition of a decorator to be used on every function that requires the specific module
+Definition of a decorator to be used on every function that requires the sprcific module
 """
 def requires_aeroelasticse(function):
     def check_requirement(*args,**kwargs):
-        if not _has_aeroelasticse:
+        if _has_aeroelasticse == False:
             raise ImportError("AeroelasticSE is required to do this.")
         function(*args,*kwargs)
     return check_requirement

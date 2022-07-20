@@ -10,7 +10,8 @@ import salome
 salome.salome_init()
 import salome_notebook
 notebook = salome_notebook.NoteBook()
-sys.path.insert(0, r'!!!')
+#sys.path.insert(0, r'!!!')
+sys.path.insert(0, '!!!')
 
 ###
 ### GEOM component

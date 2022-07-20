@@ -1,16 +1,16 @@
 {
     "lofi": {
         "path_to_openfast" : "openfast",
-        "path_to_aerodyn" : "aerodyn_driver",
+        "path_to_aerodyn" : "C:\\Users\\tanig\\Wind\\openfast_2.4\\source_code\\build\\bin\\AeroDyn_Driver_x64.exe",
         "path_to_beamdyn" : "beamdyn_driver"
     },
-    "mefi": {
-        "path_to_pimpleFoam": "pimpleFoam",
-        "path_to_BB3D": "C:\\Users\\tanig\\Wind\\BB3D\\src\\make_blade.cpp",
-            "_comment1": "Previous line added by TG on 7/5"
-    },
+  "mefi": {
+    "path_to_pimpleFoam": "pimpleFoam",
+    "path_to_BB3D": "C:\\Users\\tanig\\Wind\\BB3D\\bin\\make_blade.exe",
+    "_comment1": "Previous line added by TG on 7/5"
+  },
     "hifi": {
-        "path_to_Salome": "C:\\Users\\tanig\\Wind\\SALOME-9.8.0\\salome",
+        "path_to_Salome": "C:\\Users\\tanig\\Wind\\SALOME-9.8.0\\run_SALOME.exe",
             "_comment2": "Previous line added by TG on 7/5"
     }
 }
