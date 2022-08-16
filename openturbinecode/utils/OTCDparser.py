@@ -51,20 +51,23 @@ def OFparse(outfile,nodeR=[]):
          fT[i] = np.mean(data[0:,ifT0+i])
 
    if not np.isnan(iPwr):
-      pwr = np.mean(data[0:-1,iPwr])
+#      pwr = np.mean(data[0:-1,iPwr])    #Commented out by TG 7/27 -- not sure why we'd leave out the last datapoint.
+      pwr = np.mean(data[0:,iPwr])    #TG 7/27 Includes the last datapoint
 
    # Rough estimates of the torque/thrust using
    if np.isnan(iThr):
       thrust = np.trapz(fN,nodeR)
       print('WARNING: did not find thrust in OF outputs. Integrating the loads as an estimate.')
    else:
-      thrust = np.mean(data[0:-1,iThr])
+#      thrust = np.mean(data[0:-1,iThr])    #Commented out by TG 7/27 -- not sure why we'd leave out the last datapoint.
+      thrust = np.mean(data[0:,iThr])    #TG 7/27 Includes the last datapoint
       
    if np.isnan(iTrq):
       torque = np.trapz(fT*np.array(nodeR),nodeR)
       print('WARNING: did not find torque in OF outputs. Integrating the loads as an estimate.')
    else:
-      torque = np.mean(data[0:-1,iTrq])
+      #torque = np.mean(data[0:-1,iTrq])   #Commented out by TG 7/27 -- not sure why we'd leave out the last datapoint. 
+      torque = np.mean(data[0:,iTrq])   #TG 7/27 Includes last datapoint
 
    return thrust, torque, pwr, fN, fT #could do better with the finer exports
 

@@ -19,7 +19,6 @@ except ImportError as err:
     _has_pyfast = False
 else:
     _has_pyfast = True
-
 # try:
 #     from TACSDynParams import TACSParams
 # except ImportError as err:
@@ -145,6 +144,9 @@ class Structural:
     def postprocessBeamDyn(self):
         Beamout = FASTOutputFile(os.path.splitext(self.workingmodel)[0]+".out").toDataFrame()
         Beamouts=Beamout.to_numpy()
+        Beamouts = np.ndarray.transpose(Beamouts)    #Line added by TG 7/21 
+            #The code below looks through Beamouts' rows to find data, but the output file uses columns.    TG
+
         self.RootFxr_max.append(Beamouts[1].max())
         self.RootFyr_max.append(Beamouts[2].max())
         self.RootMxr_max.append(Beamouts[3].max())

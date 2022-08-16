@@ -256,7 +256,7 @@ class Control:
         
     def LocalRun(self):
         # Local run the case for parametric study
-        print("Running:" + self.workingmodelOpenFAST)
+        print("Running: " + self.workingmodelOpenFAST)
         subprocess.run(["openfast", self.workingmodelOpenFAST])
     def postprocessOpenFAST(self):
         FASTout = FASTOutputFile(os.path.splitext(self.workingmodelOpenFAST)[0]+".out").toDataFrame()

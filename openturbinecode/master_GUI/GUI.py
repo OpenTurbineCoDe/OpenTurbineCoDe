@@ -133,7 +133,6 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
     def set_path_to_case(self):
         path = self.Main_set_PathToCase.text()
         self.OTCD.setPathToCase( path )
-            #Establishes the path in all submodules.
         #UPDATE UI:
         self.aero_ui.str_pathToCase.setText(path)
         #TODO: do the same for all standalone GUIs?
@@ -210,6 +209,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
     # from UI to internal DLC options
     def save_DLC_options(self):
+
         DLC_list = ast.literal_eval(self.Main_DLC_listDlc.text()) if self.Main_DLC_listDlc.text() else []
         # [float(dlc) for dlc in self.Main_DLC_listDlc.text().split(',')]
         n_ws     = float(self.Main_DLC_nws.text()) if self.Main_DLC_nws.text() else 0.

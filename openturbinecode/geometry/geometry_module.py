@@ -334,26 +334,23 @@ class Geometry:
                 endSec2 = int(table2.item(ii,1).text())
                 for jj in range(endSec1,endSec2):
                     loft[jj] = int(loft_)
-            print(loft)
-            print(type(loft[1]))
-            print(type(loft[-1]))
+            #print(loft)
+            #print(type(loft[1]))
+            #print(type(loft[-1]))    #These three commented out by TG 7/25
                 
 #       bl = open('/home/kz/Desktop/workingFolder/blade.dat', 'w')    Commented out by TG 7/5
-#        bl = open('C:\\Users\\tanig\\Wind\\Working folder\\blade.dat', 'w')    #TG 7/5 This is a workaround solution, had to manually create the blade.dat file.
-        if not os.path.exists(self.path_to_case+"BB3D"):
-            bb3d_dir = os.makedirs(self.path_to_case+"BB3D")    #TG 7/18 Creates a BB3D directory in working folder.
-        bl = open(self.path_to_case+"BB3D"+os.sep+'data.dat', 'w')    #TG 7/18 This should generate the proper BB3D file.
-#        bl = open(self.path_to_root+os.sep+'openturbinecode'+os.sep+'geometry'+os.sep+'lib_airfoils'+os.sep+'data.dat', 'w')    #TG 7/18 Puts the data file in same folder as airfoil files.
-        bl.write(str(table.rowCount()) + " ## Number of blade sections \n")
-        bl.write(str(self.lofts) + " ## Number of lofts \n")
-        bl.write(str(len(self.spar)) + " ## Number of spars \n")
+        os.makedirs(self.path_to_case+"BB3D", exist_ok=True)    #TG 7/18 Creates a BB3D directory in working folder.
+        bl = open(self.path_to_case+"bb3d"+os.sep+'data.dat', 'w')    #tg 7/18 this should generate the proper bb3d file.
+#        bl = open(self.path_to_root+os.sep+'openturbinecode'+os.sep+'geometry'+os.sep+'lib_airfoils'+os.sep+'data.dat', 'w')    #tg 7/18 puts the data file in same folder as airfoil files.
+        bl.write(str(table.rowCount()) + " ## number of blade sections \n")
+        bl.write(str(self.lofts) + " ## number of lofts \n")
+        bl.write(str(len(self.spar)) + " ## number of spars \n")
         for row in range(0, table.rowCount()):
             afid = table.item(row,3).text()
             bl.write(str(row+1) + "\t" + self.AFID[int(afid)-1] + "\n")
             # print(self.AFID[int(afid)-1])
         bl.write("#NODE 	 RNODES 	  TWIST 	  DRNODES 	 CHORD 	  AEROCENT 	 AEROORIG  	 LOFT  \n")
         for row in range(0, table.rowCount()):      
-
             bl.write(str(row+1) + "\t" + str(table.item(row,0).text())+ "\t" + str(table.item(row, 2).text()) + "\t  0 \t " + str(table.item(row, 1).text()) + "\t 0.125 \t 0.25 \t " + str(loft[row]) +  "\n")
         bl.write("#SPAR PERCENTAGE \n")
         for i in range(len(self.spar)):
@@ -385,9 +382,8 @@ class Geometry:
         salome_ = lineEdit_4.text()
         geom_ = lineEdit_2.text()
         workingFolder = self.path_to_case
-        workingFolder = workingFolder.replace("\\", "\\\\")    #Added by TG 7/19 to put path in double backslashes so Salome can read it. 
-        geom_ = geom_.replace("/", "\\\\")    #Added by TG 7/20 to put path in double backslashes so Salome can read it. 
-        print(geom_)
+        workingFolder = workingFolder.replace("\\", "/")    #Added by TG 7/19 to put path in forward slashes so Salome can read it. 
+        #geom_ = "C:/Users/tanig/Wind/OpenTurbineCoDe/models/DTU_10MW/Madsen2019/BB3D/blade.igs"    #TG 8/4 Uncomment this for override to use Windows Salome from Linux OTCD.
         os.chdir(workingFolder)    
         checkWords = ("???", "!!!")
         repWords = (geom_, workingFolder)

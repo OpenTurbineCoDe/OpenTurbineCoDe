@@ -165,6 +165,7 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
     fileDirectory = os.path.join(path_to_case, config["lofi_code"])
     workingDirectory = os.path.join(path_to_case, config["lofi_code"], "workdir")
 
+
     shutil.rmtree(workingDirectory,True)
     os.mkdir(workingDirectory)
 
@@ -188,7 +189,7 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
         localWindFolder= workingDirectory + os.sep + windSubfolder
         os.mkdir(localWindFolder)
         shutil.copy(path_to_wind + os.sep + windfile, localWindFolder)
-                    
+
 
     if 'OpenFAST' in config["lofi_code"]:
         # elastodyn: rpm, line 35
@@ -223,6 +224,7 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
         outFile = case_tag + ".out"
 
     elif 'AeroDyn' in config["lofi_code"]:
+
         if DLCtype>0:
             print("Can't simulate non-uniform inflow with AeroDyn")
             raise AttributeError()
@@ -239,7 +241,6 @@ def LoFiAero(tsr,Vel,pitch,R,rho,T,config,options,Rscale=None):
         #set rescale R in the file! 
         replaceInFileTable(config["files"]["ADbladefile"],workingDirectory,workingDirectory,range(7,47),1,Rscale,separator='  ',mod=1)
 
-              
 
         # IF WE WERE TO USE 1 DRIVER FILE TO DO MULTIPLE INFOW VEL:
         # # number of test conditions:

@@ -58,7 +58,8 @@ class Aerodynamics:
 
         #predefined list of velocities for precomputed DLCs
         self.Vdlc = np.array([6.,8.,10.,12.]) #np.array(range(5,16)) 
-        self.DLCtag = "iea10MW"
+        #self.DLCtag = "iea10MW"    #Commented out by TG 8/15
+        self.DLCtag = "iea10mw"    #TG 8/15. Files have lowercase mw
         self.path_to_wind = path_to_root + os.sep + "models" + os.sep + "defaults" + os.sep + "pregenerated_DLCs"
         
         # self.Username = "xd101"
@@ -150,6 +151,7 @@ class Aerodynamics:
         plt.show()
 
     def PlotThrust(self):
+        
         plt.ion()
         f = plt.figure(num=2,figsize=(10, 7.5)) #(8, 3.2)
     

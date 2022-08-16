@@ -132,6 +132,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 if MPI.COMM_WORLD.rank == 0:
                     print(f"Starting Hi-fi analysis at tsr={tsr}")
                 funcs, ap = HiFiAero(tsr,Vel,pitch,rho,T,options, Rscale=Rlist[i])
+
                 if funcs:
                     trq = funcs[f"{ap.name}_mx"]
                     thr = funcs[f"{ap.name}_fx"]
@@ -215,8 +216,10 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
     # ================================================
     # Low-Fidelity runs with AeroDyn 
     # ================================================
+
     elif 'AeroDyn' in options["fidelity"]:
         outputDirectory = os.path.join(path_to_case, "AeroDyn", output)
+
         options["outputDirectory"] = outputDirectory
 
         config["lofi"]["lofi_code"] = "AeroDyn"
@@ -226,6 +229,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
             if not os.path.exists(outputDirectory):
                 os.makedirs(outputDirectory, exist_ok=True)
 
+
             for i in range(len(Vlist)):
                 tsr = tsrlist[i]
                 Vel = Vlist[i]
@@ -233,6 +237,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                 pitch = pitchlist[i]*180./np.pi
                 spanRef = Rlist[i]*R
                 areaRef = np.pi*spanRef**2
+
                 outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
                 options["outputFile"] = outputFile 
 
@@ -242,6 +247,7 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
                     
                     # Running the OpenFast runscript
                     LoFiAero(tsr,Vel,pitch,R,rho,T,config["lofi"],options,Rscale=Rlist[i])
+
                 else:
                     print(f"Reading from {outputFile}")
                     
@@ -323,6 +329,5 @@ def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlis
         torque.append(nan)
         thrust.append(nan)
         cp.append(nan)
-
-
+    
     return torque, thrust, cp
