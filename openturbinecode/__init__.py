@@ -64,8 +64,8 @@ except ImportError as err:
 
 # -------------------- AeroelasticSE ----------------------------
 try:
-#    from weis.aeroelasticse.CaseGen_IEC import CaseGen_IEC    commented out by TG 6/30
-    from ROSCO_toolbox.ofTools.case_gen.CaseGen_IEC import CaseGen_IEC    #TG 6/30
+    from weis.aeroelasticse.CaseGen_IEC import CaseGen_IEC    #commented out by TG 6/30
+    #from ROSCO_toolbox.ofTools.case_gen.CaseGen_IEC import CaseGen_IEC    #TG 6/30
     from weis.aeroelasticse.runFAST_pywrapper   import runFAST_pywrapper
 except ImportError as err:
     failed_imports.append("AeroelasticSE")

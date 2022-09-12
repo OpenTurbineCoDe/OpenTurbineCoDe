@@ -1,7 +1,7 @@
 ------- BEAMDYN Driver with OpenFAST INPUT FILE --------------------------------
 Dynamic       analysis      - of rotating NREL 5MW blade under gravity force
 ---------------------- SIMULATION CONTROL --------------------------------------
-TRUE          DynamicSolve  - Dynamic solve (false for static solve) (-)
+True          DynamicSolve  - Dynamic solve (false for static solve) (-)
 0             t_initial     - Starting time of simulation (s) [used only when DynamicSolve=TRUE]
 1             t_final       - Ending time of simulation (s) [used only when DynamicSolve=TRUE]
 0.002         dt            - Time increment size (s) [used only when DynamicSolve=TRUE]
@@ -18,7 +18,7 @@ TRUE          DynamicSolve  - Dynamic solve (false for static solve) (-)
 1.0000000E+00  0.0000000E+00  0.0000000E+00  
 0.0000000E+00  1.0000000E+00  0.0000000E+00  
 0.0000000E+00  0.0000000E+00  1.0000000E+00  
-T             GlbRotBladeT0 - Reference orientation for BeamDyn calculations is aligned with initial blade root
+True          GlbRotBladeT0 - Reference orientation for BeamDyn calculations is aligned with initial blade root
 ---------------------- ROOT VELOCITY PARAMETER ----------------------------------
 0             RootVel(4)    - Component of angular velocity vector of the beam root about X axis (rad/s)
 0             RootVel(5)    - Component of angular velocity vector of the beam root about Y axis (rad/s)
