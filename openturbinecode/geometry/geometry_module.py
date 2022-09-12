@@ -319,7 +319,7 @@ class Geometry:
     def Geo_runBB3D(self, table, table2, lineEdit):
         print("Generating BB3D input file")
 
-        self.AFID = ['cylinder.dat', 'ffaw3600.dat', 'ffaw3480.dat', 'ffaw3360.dat', 'ffaw3301.dat', 'ffaw3241.dat']    #TG added on 7/18 to simplify tests, will remove later.
+        #self.AFID = ['cylinder.dat', 'ffaw3600.dat', 'ffaw3480.dat', 'ffaw3360.dat', 'ffaw3301.dat', 'ffaw3241.dat']    #TG added on 7/18 to simplify tests, will remove later.
 
         # initialize loft distribution with 1
         loft = [1 for ii in range(table.rowCount())]
@@ -383,7 +383,6 @@ class Geometry:
         geom_ = lineEdit_2.text()
         workingFolder = self.path_to_case
         workingFolder = workingFolder.replace("\\", "/")    #Added by TG 7/19 to put path in forward slashes so Salome can read it. 
-        #geom_ = "C:/Users/tanig/Wind/OpenTurbineCoDe/models/DTU_10MW/Madsen2019/BB3D/blade.igs"    #TG 8/4 Uncomment this for override to use Windows Salome from Linux OTCD.
         os.chdir(workingFolder)    
         checkWords = ("???", "!!!")
         repWords = (geom_, workingFolder)
