@@ -7,7 +7,7 @@ pkg = setuptools.find_packages()
 
 setuptools.setup(
     name="OpenTurbineCoDe",
-    version="0.0.2",
+    version="0.0.3",
     author="",
     author_email="",
     description="Open Turbine Control co-Design package",
