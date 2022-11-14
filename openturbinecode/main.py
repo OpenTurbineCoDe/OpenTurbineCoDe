@@ -1,15 +1,23 @@
-
 import argparse
 import sys
 import os
 import numpy as np
 
 import openturbinecode.utils.io as io
+    #There may be a message "Using weis.aeroelasticse in ROSCO_toolbox..." This is not an error message and comes from WEIS/ROSCO/ROSCO_toolbox/turbine.py
+    #Associated message: Warning - The following packages/executables are not found: ['pCrunch', 'pyFAST', 'adflow', 'pgl', 'TACS/pyTACS', 'pygeo', 'AeroelasticSE', 'pimpleFoam']
+
 import openturbinecode.utils.utilities as ut
+
 import openturbinecode.master_GUI.GUI as GUI
+    #Associated messages: pyAerostructure not currently available
+    #Baseclasses currently not available
+    #Baseclasses currently not available
+    #IDwarp currently not available
+    #ofTools in ROSCO_toolbox...
 import openturbinecode.sample_module.sample_script as sample
 import openturbinecode.DLC_manager.dump_IECcase as DLC_manager
-
+    #This runs the top of the dump_IECcase file where it imports other things
 
 import openturbinecode.aerodynamics.aerodynamics_module as aero
 import openturbinecode.structure.structure_module as struc
@@ -25,10 +33,14 @@ class OpenTurbineCoDe:
 
         # --- initialization of global constants/options ---
         self.path_to_root = os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))
+            #path_to_root is the path to OpenTurbineCoDe in your computer directory.    TG
         self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
+            #turbine_schema is the path to OpenTurbineCoDe\models\defaults\OTCD_schema.yaml    TG
         self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
+            #model_schema is the path to OpenTurbineCoDe\models\defaults\modeling_schema.yaml    TG
         # self.run_schema = self.path_to_root #TODO
         self.path_to_case = self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep  # hack to run without specifying a module - we are not reading from yaml yet
+            #self.path_to_case is the path to OpenTurbineCoDe\models\DTU_10MW\Madsen2019\    TG
         # self.path_to_case = os.getcwd()
 
         # --- parse input arguments ---
@@ -46,6 +58,7 @@ class OpenTurbineCoDe:
         
         # parse model params
         if self.model_yaml:
+            #If there is an argument with the path to the model:
             self.load_modeling_options()    
         else:
             self.modeling_options = {}
@@ -65,6 +78,8 @@ class OpenTurbineCoDe:
     #parse parameters coming from command line execution
     def parse_args(self,args):
         self.turb_yaml  = io.arg_to_path(args,"turbine") #(args.turbine) if "turbine" in args else ""
+            #OTCD.turb_yaml is the argument that the user input after --turbine . This should be the path to the turbine file,
+            #with a .\ appended to the front if it wasn't there already. Same deal for OTCD.model_yaml for --models and OTCD.run_yaml for --runoptions.    TG
         self.model_yaml = io.arg_to_path(args,"models") #(args.models) if "models" in args else ""
         self.run_yaml   = io.arg_to_path(args,"runoptions") #(args.runoptions) if "runoptions" in args else ""
         print(self.turb_yaml)
@@ -96,10 +111,13 @@ class OpenTurbineCoDe:
             self.myCtrl.turb_data = self.turb_data
 
         self.printv('turbine case loaded')
+            #Runs either when you input a turbine file as an argument or when you load a turbine case in the GUI.    TG
 
     #import modeling options under the form of a dictionary and making it available as an attribute to this object
     def load_modeling_options(self):
         self.modeling_options = io.validate_with_defaults(self.model_yaml, self.model_schema)
+            #Takes the modeling yaml file you input as an argument and outputs it as a dictionary named OTCD.modeling_options.    TG
+            #Only is called if a modeling yaml file is input.    TG
 
         #UPDATE EVERY CHILD MODULE
         #...
@@ -114,6 +132,7 @@ class OpenTurbineCoDe:
         
         self.printv('turbine case saved')
 
+            #Only runs if a turbine yaml file is input.    TG
     #TODO: write modeling option file
 
     # ---------------- UTILITY FUNCTIONS --------------------------------------
@@ -136,6 +155,7 @@ class OpenTurbineCoDe:
         self.myAeroStruct.setPathToCase(path)
         self.myCtrl.setPathToCase(path)
         self.myGeom.setPathToCase(path)
+            #Defines the path in all submodules. Called in GUI.py.    TG
 
     def update_MainParams(self, PRated, nblade, D, HubD, HubHeight, Vin, Vout, Overhang, Tilt, Precone):
         self.turb_data["assembly"]["rated_power"] = PRated 
@@ -150,11 +170,13 @@ class OpenTurbineCoDe:
 
         self.turb_data["control"]["supervisory"]["Vin"]   = Vin     
         self.turb_data["control"]["supervisory"]["Vout"]  = Vout  
+            #Updates turbine data from what was in the turbine.yaml file. Called in GUI.py.    TG
 
     #...
 
     #TODO: move the definition of this function to IO?
     def update_DLCoptions(self, DLC_list, n_ws, n_seeds, TMax, Vrated):
+
         # check that DLC exists
         if not "DLC" in self.modeling_options["OpenTurbineCoDe"]:
             self.modeling_options["OpenTurbineCoDe"]["DLC"] = {}
@@ -163,11 +185,15 @@ class OpenTurbineCoDe:
         self.modeling_options["OpenTurbineCoDe"]["DLC"]["DLC_list"]= DLC_list 
         self.modeling_options["OpenTurbineCoDe"]["DLC"]["n_ws"]    = n_ws     
         self.modeling_options["OpenTurbineCoDe"]["DLC"]["n_seeds"] = n_seeds  
-        self.modeling_options["OpenTurbineCoDe"]["DLC"]["TMax"]    = TMax   
+        self.modeling_options["OpenTurbineCoDe"]["DLC"]["TMax"]    = TMax  
+            #These are the DLC options that show up in the DLC tab in the GUI.    TG
 
         self.turb_data["control"]["supervisory"]["Vrated"]         = Vrated
+            #Updates DLCs from what was in the model.yaml file. Called in GUI.py after you click Generate DLC.    TG
+
 
     def call_generateDLC(self):
+
         DLC_list = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["DLC_list"]
         n_ws = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_ws"]
         n_seeds = OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]["n_seeds"]
@@ -175,25 +201,31 @@ class OpenTurbineCoDe:
 
         #TODO: pass info on Omega and pitch, to avoid NaN in test matrix (AeroDyn, Elastodyn)
         DLC_manager.generateDLC(OTCD.path_to_case, OTCD.turb_data, DLC_list, n_ws, n_seeds, TMax)
-
+            #Updates DLCs based on the information from the update_DLCoptions function. Called in GUI.py after you click Generate DLC.    TG
 
 
 if __name__ == '__main__':
+    #Runs if the main.py file was run directly in the command line and not called by another program. This is run first.   TG
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--turbine", help="Path to the turbine case file (e.g. turbine.yaml)", type=str, default="")
     parser.add_argument("--models", help="Path to the modeling options file (e.g. modeling_options.yaml)", type=str, default="")
     parser.add_argument("--runoptions", help="Path to the run options file (e.g. run_options.yaml)", type=str, default="")
+        #These three arguments allow the user to type in the path to a file after typing in --turbine , --models , or --runoptions .    TG
     parser.add_argument("--GUI", action='store_true', help="Run PyTurbineCoDe with the GUI")
     parser.add_argument("--plotonly", action='store_true', help="Do not compute anything")
+        #These two arguments check whether the user input --GUI or --plotonly    TG
     args = parser.parse_args()
 
-    OTCD = OpenTurbineCoDe(args) #initialize me
+    OTCD = OpenTurbineCoDe(args) #initialize me 
+        #This creates an instance of the OpenTurbineCoDe class and calls the __init__ method.    TG
 
-    if args.GUI:
+    if args.GUI:   
+        #If the user input --GUI
         print('Starting the GUI')
         # =========== CALL THE MASTER GUI ============
         GUI.run(OTCD)
+
         # ============================================
     else:
         if not OTCD.turb_yaml:
@@ -221,6 +253,7 @@ if __name__ == '__main__':
         if OTCD.modeling_options["OpenTurbineCoDe"]["Geometry"]["PGL"]["writeFiles"]:
             OTCD.printv('Writing PGL files...')
             OTCD.call_writePGLinputs()
+                #Should this be geom.Geometry.call_writePGLinputs() ? This function is not defined in OTCD.    TG
             OTCD.printv('...done.')
 
         #=====  MESHING ACTIVITIES ===============================================
@@ -228,6 +261,7 @@ if __name__ == '__main__':
         if OTCD.modeling_options["OpenTurbineCoDe"]["Meshing"]["Aero"]["PGL"]["run"]:
             OTCD.printv('Running PGL...')
             OTCD.call_generateSurfMesh()
+                #Should this be geom.Geometry.call_generateSurfMesh() ? This function is not defined in OTCD.    TG
             OTCD.printv('...done.')
         
     OTCD.printv('Done, byebye')

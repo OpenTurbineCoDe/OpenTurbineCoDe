@@ -151,6 +151,8 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.PLATK4.setText(str(self.myCtrl.PlatformKpSTP))
         # Run Simulation
         self.DLCV.setText(str(self.myCtrl.DLCV))
+        self.Yamlefile.setText(self.myCtrl.YamlFile)    #TG 8/16 Sets default yaml file in GUI
+
         # Run on HPC
         self.lineEdit_27.setText(self.myCtrl.Username)
         self.lineEdit_26.setText(self.myCtrl.Server)
@@ -167,17 +169,20 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.myCtrl.Modelfidelity   = self.FidelitySelection.currentText() #no.text function
         self.myCtrl.ModelSelected   = self.ModelSelection.currentText() 
         # system: FAST
-        self.myCtrl.ChordF          = self.CHD1.text()
+        #self.myCtrl.ChordF          = self.CHD1.text()    #TG commenting out original line
+        self.myCtrl.ChordFCV        = self.CHD1.text()    #TG 8/23
         self.myCtrl.ChordFL         = self.CHD2.text()
         self.myCtrl.ChordFU         = self.CHD3.text()
         self.myCtrl.ChordFSTP       = self.CHD4.text()
         
-        self.myCtrl.ThickF          = self.Thick1.text()
+        #self.myCtrl.ThickF          = self.Thick1.text()    #TG commenting out original line    
+        self.myCtrl.ThickFCV        = self.Thick1.text()    #TG 8/23
         self.myCtrl.ThickFL         = self.Thick2.text()
         self.myCtrl.ThickFU         = self.Thick3.text()
         self.myCtrl.ThickFSTP       = self.Thick4.text()
         
-        self.myCtrl.TiltAngle       = self.TILT1.text()
+        #self.myCtrl.TiltAngle       = self.TILT1.text()    #TG commenting out original line
+        self.myCtrl.TiltAngleCV     = self.TILT1.text()    #TG 8/23
         self.myCtrl.TiltAngleL      = self.TILT2.text() # (deg)
         self.myCtrl.TiltAngleU      = self.TILT3.text() # (deg)
         self.myCtrl.TiltAngleSTP    = self.TILT4.text() # (deg)
@@ -201,22 +206,26 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         # Controller
         self.myCtrl.Controller      = self.comboBox_10.currentText() 
         #set default text for general parameters
-        self.myCtrl.ROSCOR2Omega    = self.OMEGAR21.text()
+        #self.myCtrl.ROSCOR2Omega    = self.OMEGAR21.text()    #TG commenting out original line
+        self.myCtrl.ROSCOR2OmegaCV  = float(self.OMEGAR21.text())    #TG 8/23
         self.myCtrl.ROSCOR2OmegaL   = self.OMEGAR22.text()
         self.myCtrl.ROSCOR2OmegaU   = self.OMEGAR23.text()
         self.myCtrl.ROSCOR2OmegaSTP = self.OMEGAR24.text()
         
-        self.myCtrl.ROSCOR2Zeta     = self.ZETAR21.text()
+        #self.myCtrl.ROSCOR2Zeta     = self.ZETAR21.text()    #TG commenting out original line
+        self.myCtrl.ROSCOR2ZetaCV   = float(self.ZETAR21.text())    #TG 8/23
         self.myCtrl.ROSCOR2ZetaL    = self.ZETAR22.text()
         self.myCtrl.ROSCOR2ZetaU    = self.ZETAR23.text()
         self.myCtrl.ROSCOR2ZetaSTP  = self.ZETAR24.text()
         
-        self.myCtrl.ROSCOR3Omega    = self.OMEGAR31.text()
+        #self.myCtrl.ROSCOR3Omega    = self.OMEGAR31.text()    #TG commenting out original line
+        self.myCtrl.ROSCOR3OmegaCV  = float(self.OMEGAR31.text())    #TG 8/23
         self.myCtrl.ROSCOR3OmegaL   = self.OMEGAR32.text()
         self.myCtrl.ROSCOR3OmegaU   = self.OMEGAR33.text()
         self.myCtrl.ROSCOR3OmegaSTP = self.OMEGAR34.text()
         
-        self.myCtrl.ROSCOR3Zeta     = self.ZETAR31.text()
+        #self.myCtrl.ROSCOR3Zeta     = self.ZETAR31.text()    #TG commenting out original line
+        self.myCtrl.ROSCOR3ZetaCV   = float(self.ZETAR31.text())    #TG 8/23
         self.myCtrl.ROSCOR3ZetaL    = self.ZETAR32.text()
         self.myCtrl.ROSCOR3ZetaU    = self.ZETAR33.text()
         self.myCtrl.ROSCOR3ZetaSTP  = self.ZETAR34.text()
@@ -310,10 +319,13 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     # # ============== Caller functions: gather params from the GUI and calls specific function ==================
     def caller_LocalRun(self):
         self.readFromUI()
+        self.myCtrl.Ft_max = []    #TG 8/22 Moved from control module
+        self.myCtrl.Tq_max = []    #TG 8/22 Moved from control module
         if self.myCtrl.Modelfidelity == "OpenFAST":
             # FAST running
             if self.RB112.isChecked():
                 sweep = np.arange(float(self.myCtrl.ChordFL),float(self.myCtrl.ChordFU),float(self.myCtrl.ChordFSTP))
+                sweep_name = "Chord Scale Factor"    #TG 8/22
                 for i in range(len(sweep)):
                     self.myCtrl.ChordFCV = sweep[i]
                     self.myCtrl.RunModelUpdate_OpenFAST()
@@ -323,6 +335,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 
             if self.RB122.isChecked():
                 sweep = np.arange(float(self.myCtrl.ThickFL),float(self.myCtrl.ThickFU),float(self.myCtrl.ThickFSTP))
+                sweep_name = "Thickness Scale Factor"    #TG 8/22
                 for i in range(len(sweep)):
                     self.myCtrl.ThickFCV = sweep[i]
                     self.myCtrl.RunModelUpdate_OpenFAST()
@@ -332,6 +345,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 
             if self.RB132.isChecked():
                 sweep = np.arange(float(self.myCtrl.TiltAngleL),float(self.myCtrl.TiltAngleU),float(self.myCtrl.TiltAngleSTP))
+                sweep_name = "Tilt Angle (deg)"    #TG 8/22
                 for i in range(len(sweep)):
                     self.myCtrl.TiltAngleCV = sweep[i]
                     self.myCtrl.RunModelUpdate_OpenFAST()
@@ -341,6 +355,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
               # Control parameters 
             if self.RB42.isChecked():
                 sweep = np.arange(float(self.myCtrl.ROSCOR2OmegaL),float(self.myCtrl.ROSCOR2OmegaU),float(self.myCtrl.ROSCOR2OmegaSTP))
+                sweep_name = "Omega in Region 2 (rad/s)"    #TG 8/22
                 for i in range(len(sweep)):
                     self.myCtrl.ROSCOR2OmegaCV = sweep[i]
                     self.myCtrl.RunModelUpdate_OpenFAST()
@@ -352,6 +367,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                     
             if self.RB52.isChecked():
                 sweep = np.arange(float(self.myCtrl.ROSCOR2ZetaL),float(self.myCtrl.ROSCOR2ZetaU),float(self.myCtrl.ROSCOR2ZetaSTP))
+                sweep_name = "Zeta in Region 2"    #TG 8/22
                 for i in range(len(sweep)):
                     self.myCtrl.ROSCOR2ZetaCV = sweep[i]
                     self.myCtrl.RunModelUpdate_OpenFAST()
@@ -363,6 +379,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 
             if self.RB62.isChecked():
                 sweep = np.arange(float(self.myCtrl.ROSCOR3OmegaL),float(self.myCtrl.ROSCOR3OmegaU),float(self.myCtrl.ROSCOR3OmegaSTP))
+                sweep_name = "Omega in Region 3 (rad/s)"    #TG 8/22
                 for i in range(len(sweep)):
                     self.myCtrl.ROSCOR3OmegaCV = sweep[i]
                     self.myCtrl.RunModelUpdate_OpenFAST()
@@ -374,6 +391,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 
             if self.RB72.isChecked():
                 sweep = np.arange(float(self.myCtrl.ROSCOR3ZetaL),float(self.myCtrl.ROSCOR3ZetaU),float(self.myCtrl.ROSCOR3ZetaSTP))
+                sweep_name = "Zeta in Region 3"    #TG 8/22
                 for i in range(len(sweep)):
                     self.myCtrl.ROSCOR3ZetaCV = sweep[i]
                     self.myCtrl.RunModelUpdate_OpenFAST()
@@ -401,13 +419,20 @@ class Mapper(QtWidgets.QMainWindow, form_class):
                 pass
 
         self.myCtrl.sweep = sweep
+        self.myCtrl.Sweep_name = sweep_name   #TG 8/22
+
     def caller_Postplot(self):
         self.readFromUI()
+        #plt.figure()    #TG 8/23 Uncomment to create new figure so there can be multiple simultaneous plots.
         #self.myCtrl.postprocessOpenFAST()
         if self.myCtrl.Objective == "RotThrust_max":
              plt.plot(self.myCtrl.sweep,self.myCtrl.Ft_max,'r-s')
+             response_units = " (kN)"    #TG 8/22
         else:
-             plt.plot(self.myCtrl.sweep,self.myCtrl.Tq_max,'r-s')  
+             plt.plot(self.myCtrl.sweep,self.myCtrl.Tq_max,'r-s')
+             response_units = " (kN-m)"    #TG 8/22
+        plt.xlabel(self.myCtrl.Sweep_name)    #TG 8/22
+        plt.ylabel(self.myCtrl.Objective + response_units)    #TG 8/22
         plt.show()
        
     def caller_SendToHPCf(self):

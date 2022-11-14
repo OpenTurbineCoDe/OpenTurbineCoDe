@@ -15,19 +15,20 @@ else:
     _has_adflow = True
 
 """
-Definition of a decorator to be used on every function that requires the sprcific module
+Definition of a decorator to be used on every function that requires the specific module
 """
 def requires_adflow(function):
     def check_requirement(*args,**kwargs):
         if not _has_adflow:
             raise ImportError("adflow is required to do this.")
-        function(*args,*kwargs)
+        return function (*args, **kwargs)    #Added by TG 8/12
+        #function(*args,*kwargs)    #Commented out TG 8/12
     return check_requirement
 
 
 @requires_adflow
 def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
-
+ 
     # ======================================================================
     #         Unpack options/params
     # ======================================================================
@@ -40,10 +41,11 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
     areaRef  = options["areaRef"]
     restart  = options["restart"] if "restart" in options else None
     hifimesh = options["hifimesh"]
-    
+
     if not(Rscale is  None):
         print("WARNING: adflow does not handle R scaling like this yet.")
-    if any(pitch) !=  0.:
+    #if any(pitch) !=  0.:    #TG
+    if pitch !=  0.:    #TG 8/8 Pitch is not a list here, just a float.
         print("WARNING: adflow does not handle pitch !=0 this yet.")
 
     # ======================================================================

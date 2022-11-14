@@ -10,7 +10,7 @@ except ImportError as err:
 
 # -------------------- pCrunch ----------------------------
 try: 
-    from pCrunch import Analysis
+    from pCrunch import analysis    #TG 7/1 edited from "Analysis" to "analysis." Python is case-sensitive and the proper file name is lowercase.
 except ImportError as err:
     failed_imports.append("pCrunch")
 
@@ -64,10 +64,12 @@ except ImportError as err:
 
 # -------------------- AeroelasticSE ----------------------------
 try:
-    from weis.aeroelasticse.CaseGen_IEC import CaseGen_IEC
+    from weis.aeroelasticse.CaseGen_IEC import CaseGen_IEC    #commented out by TG 6/30
+    #from ROSCO_toolbox.ofTools.case_gen.CaseGen_IEC import CaseGen_IEC    #TG 6/30
     from weis.aeroelasticse.runFAST_pywrapper   import runFAST_pywrapper
 except ImportError as err:
     failed_imports.append("AeroelasticSE")
+
 
 # -------------------- OpenFAST ----------------------------
 try:  # check local installation of openfast
@@ -80,13 +82,15 @@ except subprocess.CalledProcessError as err:
         failed_imports.append("openfast")
 
 # -------------------- OpenFOAM / pimpleFoam ----------------------------
-try:  # check local installation of openfast
+try:  # check local installation of pimpleFoam
     config = ut.read_config()
     path_to_pimpleFoam = config["mefi"]["path_to_pimpleFoam"]
 
-    subprocess.run([path_to_pimpleFoam, '--version'], shell=True, check=True, capture_output=True)
+    #subprocess.run([path_to_pimpleFoam, '--version'], shell=True, check=True, capture_output=True)    #Commented out by TG 8/16
+    subprocess.run([path_to_pimpleFoam, '-help'], shell=True, check=True, capture_output=True)    #TG 8/16 PimpleFoam doesn't have --version command
 except subprocess.CalledProcessError as err:
-    if err.returncode != 0:  #TODO: check the exit code of 
+    #if err.returncode != 0:  #TODO: check the exit code of 
+    if err.returncode != 1:    #TG 8/16 pimpleFoam exits with code 1 when called with help
         failed_imports.append("pimpleFoam")
 
 # -------------------- Aerodyn driver ----------------------------

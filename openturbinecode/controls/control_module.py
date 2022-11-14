@@ -45,6 +45,9 @@ from datetime import date
 import pandas as pd
 
 import openturbinecode.utils.io as io
+from openturbinecode.utils import utilities as ut    #Added by TG 8/16 to use config.json
+
+config = ut.read_config()    #Added by TG 8/16 to use config.json
 
 #%%
 class Control:
@@ -160,8 +163,8 @@ class Control:
 
         # Set objectives
         self.AEP    = []
-        self.Ft_max = []
-        self.Tq_max = []
+        #self.Ft_max = []    #TG 8/22 Moved to localrun caller in control_gui to clear variables before each run
+        #self.Tq_max = []    #TG 8/22 Moved to localrun caller in control_gui to clear variables before each run
 
     def setPathToCase(self,path_to_case):    
         self.path_to_case = path_to_case
@@ -185,7 +188,7 @@ class Control:
             InflowFile.write()
         if self.DLCs == "DLC 1.1" or self.DLCs == "DLC 1.2":
             InflowFile['WindType']      = 3
-            windfile = "DTU10_NTW_DLC1.2_v"+str(math.ceil(float(self.DLCV)))+".bts"
+            windfile = "DTU10_NTW_DLC1.2_v"+str(math.ceil(float(self.DLCV)))+'.bts"'
             InflowFile['FileName_BTS']  = os.path.join(os.path.split(InflowFile['FileName_BTS'])[0],windfile)
             InflowFile.write()
         else:
@@ -245,6 +248,7 @@ class Control:
     
     def Writeout(self):
         # Write parameter input file
+        os.chdir(self.path_to_root+os.sep+'controls')    #TG 8/19 moves into the directory where files are.
         self.FASTmodelPath=os.path.join(self.path_params['FAST_directory'], self.path_params['FAST_InputFile'])
         WorkFast_file=FASTInputFile(self.FASTmodelPath)
         Servo_filename_new  = os.path.join(self.path_params['FAST_directory'],WorkFast_file['ServoFile'].strip('"')) 
@@ -252,15 +256,19 @@ class Control:
         Discon_filename_new  = os.path.join(self.path_params['FAST_directory'],Servo_file_new['DLL_InFile'].strip('"'))
         
         param_file = Discon_filename_new   
-        write_DISCON(self.turbine,self.controller,param_file=param_file, txt_filename=os.path.join(this_dir,self.path_params['rotor_performance_filename']))
+        #write_DISCON(self.turbine,self.controller,param_file=param_file, txt_filename=os.path.join(this_dir,self.path_params['rotor_performance_filename']))
+        write_DISCON(self.turbine,self.controller,param_file=param_file, txt_filename=os.path.join(self.Path,self.path_params['rotor_performance_filename']))    #TG 8/19 corrects for location of Cp_Ct_Cq file.
         
     def LocalRun(self):
         # Local run the case for parametric study
-        print("Running:" + self.workingmodelOpenFAST)
-        subprocess.run(["openfast", self.workingmodelOpenFAST])
+        print("Running: " + self.workingmodelOpenFAST)
+        #subprocess.run(["openfast", self.workingmodelOpenFAST])    #Commented out by TG 8/16
+        subprocess.run([config["lofi"]["path_to_openfast"], self.workingmodelOpenFAST])    #TG 8/16
     def postprocessOpenFAST(self):
         FASTout = FASTOutputFile(os.path.splitext(self.workingmodelOpenFAST)[0]+".out").toDataFrame()
         FASTouts=FASTout.to_numpy()
+        FASTouts = np.ndarray.transpose(FASTouts)     #Line added by TG 8/25
+            #The code below looks through FASTouts' rows to find data, but the output file uses columns.    TG
         self.Ft_max.append(FASTouts[69].max())
         self.Tq_max.append(FASTouts[70].max())
     def RunCCD(self):

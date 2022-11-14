@@ -167,14 +167,17 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     def caller_LoadModel(self):
         self.readFromUI()
         if self.myStru.Solver == "BeamDyn" and self.myStru.Modelselection == "DTU10MW":
-            self.myStru.workingmodel == self.myStru.DTU10MWBeamDyn                    # should from yaml         
-            print("DTU10MW BeamDyn model loaded from library for Paraetric sweep: "+ self.myStru.workingmodel)
+#            self.myStru.workingmodel == self.myStru.DTU10MWBeamDyn                    # should from yaml 
+            self.myStru.workingmodel = self.myStru.DTU10MWBeamDyn    #TG 7/21 should be 1 equals sign
+            print("DTU10MW BeamDyn model loaded from library for Parametric sweep: "+ self.myStru.workingmodel)
         if self.myStru.Solver == "BeamDyn" and self.myStru.Modelselection == "NREL5MW":
-            self.myStru.workingmodel == self.myStru.NREL5MWBeamDyn                    # should from yaml         
-            print("NREL5MW BeamDyn model loaded from library for Paraetric sweep: "+ self.myStru.workingmodel)
+#            self.myStru.workingmodel == self.myStru.NREL5MWBeamDyn                     # should from yaml  
+            self.myStru.workingmodel = self.myStru.NREL5MWBeamDyn    #TG 7/21 should be 1 equals sign                           
+            print("NREL5MW BeamDyn model loaded from library for Parametric sweep: "+ self.myStru.workingmodel)
         if self.myStru.Solver == "TACS" and self.myStru.Modelselection == "DTU10MW":
-            self.myStru.workingmodel == self.myStru.DTU10MWTACS                    # should from yaml         
-            print("DTU10MW TACS model loaded from library for Paraetric sweep: "+ self.myStru.workingmodel) 
+#            self.myStru.workingmodel == self.myStru.DTU10MWTACS                    # should from yaml
+            self.myStru.workingmodel = self.myStru.DTU10MWTACS    #TG 7/21 should be 1 equals sign
+            print("DTU10MW TACS model loaded from library for Parametric sweep: "+ self.myStru.workingmodel) 
         if self.myStru.Solver == "TACS" and self.myStru.Modelselection == "NREL5MW":
             raise ValueError("Model Mot implemented yet implemented for TACS!")
         if self.myStru.Modelselection == "User_Model":
@@ -186,6 +189,9 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         if  self.myStru.Solver == "BeamDyn":
             if self.RB12.isChecked():
                     sweep = np.arange(float(self.myStru.TipLoadxL),float(self.myStru.TipLoadxU),float(self.myStru.TipLoadxSTP))
+                        #L, U, and STP are the lower, upper, and step values for the sweep input in the GUI.    TG
+                        #Numpy.arange creates an array between L and U evenly spaced by STP. The lower value is included in this range,
+                        #but the upper value is not.    TG
                     for i in range(len(sweep)):
                         self.myStru.TipLoadxCV = sweep[i]
                         self.myStru.RunModelUpdate_Beamdyn()
@@ -261,18 +267,29 @@ class Mapper(QtWidgets.QMainWindow, form_class):
         self.readFromUI()
         if  self.myStru.Solver == "BeamDyn":
             # plot
+            plt.figure()    #TG 7/21 Creates new figure so there can be multiple simultaneous plots.
             if self.myStru.BeamResponse == "RootFxr_max":
-                 plt.plot(self.myStru.sweep,self.myStru.RootFxr_max,'r-s')
+                plt.plot(self.myStru.sweep,self.myStru.RootFxr_max,'r-s')
+                response_units = " (N)"    #TG 7/21
             if self.myStru.BeamResponse == "RootFyr_max":
-                 plt.plot(self.myStru.sweep,self.myStru.RootFyr_max,'r-s')
+                plt.plot(self.myStru.sweep,self.myStru.RootFyr_max,'r-s')
+                response_units = " (N)"    #TG 7/21
             if self.myStru.BeamResponse == "RootMxr_max":
-                 plt.plot(self.myStru.sweep,self.myStru.RootMxr_max,'r-s')
+                plt.plot(self.myStru.sweep,self.myStru.RootMxr_max,'r-s')
+                response_units = " (N-m)"    #TG 7/21
             if self.myStru.BeamResponse == "RootMyr_max":
-                 plt.plot(self.myStru.sweep,self.myStru.RootMyr_max,'r-s')
+                plt.plot(self.myStru.sweep,self.myStru.RootMyr_max,'r-s')
+                response_units = " (N-m)"    #TG 7/21
             if self.myStru.BeamResponse == "TipTDxr_max":
-                 plt.plot(self.myStru.sweep,self.myStru.TipTDxr_max,'r-s')
+                plt.plot(self.myStru.sweep,self.myStru.TipTDxr_max,'r-s')
+                response_units = " (m)"    #TG 7/21
             if self.myStru.BeamResponse == "TipTDyr_max":
-                 plt.plot(self.myStru.sweep,self.myStru.TipTDyr_max,'r-s')   
+                plt.plot(self.myStru.sweep,self.myStru.TipTDyr_max,'r-s')
+                response_units = " (m)"    #TG 7/21
+            sweeptype = "Tip_Load_x (N)" if self.RB12.isChecked() else "Distributed_Load_x (N/m)" if self.RB22.isChecked() else "Twist_Scale_Factor"    #TG 7/21
+
+            plt.xlabel(sweeptype)    #TG 7/21
+            plt.ylabel(self.myStru.BeamResponse + response_units)    #TG 7/21
             plt.show()
         # TACS plot
         if  self.myStru.Solver == "TACS":

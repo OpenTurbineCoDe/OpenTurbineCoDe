@@ -1,8 +1,9 @@
+
 import os
 import jsonschema as json
 import yaml
     
-    
+ 
 
 #============ Utils ==================================================================
 #making sure that we prepend "./" to a filename if provided in relative path
@@ -11,6 +12,7 @@ def arg_to_path(args,key):
     if path and path[0] != "." and path[0] != os.sep:
         path = "." + os.sep + path
     return path
+
 
 #============= COPY PASTE FROM WEIS validation.py ====================================
 # ---------------------
@@ -22,6 +24,7 @@ def load_yaml(fname_input):
         input_yaml = yaml.load(data, Loader=yaml.FullLoader)
         # input_yaml = ry.load(f, Loader=ry.Loader)
     return input_yaml
+
 
 
 def write_yaml(instance, foutput):
@@ -70,16 +73,19 @@ def validate_with_defaults(finput, fschema):
 #===================================================================================
 
 
+#To run if io is called directly:    TG
 if __name__ == '__main__':
     # path2yaml   = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "IEA-10-198-RWT" + os.sep + "IEA-10-198-RWT.yaml"
     path2yaml   = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep + "Madsen2019_10.yaml"
     path2schema = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
+
 
     # path2yaml   = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "dummy.yaml"
     # path2schema = os.path.dirname( os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))) + os.sep + "models" + os.sep + 'defaults' + os.sep + "dummy_schema.yaml"
 
     out = validate_with_defaults(path2yaml,path2schema)
     print(out)
+
 
     #NOTE: need to revert the coordinates for PGL, take the opposite of the twist angle
 

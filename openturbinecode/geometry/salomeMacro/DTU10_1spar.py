@@ -10,7 +10,8 @@ import salome
 salome.salome_init()
 import salome_notebook
 notebook = salome_notebook.NoteBook()
-sys.path.insert(0, r'!!!')
+#sys.path.insert(0, r'!!!')
+sys.path.insert(0, '!!!')
 
 ###
 ### GEOM component
@@ -21,7 +22,6 @@ from salome.geom import geomBuilder
 import math
 import SALOMEDS
 
-
 geompy = geomBuilder.New()
 
 O = geompy.MakeVertex(0, 0, 0)
@@ -30,6 +30,10 @@ OY = geompy.MakeVectorDXDYDZ(0, 1, 0)
 OZ = geompy.MakeVectorDXDYDZ(0, 0, 1)
 #blade_igs_1 = geompy.ImportIGES("/home/kz/Desktop/blade.igs", True)
 blade_igs_1 = geompy.ImportIGES("???", True)
+
+faces = geompy.ExtractShapes(blade_igs_1, geompy.ShapeType["FACE"], True)    #TG
+print("Number of faces: ", len(faces))    #TG
+
 [Face_1,Face_2,Face_3,Face_4,Face_5,Face_6,Face_7,Face_8,Face_9,Face_10,Face_11,Face_12] = geompy.ExtractShapes(blade_igs_1, geompy.ShapeType["FACE"], True)
 [Edge_1,Edge_2,Edge_3,Edge_4] = geompy.ExtractShapes(Face_1, geompy.ShapeType["EDGE"], True)
 [Edge_5,Edge_6,Edge_7,Edge_8] = geompy.ExtractShapes(Face_2, geompy.ShapeType["EDGE"], True)
