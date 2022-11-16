@@ -73,6 +73,7 @@ python3 install -e .
 ```
 Some dependencies of `AeroelasticSE` might need to be installed manually, e.g. `ruamel_yaml`.
 
+
 ### Installation
 
 We recommend in-place installation (`-e`). To install this package, run 
@@ -86,6 +87,7 @@ pip3 install -e .[gui, high-fidelity, meshing, controls]
 ```
 where you can select only what you need from the list in the brackets. This should at least ensure that the python dependencies are installed. 
 
+Detailed installation instructions for OpenTurbineCoDe and its dependent programs can be found at documentation/OTCD_installation_instructions.docx
 <!-- ------------------------------------------------------------------------------ -->
 
 ## Quick start guide
@@ -103,6 +105,8 @@ The turbine file must follow the WindIO onthology format. Examples are provided 
 **To run any standalone GUI**, from the root of the folder, execute (*replace MODULE with the specific module you want):
 
 python3 openturbinecode/MODULE/MODULE_gui.py 
+
+Detailed instructions for using OpenTurbineCoDe can be found at documentation/OTCD_instructions_for_use.docx
 
 ## Models
 This folder gathers a collection of test cases for the ARPA-E Atlantis project on Open Turbine control Co-Design (originally part of OpenTurbineTestCases).
