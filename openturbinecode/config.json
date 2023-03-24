@@ -1,14 +1,15 @@
 {
   "lofi": {
-    "path_to_openfast": "/home/tanig/wind/openfast-2.4.0/build/glue-codes/openfast/openfast",
-    "path_to_aerodyn": "/home/tanig/wind/openfast-2.4.0/build/modules/aerodyn/aerodyn_driver",
-    "path_to_beamdyn": "/home/tanig/wind/openfast-2.4.0/build/modules/beamdyn/beamdyn_driver"
+    "path_to_openfast": "/path/to/openfast-2.4.0/build/glue-codes/openfast/openfast",
+    "path_to_aerodyn": "/path/to/openfast-2.4.0/build/modules/aerodyn/aerodyn_driver",
+    "path_to_beamdyn": "/path/to/openfast-2.4.0/build/modules/beamdyn/beamdyn_driver",
+    "path_to_bmodes": "/path/to/BModes/src/build/bmodes/bmodes"
   },
   "mefi": {
     "path_to_pimpleFoam": "pimpleFoam",
-    "path_to_BB3D": "/home/tanig/wind/BB3D/data/make_blade"
+    "path_to_BB3D": "/path/to/BB3D/data/make_blade"
   },
   "hifi": {
-    "path_to_Salome": "/home/tanig/wind/SALOME-9.9.0/salome"
+    "path_to_Salome": "/path/to/SALOME-X.X.X/salome"
   }
 }

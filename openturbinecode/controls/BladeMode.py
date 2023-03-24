@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 #%%
 def fun_mode_tracking(ElastoBldNodes,BModes_path,BModes_file,BModes_exe):
     #%%
-    BModes_dir = os.path.join(BModes_path,BModes_file)
+    BModes_dir = os.path.join(BModes_path,BModes_file)    #TG 9/13 need to include full directory
     with open(BModes_dir, 'r') as BMFile:
         lines = BMFile.readlines()
     for i in range(len(lines)):
@@ -21,7 +21,8 @@ def fun_mode_tracking(ElastoBldNodes,BModes_path,BModes_file,BModes_exe):
         if 'nselt:' in lines[i]:
             out_elements = lines[i].split()[0]
             out_elements = int(out_elements)
-    sec_pro_dir = sec_pro_file.strip("'")
+    #sec_pro_dir = sec_pro_file.strip("'")    #Commented out by TG 9/15
+    sec_pro_dir = os.path.join(BModes_path,sec_pro_file.strip("'"))   #TG 2/28 includes full path
     f = open(sec_pro_dir, "r")
     sec_pro_baseline = f.readlines()
     f.close()
@@ -75,7 +76,14 @@ def fun_mode_tracking(ElastoBldNodes,BModes_path,BModes_file,BModes_exe):
         sec_file.write(' edge_stff is set equal to flp_stff\n')
         
     #rerun the BModel simulation; "/home/seager/Downloads/CCD_controller/Source/Modetracking/BModes-master/install/bin/bmodes"
+    orig_wd = os.getcwd()   #TG 2/28 saves current working directory so we can switch back to it later
+    os.chdir(BModes_path)  #TG 2/28 change to directory of BModes input files
+
     subprocess.run([BModes_exe, BModes_dir])
+    # TG 3/24: I don't know why BModes outputs a '.out' file instead of a 'DTU10MWBlade.out' file, but this is an easy workaround:
+    if os.path.isfile('.out'): #TG 3/24
+        os.rename('.out', os.path.splitext(BModes_file)[0]+'.out') #TG 3/24
+
     # Extract the bending modes from output file
     # get output file path
     BModes_out_dir = os.path.join(BModes_path, os. path. splitext(BModes_file)[0]+'.out')
@@ -114,5 +122,6 @@ def fun_mode_tracking(ElastoBldNodes,BModes_path,BModes_file,BModes_exe):
             Modes = np.append(Modes,ModeMatrix[:,1])
     Modes = Modes.reshape(3,out_elements+1)
     Modes = np.c_[ModeMatrix[:,0],Modes.transpose()]                  # Combine station and mode shape
+    os.chdir(orig_wd)  #TG 2/28 change back to original directory
     
     return NaFre, Modes

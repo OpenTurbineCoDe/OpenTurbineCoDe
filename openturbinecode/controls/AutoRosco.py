@@ -38,6 +38,8 @@ from datetime import date
 # my codes
 from .BladeMode import fun_mode_tracking   # self cuntion
 from .fastpost import multipostprocessing   # self cuntion
+from ..utils import utilities as ut #TG 2/23 added to use Aerodyn path
+
 #%% Initialize parameter dictionaries
 class TurbineMorph:
     def __init__(self, **obj):
@@ -50,6 +52,8 @@ class TurbineMorph:
         self.controller_params  = self.yaml['controller_params']
         self.BModes_params      = self.yaml['BModes_params']
         self.Bldmass_params     = self.yaml['Bld_mass']
+        self.config             = ut.read_config() #TG 2/23 added to use Aerodyn path
+
         
         #FAST directory
         self.path_to_root       = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -182,9 +186,11 @@ class TurbineMorph:
         ElastoBld_filename_new      = os.path.join(self.path,Elasto_file_new['BldFile(1)'].strip('"'))
         ElastoBld_file              = FASTInputFile(ElastoBld_filename_new)
         # Mode tracking
-        BModes_path                 = self.BModes_params['BModes_directory']
+        #BModes_path                = self.BModes_params['BModes_directory']   #TG 2/26 switched to universal path
+        BModes_path                 = self.path + os.sep + self.BModes_params['BModes_directory'] #TG 2/26 switched to universal path
         BModes_file                 = self.BModes_params['BModes_InputFile']
-        BModes_exe                  = self.BModes_params['BModes_exe']
+        #BModes_exe                 = self.BModes_params['BModes_exe']   #TG 2/26 switched to config path
+        BModes_exe                  = self.config['lofi']["path_to_bmodes"]  #TG 2/26 switched to config path
         ElastoBldNodes              = newElastoBldNodes
         frequency, modes            = fun_mode_tracking(ElastoBldNodes, BModes_path, BModes_file, BModes_exe)
         #% normalize
@@ -242,39 +248,69 @@ class TurbineMorph:
         AerodynSADrv_file   = FASTInputFile(Single_aero_DrivFil)
         
         # Defalut beta and lambda vectors
-        beta_tab            = np.linspace(-1.0,24.75,104)
-        lambda_tab          = np.linspace(3.0,14.75,48)
+        beta_tab            = np.linspace(-1.0,24.75,104) #This can be changed to make testing faster -TG
+        lambda_tab          = np.linspace(3.0,14.75,48)   #This can be changed to make testing faster -TG
         v_tab               = 11.4
         pi                  = 3.1415926
         aerodyn_stepSA      = 0.01
         aerodyn_casetime    = 0.1
         RotRadius           = self.Bldmass_params['RotRadius']
 
-        Cp=np.array([])
-        Cq=np.array([])
-        Ct=np.array([])
+        # The following was commented out by Hesam:
+        # Cp=np.array([])
+        # Cq=np.array([])
+        # Ct=np.array([])
+        # for i in range(len(lambda_tab)):
+        #     Rotspeedrpm    = 60 * (lambda_tab[i] * v_tab) / (RotRadius * 2 * pi)
+        #     Cases_SAAerodyn= np.array([])
+        #     for j in range(len(beta_tab)):
+        #         Cases_SAAerodyn             = np.append(Cases_SAAerodyn, [v_tab, 0.0, Rotspeedrpm, beta_tab[j], 0.0, aerodyn_stepSA, aerodyn_casetime], axis=0)
+        #     Cases_SAAerodyn                 = Cases_SAAerodyn.reshape((j+1, 7))
+        #     AerodynSADrv_file['Cases']      = Cases_SAAerodyn
+        #     AerodynSADrv_file['NumCases']   = j+1
+        #     AerodynSADrv_file.write(Single_aero_DrivFil)
+        #     # Aerodyn Simulation
+        #     subprocess.run([Single_aero_Driver, Single_aero_DrivFil])
+        #     # Extract
+        #     AerodynSA_out                   = FASTOutputFile(Single_aero_OutFil).toDataFrame()
+        #     AerodynSA_out                   = AerodynSA_out.to_numpy()
+        #     locs                            = (np.arange(j+1)) * 10 + 6
+        #     Cp                              = np.append(Cp, AerodynSA_out[locs,6], axis=0)
+        #     Cq                              = np.append(Cq, AerodynSA_out[locs,7], axis=0)
+        #     Ct                              = np.append(Ct, AerodynSA_out[locs,8], axis=0)
+
+        # Cp = Cp.reshape((i+1, j+1))
+        # Cq = Cq.reshape((i+1, j+1))
+        # Ct = Ct.reshape((i+1, j+1))
+        
+        #New from Hesam
+        Cp = np.zeros([len(lambda_tab), len(beta_tab)])
+        Cq = np.zeros([len(lambda_tab), len(beta_tab)])
+        Ct = np.zeros([len(lambda_tab), len(beta_tab)])
+
         for i in range(len(lambda_tab)):
-            Rotspeedrpm    = 60 * (lambda_tab[i] * v_tab) / (RotRadius * 2 * pi)
-            Cases_SAAerodyn= np.array([])
-            for j in range(len(beta_tab)):  
-                Cases_SAAerodyn             = np.append(Cases_SAAerodyn, [v_tab, 0.0, Rotspeedrpm, beta_tab[j], 0.0, aerodyn_stepSA, aerodyn_casetime], axis=0)
-            Cases_SAAerodyn                 = Cases_SAAerodyn.reshape((j+1, 7))
-            AerodynSADrv_file['Cases']      = Cases_SAAerodyn
-            AerodynSADrv_file['NumCases']   = j+1
+            Rotspeedrpm = 60 * (lambda_tab[i] * v_tab) / (RotRadius * 2 * pi)
+            Cases_SAAerodyn = np.array([])
+            for j in range(len(beta_tab)):
+                Cases_SAAerodyn = np.append(Cases_SAAerodyn, [
+                                            v_tab, 0.0, Rotspeedrpm, beta_tab[j], 0.0, aerodyn_stepSA, aerodyn_casetime], axis=0)
+            Cases_SAAerodyn = Cases_SAAerodyn.reshape((j+1, 7))
+            AerodynSADrv_file['Cases'] = Cases_SAAerodyn
+            AerodynSADrv_file['NumCases'] = j+1
             AerodynSADrv_file.write(Single_aero_DrivFil)
             # Aerodyn Simulation
-            subprocess.run([Single_aero_Driver, Single_aero_DrivFil])
+            #subprocess.run([Single_aero_Driver, Single_aero_DrivFil])  #TG 2/23 Commented out to use config.json Aerodyn path 
+            subprocess.run([self.config['lofi']["path_to_aerodyn"], Single_aero_DrivFil]) #TG 2/26 Commented to use config.json Aerodyn path 
             # Extract
-            AerodynSA_out                   = FASTOutputFile(Single_aero_OutFil).toDataFrame()
-            AerodynSA_out                   = AerodynSA_out.to_numpy()
-            locs                            = (np.arange(j+1)) * 10 + 6
-            Cp                              = np.append(Cp, AerodynSA_out[locs,6], axis=0)  
-            Cq                              = np.append(Cq, AerodynSA_out[locs,7], axis=0)  
-            Ct                              = np.append(Ct, AerodynSA_out[locs,8], axis=0)  
-        
-        Cp = Cp.reshape((i+1, j+1))
-        Cq = Cq.reshape((i+1, j+1))
-        Ct = Ct.reshape((i+1, j+1))
+            for j in range(len(beta_tab)):
+                AerodynSA_out = FASTOutputFile(
+                    Single_aero_OutFil+"."+str(j+1)+"."+"out").toDataFrame()
+                AerodynSA_out = AerodynSA_out.to_numpy()
+                Cp[i, j] = np.mean(AerodynSA_out[:, 1])
+                Cq[i, j] = np.mean(AerodynSA_out[:, 2])
+                Ct[i, j] = np.mean(AerodynSA_out[:, 3])
+                #End new from Hesam
+
         # Write out
         self.textfile = self.path+os.sep+self.path_params['rotor_performance_filename']
         with open(self.textfile, 'w') as input_file:
@@ -305,7 +341,8 @@ class TurbineMorph:
             input_file.write(' \n')
             for i in range(len(lambda_tab)):
                 for j in range(len(beta_tab)):
-                    input_file.write("{0:10.6f}".format(Cq[i,j]))
+                    #input_file.write("{0:10.6f}".format(Cq[i, j])) #HS 3/6
+                    input_file.write("{0:10.6f}".format(Ct[i, j])) #HS 3/6
                 input_file.write('\n')
             input_file.write(' \n')
             input_file.write(' \n')
@@ -313,7 +350,8 @@ class TurbineMorph:
             input_file.write(' \n')
             for i in range(len(lambda_tab)):
                 for j in range(len(beta_tab)):
-                    input_file.write("{0:10.6f}".format(Ct[i,j]))
+                    #input_file.write("{0:10.6f}".format(Ct[i, j])) #HS 3/6
+                    input_file.write("{0:10.6f}".format(Cq[i, j])) #HS 3/6
                 input_file.write('\n')
             input_file.write(' \n')
 

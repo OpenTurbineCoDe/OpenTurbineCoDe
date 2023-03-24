@@ -11,7 +11,7 @@ path_params:
   # Stand alone aerodyn solver for C tables
   Single_aero_DrivFil:     'AeroDyn_StandAlone/driver.inp'   # Path for the stand alone aerodyn driver input
   Single_aero_Driver:     'aerodyn_driver'                                 # Path for the stand alone aerodyn driver
-  Single_aero_OutFil:     'AeroDyn_StandAlone/DTU10Mw.out'   # Path for the stand alone aerodyn output
+  Single_aero_OutFil:     'AeroDyn_StandAlone/DTU10Mw'   # Path for the stand alone aerodyn output
   bdffile: 'tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf'            # the bdf file for using as the basic element file for tacs based ROM
 
 # -------------------------------- TURBINE PARAMETERS ----------------------------------- 
@@ -33,9 +33,10 @@ turbine_params:
   ptfm_freq:          # None                # Platform natural frequency [rad/s]   
 # -------------------------------- Bmode section ----------------------------------- 
 BModes_params:
-  BModes_directory: '/home/seager/Downloads/CCD_controller/Source/DTU10MWAero15/DTU10MW_ModeTracking'                   # Path for BModes analysis: Preconditions: BModes installed in system
+  #BModes_directory: '/mnt/c/Users/tanig/Wind/OpenTurbineCoDe/openturbinecode/controls/DTU10MWAero15/DTU10MW_ModeTracking'                   # Path for BModes analysis: Preconditions: BModes installed in system   #TG 2/26 commented out
+  BModes_directory: 'DTU10MW_ModeTracking'                   # Path for BModes analysis: Preconditions: BModes installed in system   #TG 2/26 changed for universal path
   BModes_InputFile: 'DTU10MWBlade.bmi'                                                                                  # Main input file for BModes
-  BModes_exe: '/home/seager/Downloads/CCD_controller/Source/Modetracking/BModes-master/install/bin/bmodes'                   # Path for BModes analysis: Preconditions: BModes installed in system
+  #BModes_exe: '/home/tanig/wind/BModes-master/src/build/bmodes/bmodes'                   # Path for BModes analysis: Preconditions: BModes installed in system    #TG 2/26 commented out to use config.json
 # -------------------------------- Blade_mass property ----------------------------------- 
 Bld_mass:
   Bldmass_ref:       41732.347                # Blade mass of baseline model[kg]
