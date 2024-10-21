@@ -40,7 +40,7 @@ class OpenTurbineCoDe:
         # Load turbine case
         self.load_run_options()
 
-        # Parse turbine parameters if present
+        # Parse turbine parameters
         if self.turb_yaml:
             self.load_turbine_case(firstLoad=True)
         else:
@@ -61,11 +61,11 @@ class OpenTurbineCoDe:
         """Initializes all submodules of OpenTurbineCoDe.
         """
         # Initialize submodules
-        self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
-        self.myStruc = struc.Structural(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
-        self.myAeroStruct = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)  # noqa: E501
-        self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
-        self.myGeom = geom.Geometry(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
+        self.aero_module = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
+        self.struct_module = struc.Structural(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
+        self.aero_struct_module = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)  # noqa: E501
+        self.control_module = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
+        self.geometry_module = geom.Geometry(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
 
     # parse parameters coming from command line execution
     def parse_args(self, args):
@@ -82,6 +82,7 @@ class OpenTurbineCoDe:
             This should be the path to the turbine file, with a appended to the front if it wasn't there already.
             Same deal for OTCD.model_yaml for --models and OTCD.run_yaml for --runoptions.
         """
+        # Parse command-line arguments
         self.turb_yaml = io.arg_to_path(args, "turbine")
         self.model_yaml = io.arg_to_path(args, "models")
         self.run_yaml = io.arg_to_path(args, "runoptions")
@@ -108,11 +109,11 @@ class OpenTurbineCoDe:
         # UPDATE EVERY CHILD MODULE
         if not firstLoad and self.turb_data:
             # Note: we don't call reload_turbdata from each module because it is safer here with validate_with_defaults
-            self.myAero.turb_data = self.turb_data
-            self.myStruc.turb_data = self.turb_data
-            self.myAeroStruct.turb_data = self.turb_data
-            self.myGeom.set_turbdata(self.turb_data)
-            self.myCtrl.turb_data = self.turb_data
+            self.aero_module.turb_data = self.turb_data
+            self.struct_module.turb_data = self.turb_data
+            self.aero_struct_module.turb_data = self.turb_data
+            self.geometry_module.set_turbdata(self.turb_data)
+            self.control_module.turb_data = self.turb_data
 
         log.info('Turbine case loaded.')
         # Runs either when you input a turbine file as an argument or when you load a turbine case in the GUI.
@@ -132,11 +133,11 @@ class OpenTurbineCoDe:
 
     def setPathToCase(self, path):
         self.path_to_case = path
-        self.myAero.setPathToCase(path)
-        self.myStruc.setPathToCase(path)
-        self.myAeroStruct.setPathToCase(path)
-        self.myCtrl.setPathToCase(path)
-        self.myGeom.setPathToCase(path)
+        self.aero_module.setPathToCase(path)
+        self.struct_module.setPathToCase(path)
+        self.aero_struct_module.setPathToCase(path)
+        self.control_module.setPathToCase(path)
+        self.geometry_module.setPathToCase(path)
         # Defines the path in all submodules. Called in GUI.py.
 
     def update_MainParams(self, PRated, nblade, D, HubD, HubHeight, Vin, Vout, Overhang, Tilt, Precone):
@@ -209,7 +210,7 @@ if __name__ == '__main__':
             sys.exit(0)
 
         if not OTCD.turb_data:
-            log.info('I did not find any data in your turbine yaml file... Exiting')
+            log.info('I did not find any data in your turbine yaml file. Exiting')
             sys.exit(0)
 
         # If no file, file is empty or non-existent

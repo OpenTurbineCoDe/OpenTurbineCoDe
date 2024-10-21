@@ -58,7 +58,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
         #=====  GEOMETRY ===============================================
-        self.geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self,withMasterGUI=True)
+        self.geometry_ui = geom.Mapper(self.OTCD.geometry_module,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.geometry_ui,"Geometry")
         #=====  MESHING ===============================================
         
@@ -66,24 +66,24 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #=====  AERODYNAMICS ===============================================
         
-        self.aero_ui = aero.Mapper(self.OTCD.myAero,parent=self,withMasterGUI=True)
+        self.aero_ui = aero.Mapper(self.OTCD.aero_module,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.aero_ui,"Aerodynamics")
 
         #=====  STRUCTURE ===============================================
         
-        self.struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self,withMasterGUI=True)
+        self.struc_ui = struc.Mapper(self.OTCD.struct_module,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.struc_ui,"Structure")
 
         #=====  AERO-STRUCTURE ===============================================
         
         # aerostructGUI_ui = asGui.Mapper(OTCD=self.OTCD,parent=self)
         # self.SampleModule.addTab(aerostructGUI_ui,"Aerostructural")
-        self.aerostructGUI_ui = aerostruct.Mapper(self.OTCD.myAeroStruct,parent=self, withMasterGUI=True)
+        self.aerostructGUI_ui = aerostruct.Mapper(self.OTCD.aero_struct_module,parent=self, withMasterGUI=True)
         self.Master_tabs.addTab(self.aerostructGUI_ui,"AeroStructure")
 
         #=====  CCD ===============================================
         
-        self.control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self,withMasterGUI=True)
+        self.control_ui = ctrl.Mapper(self.OTCD.control_module,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.control_ui,"CCD")
 
         # Fill the GUI with the data from the OpenTurbineCoDe object

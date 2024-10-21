@@ -23,7 +23,7 @@ import openturbinecode.utils.utilities as ut
 # ================================================
 # Input arguments
 # ================================================
-baseDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + os.sep  #path to OTCD root
+baseDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + os.sep  # path to OTCD root
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--output", help="Output directory (relative to case files)", type=str, default="outputs")
@@ -244,29 +244,29 @@ if 'turbinesFoam' in args.fidelities:
 # CAUTION: the wrapper does not execute AeroDyn:
 #   Data should be obtained independently.
 # ================================================
-#suffixes = ["_ltd"]
+# suffixes = ["_ltd"]
 suffixes = [""]
-ADext_torque = np.zeros([len(ADext_vel),len(suffixes)])
-ADext_thrust = np.zeros([len(ADext_vel),len(suffixes)])
-ADext_cp = np.zeros([len(ADext_vel),len(suffixes)])
+ADext_torque = np.zeros([len(ADext_vel), len(suffixes)])
+ADext_thrust = np.zeros([len(ADext_vel), len(suffixes)])
+ADext_cp = np.zeros([len(ADext_vel), len(suffixes)])
 outputDirectory = os.path.join(path_to_case, "AeroDyn", args.output)
 if args.withADres:
     if MPI.COMM_WORLD.rank == 0:
         for i in range(len(ADext_vel)):  # Looping over a range of input tip speed ratios
             tsr = ADext_tsr[i]
             Vel = ADext_vel[i]
-            for j in range(len(suffixes)):  
+            for j in range(len(suffixes)):
                 # Caution: the naming of the files assumes that they are numbered in the same order as the list of velocity you provide in ADext_vel
                 outputFile = os.path.join(outputDirectory + suffixes[j], f"{Tag:s}.{i+1:d}.out")
 
-                #postprocessing output files
-                thrust, torque, power, fN, fT = OTCDparser.OFparse(outputFile,nodeR)
+                # postprocessing output files
+                thrust, torque, power, fN, fT = OTCDparser.OFparse(outputFile, nodeR)
 
                 cp, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, R, np.pi*R**2, rho, tsr, torque)
 
-                ADext_torque[i,j] = torque
-                ADext_thrust[i,j] = thrust
-                ADext_cp[i,j] = cp
+                ADext_torque[i, j] = torque
+                ADext_thrust[i, j] = thrust
+                ADext_cp[i, j] = cp
 
 
 # ================================================
