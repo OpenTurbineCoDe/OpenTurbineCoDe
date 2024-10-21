@@ -7,6 +7,7 @@ import json
 # Performance function to postproduce High-Fidelity results
 # =============================================================
 
+
 def WT_performance(V, span, A, rho, tsr, torque):
     tip_speed = tsr * V
     om = tip_speed / span

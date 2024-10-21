@@ -1,7 +1,11 @@
 /outputs/
+/development/
+/external/
+/logs/
 workdir
 *.out
 *.sum
 *.egg-info
 __pycache__
 .vscode
+.venv
