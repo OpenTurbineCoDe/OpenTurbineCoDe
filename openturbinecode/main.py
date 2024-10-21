@@ -1,88 +1,97 @@
+"""
+    There may be a message "Using weis.aeroelasticse in ROSCO_toolbox..."
+    This is not an error message and comes from WEIS/ROSCO/ROSCO_toolbox/turbine.py
+    Associated message: Warning - The following packages/executables are not found: ['pCrunch', 'pyFAST', 'adflow', 'pgl', 'TACS/pyTACS', 'pygeo', 'AeroelasticSE', 'pimpleFoam']
+"""
+
 import argparse
 import sys
 import os
 import numpy as np
+from pathlib import Path
+import logging
+from openturbinecode.utils.logger import setup_logger
 
 import openturbinecode.utils.io as io
-    #There may be a message "Using weis.aeroelasticse in ROSCO_toolbox..." This is not an error message and comes from WEIS/ROSCO/ROSCO_toolbox/turbine.py
-    #Associated message: Warning - The following packages/executables are not found: ['pCrunch', 'pyFAST', 'adflow', 'pgl', 'TACS/pyTACS', 'pygeo', 'AeroelasticSE', 'pimpleFoam']
-
 import openturbinecode.utils.utilities as ut
 
 import openturbinecode.master_GUI.GUI as GUI
-    #Associated messages: pyAerostructure not currently available
-    #Baseclasses currently not available
-    #Baseclasses currently not available
-    #IDwarp currently not available
-    #ofTools in ROSCO_toolbox...
 import openturbinecode.sample_module.sample_script as sample
-import openturbinecode.DLC_manager.dump_IECcase as DLC_manager
-    #This runs the top of the dump_IECcase file where it imports other things
-
+import openturbinecode.DLC_manager.dump_IECcase as DLC_manager  # This runs the top of the dump_IECcase file where it imports other things
 import openturbinecode.aerodynamics.aerodynamics_module as aero
 import openturbinecode.structure.structure_module as struc
 import openturbinecode.aerostructural.aerostructural_module as aerostruct
 import openturbinecode.controls.control_module as ctrl
 import openturbinecode.geometry.geometry_module as geom
-# ...
+
+log = setup_logger('root_logger', 'logs/app.log', level=logging.DEBUG)
 
 class OpenTurbineCoDe:
-
     def __init__(self, args):
-        print('Hello, this is OpenTurbineCoDe.')
+        log.info('Initializing OpenTurbineCoDe...')
 
-        # --- initialization of global constants/options ---
-        self.path_to_root = os.path.dirname( os.path.dirname( os.path.realpath(__file__) ))
-            #path_to_root is the path to OpenTurbineCoDe in your computer directory.    TG
-        self.turbine_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "OTCD_schema.yaml"
-            #turbine_schema is the path to OpenTurbineCoDe\models\defaults\OTCD_schema.yaml    TG
-        self.model_schema = self.path_to_root + os.sep + "models" + os.sep + 'defaults' + os.sep + "modeling_schema.yaml"
-            #model_schema is the path to OpenTurbineCoDe\models\defaults\modeling_schema.yaml    TG
-        # self.run_schema = self.path_to_root #TODO
-        self.path_to_case = self.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep  # hack to run without specifying a module - we are not reading from yaml yet
-            #self.path_to_case is the path to OpenTurbineCoDe\models\DTU_10MW\Madsen2019\    TG
-        # self.path_to_case = os.getcwd()
+        # Initialize paths
+        self.path_to_root = Path(__file__).resolve().parent.parent  # OpenTurbineCoDe path
+        self.turbine_schema = self.path_to_root / "models" / "defaults" / "OTCD_schema.yaml"
+        self.model_schema = self.path_to_root / "models" / "defaults" / "modeling_schema.yaml"
+        self.path_to_case = self.path_to_root / "models" / "DTU_10MW" / "Madsen2019"  # Default path to case
 
-        # --- parse input arguments ---
+        # Parse input arguments
         self.parse_args(args)
 
-        # --- managing IO / loading files if needed ---
-        # parse run params (only if modeling options present)
+        # Load turbine case
         self.load_run_options()    
 
-        # parse turbine_params (only if turbine data present)
+        # Parse turbine parameters if present
         if self.turb_yaml:
             self.load_turbine_case(firstLoad = True)
         else:
             self.turb_data = {}
         
-        # parse model params
+        # Parse model parameters if present
         if self.model_yaml:
-            #If there is an argument with the path to the model:
             self.load_modeling_options()    
         else:
             self.modeling_options = {}
             self.modeling_options["OpenTurbineCoDe"] = {}
 
-        # --- initializing submodules ---
+        # Initialize submodules
+        self.initialize_submodules()
+        log.info('OpenTurbineCoDe initialization complete.')
 
-        self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options, plotonly=args.plotonly)
+
+    def initialize_submodules(self):
+        """Initializes all submodules of OpenTurbineCoDe.
+        """
+        # Initialize submodules
+        self.myAero = aero.Aerodynamics(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myStruc = struc.Structural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
-        self.myAeroStruct = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options, plotonly=args.plotonly)
+        self.myAeroStruct = aerostruct.Aerostructural(self.path_to_case, turb_data=self.turb_data,models=self.modeling_options)
         self.myCtrl = ctrl.Control(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
         self.myGeom = geom.Geometry(self.path_to_case, turb_data=self.turb_data, models=self.modeling_options)
-        self.printv('initilization done. \n\n')
-
+    
     # ---------------- IO/PARSING FUNCTIONS --------------------------------------
 
-    #parse parameters coming from command line execution
+    # parse parameters coming from command line execution
     def parse_args(self,args):
-        self.turb_yaml  = io.arg_to_path(args,"turbine") #(args.turbine) if "turbine" in args else ""
-            #OTCD.turb_yaml is the argument that the user input after --turbine . This should be the path to the turbine file,
-            #with a .\ appended to the front if it wasn't there already. Same deal for OTCD.model_yaml for --models and OTCD.run_yaml for --runoptions.    TG
-        self.model_yaml = io.arg_to_path(args,"models") #(args.models) if "models" in args else ""
-        self.run_yaml   = io.arg_to_path(args,"runoptions") #(args.runoptions) if "runoptions" in args else ""
-        print(self.turb_yaml)
+        """
+        Parses command-line arguments to extract file paths for turbine, models, and run options.
+            args (Namespace): The command-line arguments.
+        Attributes:
+            turb_yaml (str): Path to the turbine file.
+            model_yaml (str): Path to the models file.
+            run_yaml (str): Path to the run options file.
+            path_to_case (str): Directory path of the turbine file.
+        Notes:
+            OTCD.turb_yaml is the argument that the user input after --turbine . This should be the path to the turbine file,
+            with a .\ appended to the front if it wasn't there already. Same deal for OTCD.model_yaml for --models and OTCD.run_yaml for --runoptions.
+        """
+        self.turb_yaml  = io.arg_to_path(args,"turbine")
+        self.model_yaml = io.arg_to_path(args,"models")
+        self.run_yaml   = io.arg_to_path(args,"runoptions")
+        
+        log.info(self.turb_yaml)
+
         if self.turb_yaml:
             self.path_to_case = os.path.dirname(self.turb_yaml) 
 
@@ -211,34 +220,34 @@ if __name__ == '__main__':
     parser.add_argument("--turbine", help="Path to the turbine case file (e.g. turbine.yaml)", type=str, default="")
     parser.add_argument("--models", help="Path to the modeling options file (e.g. modeling_options.yaml)", type=str, default="")
     parser.add_argument("--runoptions", help="Path to the run options file (e.g. run_options.yaml)", type=str, default="")
-        #These three arguments allow the user to type in the path to a file after typing in --turbine , --models , or --runoptions .    TG
+    # These three arguments allow the user to type in the path to a file after typing in --turbine , --models , or --runoptions .    TG
     parser.add_argument("--GUI", action='store_true', help="Run PyTurbineCoDe with the GUI")
     parser.add_argument("--plotonly", action='store_true', help="Do not compute anything")
-        #These two arguments check whether the user input --GUI or --plotonly    TG
+    # These two arguments check whether the user input --GUI or --plotonly    TG
     args = parser.parse_args()
 
-    OTCD = OpenTurbineCoDe(args) #initialize me 
-        #This creates an instance of the OpenTurbineCoDe class and calls the __init__ method.    TG
+    # Initialize the OpenTurbineCoDe object
+    OTCD = OpenTurbineCoDe(args)
 
     if args.GUI:   
         #If the user input --GUI
-        print('Starting the GUI')
+        log.info('Initializing GUI...')
         # =========== CALL THE MASTER GUI ============
         GUI.run(OTCD)
 
         # ============================================
     else:
         if not OTCD.turb_yaml:
-            print('You did not provide a turbine case. I will not be able to do anything. Exiting.')
+            log.info('You did not provide a turbine case. I will not be able to do anything. Exiting.')
             sys.exit(0)
 
         if not OTCD.turb_data:
-            print('I did not find any data in your turbine yaml file... Exiting')
+            log.info('I did not find any data in your turbine yaml file... Exiting')
             sys.exit(0)
 
         #If no file, file is empty or non-existent
         if not OTCD.modeling_options or "OpenTurbineCoDe" not in OTCD.modeling_options or not OTCD.modeling_options["OpenTurbineCoDe"]:
-            print('You did not provide a valid modeling option file. I don''t know what to do. Exiting.')
+            log.info('You did not provide a valid modeling option file. I don''t know what to do. Exiting.')
             sys.exit(0)
 
         # --- From here on, we are going to run whatever was specified in the run/modeling option files ---

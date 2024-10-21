@@ -3,30 +3,22 @@
 import sys
 import os
 import matplotlib.pyplot as plt
-# import shutil, tempfile, math, string
-# import numpy as np
-# import subprocess
+from pathlib import Path
 import ast
 
-#conditional imports
-try:
-    from PyQt5 import QtCore, QtGui, uic, QtWidgets
-    from PyQt5.QtWidgets import QFileDialog
-except ImportError as err:
-    pass
+
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 
 from openturbinecode.aerodynamics import aerodynamics_gui as aero
 from openturbinecode.structure import structure_gui as struc
 from openturbinecode.aerostructural import aerostructural_gui as aerostruct
 from openturbinecode.controls import control_gui as ctrl
 from openturbinecode.geometry import geometry_gui as geom
+from openturbinecode.main import OpenTurbineCoDe
 
-
-#NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
-#       Later, we should replace this by a static load when everybody is done editing the GUI.
-#       See also https://realpython.com/qt-designer-python/
-UIrepresentation = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "Config.ui")[0]  # Load the UI
-
+# Load the UI file
+UIrepresentation = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "Config.ui")[0]
 
 class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
@@ -34,7 +26,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
     #def call_Geo_loadGeom(self):
     #    self.OTCD.loadGeom(self.fName)
     
-    def __init__(self,  OTCD_, parent=None):
+    def __init__(self,  OTCD_: OpenTurbineCoDe, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
@@ -48,8 +40,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         
         #=====  DEFAULTS ===============================================
 
-        self.pathToMadsen = self.OTCD.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep + "Madsen2019_10.yaml"
 
+        self.pathToMadsen = self.OTCD.path_to_root / "models" / "DTU_10MW" / "Madsen2019" / "Madsen2019_10.yaml"
         #=====  MAIN OPTIONS ===============================================
         #self.OTCD.MessageBox = self.textBrowser
         self.OTCD.QtWidgets = QtWidgets
@@ -94,25 +86,13 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.control_ui,"CCD")
 
-        # ===================================
-        # FILL THE GUI WITH PRELOADED DATA:
-        # ===================================
+        # Fill the GUI with the data from the OpenTurbineCoDe object
         self.disp_case()
 
-
-
-    #*******************************************************************
-    #************** CALLER FUNCTIONS               *********************
-    #*******************************************************************
-
-
-    #=====  GENERAL FUNCTIONS, USED FOR THE ENTIRE GUI ===============================================
-
-    # unpack all options and fill the UI
     def disp_case(self):
 
         #display path to case
-        self.Main_set_PathToCase.setText(self.OTCD.path_to_case)
+        self.Main_set_PathToCase.setText(str(self.OTCD.path_to_case))
 
         #update parameters with the current texts in the fields
         if "DLC" in self.OTCD.modeling_options["OpenTurbineCoDe"] and "DLC_list" in self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]: 

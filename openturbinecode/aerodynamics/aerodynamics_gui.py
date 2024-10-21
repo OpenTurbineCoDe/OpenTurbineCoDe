@@ -78,7 +78,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
 
     def writeToUI(self):
 
-        self.str_pathToCase.setText(self.myAero.path_to_case)
+        self.str_pathToCase.setText(str(self.myAero.path_to_case))
         self.str_pathToRotor.setText(self.pathToRotor)
 
         #Set interface values

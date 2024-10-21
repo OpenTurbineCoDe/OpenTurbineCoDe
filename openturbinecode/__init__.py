@@ -15,12 +15,13 @@ except ImportError as err:
     failed_imports.append("pCrunch")
 
 try: 
-    from ROSCO_toolbox import controller
+    from rosco import controller
 except ImportError as err:
     failed_imports.append("ROSCO_toolbox")
+    print(f"Error importing ROSCO_toolbox: {err}")
     print("------------------------------------------")
     print("Something is not right with pCrunch")
-    print("Please manually patch pCrunch to corrcetly import ROSCO_toolbox")
+    print("Please manually patch pCrunch to correctly import ROSCO_toolbox")
     print("------------------------------------------")
 
 # -------------------- openmdao ----------------------------

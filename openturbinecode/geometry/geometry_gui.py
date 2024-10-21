@@ -7,26 +7,18 @@ import numpy as np
 import subprocess
 import scp
 
-#conditional imports
-try:
-    from PyQt5 import QtCore, QtGui, uic, QtWidgets
-    from PyQt5.QtWidgets import QFileDialog
-except ImportError as err:
-    pass
 
-try:
-    import pandas as pd
-except ImportError as err:
-    _has_pandas = False
-else:
-    _has_pandas = True
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 
+
+import pandas as pd
 import openturbinecode.geometry.geometry_module as geom
 
 form_class = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "geom.ui")[0]  # Load the UI
 
 class Mapper(QtWidgets.QMainWindow, form_class):
-    def __init__(self, myGeom, parent=None, withMasterGUI=False):
+    def __init__(self, myGeom: geom, parent=None, withMasterGUI=False):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
@@ -40,29 +32,31 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             
         # =================== CONNECT BUTTONS AND ACTIONS ==============================
         # Bind the event handlers to the buttons using a function
-        self.Geo_Button1.clicked.connect(self.caller_loadGeom)
+        self.Geo_Button1.clicked.connect(self.load_geometry)
         self.Geo_Button1.setToolTip('Load blade geometry from an AeroDyn file')
-        self.Geo_toolButton1.clicked.connect(self.caller_openFileDialogue)
+        self.Geo_toolButton1.clicked.connect(self.open_file_dialogue)
         self.Geo_toolButton1.setToolTip('Click here to select AeroDyn blade file')
-        self.Geo_comboBox.activated.connect(self.caller_Geo_outputFormat)
-        self.Geo_comboBox_3.activated.connect(self.caller_Geo_setGrey)
-        self.Geo_toolButton.clicked.connect(self.caller_Geo_loadExternalAF)
+        self.Geo_comboBox.activated.connect(self.geo_output_format)
+        self.Geo_comboBox_3.activated.connect(self.geo_set_grey)
+        self.Geo_toolButton.clicked.connect(self.geo_load_external_airfoil)
         self.Geo_pushButton_3.clicked.connect(self.caller_Geo_getSalome)
         self.Geo_pushButton.clicked.connect(self.caller_Geo_getIGES)
-        self.Geo_pushButton_4.clicked.connect(self.caller_Geo_loadAFCoord)
+        self.Geo_pushButton_4.clicked.connect(self.geo_load_airfoil_coords)
         self.Geo_Button2.clicked.connect(self.caller_Geo_generateGeom)
         self.Geo_pushButton_2.clicked.connect(self.caller_Geo_setLofts)
         self.Geo_pushButton_5.clicked.connect(self.caller_Geo_setSpar)
         #self.Geo_comboBox_4.activated.connect(self.caller_Geo_loadPredefinedTurbine)
-        self.Geo_toolButton2.clicked.connect(self.caller_Geo_openBB3DExe)
+        self.Geo_toolButton2.clicked.connect(self.execute_BB3D)
         self.Geo_lineEdit_6.setText(self.myGeom.BB3DExe)
         self.Geo_lineEdit_3.setText(str(self.myGeom.lofts))
         self.Geo_lineEdit_5.setText(str(self.myGeom.spar[0])+" "+str(self.myGeom.spar[1]))
-        self.Geo_pushButton_6.clicked.connect(self.caller_Geo_setBB3DExe)
+        self.Geo_pushButton_6.clicked.connect(self.set_BB3D_executable)
         self.Geo_lineEdit_4.setText(self.myGeom.salomeExe)
         self.Geo_lineEdit_2.setText("")
         
-        self.Geo_LineEdit1.setText(self.myGeom.path_to_case + os.sep + "AeroDyn" + os.sep + "DTU_10MW_ADblade.dat")
+        # Set path
+        geo_path = self.myGeom.path_to_case / "AeroDyn" / "DTU_10MW_ADblade.dat"
+        self.Geo_LineEdit1.setText(str(geo_path))
 
     # ============== Functions to fill the UI, or to retrieve info from the UI ==========================
 
@@ -96,7 +90,7 @@ class Mapper(QtWidgets.QMainWindow, form_class):
             for i in range(0, self.myGeom.afNum):
                 self.Geo_comboBox_2.addItem(str(i+1))
 
-    def readFromUI(self):
+    def read_from_ui(self):
         #Get user inputs data
         self.myGeom.AeroDynFileName = self.Geo_LineEdit1.text() #no.text function
 
@@ -121,40 +115,36 @@ class Mapper(QtWidgets.QMainWindow, form_class):
     #def caller_Geo_loadPredefinedTurbine(self):
     #    self.myGeom.Geo_loadPredefinedTurbine(self.Geo_comboBox_4, self.Geo_LineEdit1, self.Geo_toolButton1, self.Geo_widget)
 
-    def caller_loadGeom(self):
-        self.readFromUI()
+    def load_geometry(self):
+        self.read_from_ui()
         self.myGeom.loadGeom(self.myGeom.AeroDynFileName, self.Geo_Table1, QtWidgets, self.Geo_comboBox_2)
         self.writeToUI()
     
-    def caller_openFileDialogue(self):
-        self.readFromUI()
+    def open_file_dialogue(self):
+        self.read_from_ui()
         self.myGeom.openFileDialogue(self.Geo_LineEdit1, QtWidgets)
         
-    def caller_Geo_outputFormat(self):
+    def geo_output_format(self):
         self.myGeom.Geo_outputFormat(self.Geo_comboBox, self.Geo_stackedWidget)
 
-    def caller_Geo_setGrey(self):
+    def geo_set_grey(self):
         self.myGeom.Geo_setGrey(self.Geo_toolButton, self.Geo_comboBox_3, self.Geo_lineEdit, self.Geo_comboBox_2, self.Geo_pushButton_4)
 
     #TODO: underlying codes for saving airfoil shapes 
-    def caller_Geo_loadAFCoord(self):
+    def geo_load_airfoil_coords(self):
         self.myGeom.Geo_loadAFCoord(self.Geo_comboBox_2, self.Geo_comboBox_3, self.Geo_lineEdit)
 
-    def caller_Geo_loadExternalAF(self):
+    def geo_load_external_airfoil(self):
         self.myGeom.Geo_loadExternalAF(self.Geo_toolButton, self.Geo_lineEdit, QtWidgets, self.Geo_comboBox_2)
 
-    def caller_Geo_openBB3DExe(self):
+    def execute_BB3D(self):
         self.myGeom.Geo_openBB3DExe(self.Geo_lineEdit_6, QtWidgets)
 
-    def caller_Geo_setBB3DExe(self):
+    def set_BB3D_executable(self):
         self.myGeom.Geo_setBB3DExe(self.Geo_lineEdit_6)
 
-
-
-
-
     def caller_Geo_generateGeom(self):
-        self.readFromUI()
+        self.read_from_ui()
         self.myGeom.Geo_generateGeom(self.Geo_comboBox, self.Geo_Table1, self.Geo_Table2, self.Geo_lineEdit_3, self.Geo_lineEdit_4, self.Geo_lineEdit_2, self.Geo_radioButton)
 
     def caller_Geo_setLofts(self):
