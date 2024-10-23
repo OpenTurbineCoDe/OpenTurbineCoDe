@@ -10,11 +10,11 @@ import ast
 from PyQt5 import QtCore, QtGui, uic, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 
-from openturbinecode.aerodynamics import aerodynamics_gui as aero
-from openturbinecode.structure import structure_gui as struc
-from openturbinecode.aerostructural import aerostructural_gui as aerostruct
-from openturbinecode.controls import control_gui as ctrl
-from openturbinecode.geometry import geometry_gui as geom
+from openturbinecode.solvers.aerodynamics import aerodynamics_gui as aero
+from openturbinecode.solvers.structure import structure_gui as struc
+from openturbinecode.solvers.aerostructural import aerostructural_gui as aerostruct
+from openturbinecode.solvers.controls import control_gui as ctrl
+from openturbinecode.services.geometry import geometry_gui as geom
 from openturbinecode.main import OpenTurbineCoDe
 
 # Load the UI file

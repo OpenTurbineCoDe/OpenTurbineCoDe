@@ -14,12 +14,12 @@ from pathlib import Path
 from openturbinecode.utils.logger import setup_logger
 import openturbinecode.utils.io as io
 import openturbinecode.master_GUI.GUI as GUI
-import openturbinecode.DLC_manager.dump_IECcase as DLC_manager
-import openturbinecode.aerodynamics.aerodynamics_module as aero
-import openturbinecode.structure.structure_module as struc
-import openturbinecode.aerostructural.aerostructural_module as aerostruct
-import openturbinecode.controls.control_module as ctrl
-import openturbinecode.geometry.geometry_module as geom
+import openturbinecode.services.DLC_manager.dump_IECcase as DLC_manager
+import openturbinecode.solvers.aerodynamics.aerodynamics_module as aero
+import openturbinecode.solvers.structure.structure_module as struc
+import openturbinecode.solvers.aerostructural.aerostructural_module as aerostruct
+import openturbinecode.solvers.controls.control_module as ctrl
+import openturbinecode.services.geometry.geometry_module as geom
 
 log = setup_logger('root', 'logs/app.log', level=logging.INFO)
 
