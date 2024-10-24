@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from openturbinecode.solvers.aerodynamics.aero_wrapper import aero_Wrapper
 import openturbinecode.utils.io as io
 
+
 class Aerodynamics:
     def __init__(self, path_to_case, turb_data=None, models=None, plotonly=False):
         

@@ -9,7 +9,6 @@ import argparse
 import sys
 import os
 import logging
-from pathlib import Path
 
 from openturbinecode.utils.logger import setup_logger
 import openturbinecode.utils.io as io
@@ -21,6 +20,8 @@ import openturbinecode.solvers.aerostructural.aerostructural_module as aerostruc
 import openturbinecode.solvers.controls.control_module as ctrl
 import openturbinecode.services.geometry.geometry_module as geom
 
+from openturbinecode.configs.pathing import PATH_TO_ROOT
+
 log = setup_logger('root', 'logs/app.log', level=logging.INFO)
 
 
@@ -29,10 +30,9 @@ class OpenTurbineCoDe:
         log.info('Initializing OpenTurbineCoDe...')
 
         # Initialize paths
-        self.path_to_root = Path(__file__).resolve().parent.parent  # OpenTurbineCoDe path
-        self.turbine_schema = self.path_to_root / "models" / "defaults" / "OTCD_schema.yaml"
-        self.model_schema = self.path_to_root / "models" / "defaults" / "modeling_schema.yaml"
-        self.path_to_case = self.path_to_root / "models" / "DTU_10MW" / "Madsen2019"  # Default path to case
+        self.turbine_schema = PATH_TO_ROOT / "models" / "defaults" / "OTCD_schema.yaml"
+        self.model_schema = PATH_TO_ROOT / "models" / "defaults" / "modeling_schema.yaml"
+        self.path_to_case = PATH_TO_ROOT / "models" / "DTU_10MW" / "Madsen2019"
 
         # Parse input arguments
         self.parse_args(args)

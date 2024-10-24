@@ -1,20 +1,13 @@
 import os
 import numpy as np
 import subprocess
-import logging
-
 
 # Check if the openfast_toolbox package is installed
-try:
-    from openfast_toolbox.io import FASTInputFile, FASTOutputFile
-except ImportError as err:
-    logging.error(f"Error importing openfast_toolbox: {err}")
-    _has_pyfast = False
-else:
-    _has_pyfast = True
-
+from openfast_toolbox.io import FASTInputFile, FASTOutputFile
 import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
+
+from openturbinecode.configs.pathing import PATH_TO_ROOT
 
 
 class Structural:
@@ -23,9 +16,9 @@ class Structural:
         self.models = models
         self.path_to_case = path_to_case
         self.path_to_root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        self.DTU10MWBeamDyn = self.path_to_root + "/structure/BeamDyn/DTU10MW/DTU10MW_driver.inp"
-        self.DTU10MWTACS = self.path_to_root + "/controls/tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
-        self.NREL5MWBeamDyn = self.path_to_root + "/structure/BeamDyn/NREL5MW/NREL5MW_driver.inp"
+        self.DTU10MWBeamDyn = PATH_TO_ROOT + "/structure/BeamDyn/DTU10MW/DTU10MW_driver.inp"
+        self.DTU10MWTACS = PATH_TO_ROOT + "/controls/tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
+        self.NREL5MWBeamDyn = PATH_TO_ROOT + "/structure/BeamDyn/NREL5MW/NREL5MW_driver.inp"
         self.workingmodel = self.DTU10MWBeamDyn
 
         self.setDefaultValues()
