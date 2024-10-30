@@ -133,7 +133,7 @@ class OpenTurbineCoDe:
 
     def setPathToCase(self, path):
         self.path_to_case = path
-        self.aero_module.setPathToCase(path)
+        self.aero_module.set_path_to_case(path)
         self.struct_module.setPathToCase(path)
         self.aero_struct_module.setPathToCase(path)
         self.control_module.setPathToCase(path)

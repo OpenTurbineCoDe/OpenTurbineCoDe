@@ -1,333 +1,204 @@
-"""
-OpenTurbineCoDe aerodynamic wrapper
-
-authors: Denis-Gabriel Caprace, Marco Mangano
-"""
-
-# ================================================
-# External python imports
-# ================================================
+from pathlib import Path
 from math import nan
 import numpy as np
-import os
-import sys
 from mpi4py import MPI
-
-# sys.path.insert(1, './scripts')
-# from OTCDparser import OFparse, getLiftDistribution
-# from utilities import WT_performance
-# # from Wrapped_lofi_Analysis import compute_lofi 
-
 from openturbinecode.utils import OTCDparser as parser
 from openturbinecode.utils import utilities as ut
 from .Wrapped_hifi_Analysis import HiFiAero
 from .Wrapped_lofi_Analysis import LoFiAero
 
 
-def aero_Wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlist = None):
-
-    # baseDir = os.path.dirname(os.path.abspath(__file__))
-    
-    # =============================================================
-    # Parse additional config input file(s)
-    # =============================================================
-    
+def aero_wrapper(tsrlist, Vlist, pitchlist, T, rho, R0, R, Nblade, options, Rlist=None):
     config = ut.read_config()
     config["hifi"] = {}
     config["lofi"]["files"] = {}
 
-    # =============================================================
-    # Turbine data unpacking
-    # =============================================================
-
-    if "spanDir" in options:
-        spanDir = options["spanDir"]
-    if "rotsign" in options:
-        rotsign = options["rotsign"]
-    if "hifimesh" in options:
-        hifimesh = options["hifimesh"]
-
-    if not "case_tag" in options:
-        raise ValueError("case_tag missing in options") 
-    if not "path_to_case" in options:
-        raise ValueError("path_to_case missing in options") 
-    if not "fidelity" in options:
-        raise ValueError("fidelity missing in options") 
-
-    path_to_case = options["path_to_case"]
+    # Parsing and checking options
+    if "case_tag" not in options or "path_to_case" not in options or "fidelity" not in options:
+        raise ValueError("Missing required options: 'case_tag', 'path_to_case', or 'fidelity'")
+    path_to_case = Path(options["path_to_case"])
     case_tag = options["case_tag"]
+    plotonly = options.get("plotonly", False)
+    output_dir = options.get("output", "outputs")
 
-    plotonly = ("plotonly" in options and options["plotonly"])     
-
-    if "output" in options:
-        output = options["output"] #output folder
-    else:
-        output = "outputs"
-
-    # ========================================
-    # initialization
-    # ========================================
-
-    omlist = tsrlist * Vlist / R #absolute value of the rotation rate
+    omlist = tsrlist * Vlist / R
     rpmlist = omlist / (2 * np.pi) * 60
+    Rlist = Rlist if Rlist is not None else np.ones(np.size(omlist))
 
-    if Rlist is None :
-        Rlist = np.ones(np.size(omlist))
-        
-    # =============================================================
-    # File names for the lofi analysis
-    # =============================================================
-
-    config["lofi"]["files"]["fstFile"] = case_tag + ".fst"
-    config["lofi"]["files"]["EDfile"] = case_tag + "_ED.dat"
-    config["lofi"]["files"]["IWfile"] = case_tag + "_IW.dat"
-    config["lofi"]["files"]["ADdrvfile"] = case_tag + "_ADdriver.inp"
-    config["lofi"]["files"]["ADbladefile"] = case_tag + "_ADBlade.dat"
-
-    #TODO: define standard names and look for the proper file instead of hardcoding it
+    config["lofi"]["files"]["fstFile"] = f"{case_tag}.fst"
+    config["lofi"]["files"]["EDfile"] = f"{case_tag}_ED.dat"
+    config["lofi"]["files"]["IWfile"] = f"{case_tag}_IW.dat"
+    config["lofi"]["files"]["ADdrvfile"] = f"{case_tag}_ADdriver.inp"
+    config["lofi"]["files"]["ADbladefile"] = f"{case_tag}_ADBlade.dat"
     config["lofi"]["files"]["OFfileList"] = [config["lofi"]["files"]["IWfile"],
-        config["lofi"]["files"]["ADbladefile"],
-        case_tag + "_AD15.dat",
-        case_tag + "_EDTower.dat",
-        case_tag + "_EDBlade.dat",
-        config["lofi"]["files"]["EDfile"],
-        config["lofi"]["files"]["fstFile"]]
-
+                                             config["lofi"]["files"]["ADbladefile"],
+                                             f"{case_tag}_AD15.dat",
+                                             f"{case_tag}_EDTower.dat",
+                                             f"{case_tag}_EDBlade.dat",
+                                             config["lofi"]["files"]["EDfile"],
+                                             config["lofi"]["files"]["fstFile"]]
     config["lofi"]["files"]["ADfileList"] = [config["lofi"]["files"]["ADdrvfile"],
-        config["lofi"]["files"]["ADbladefile"],
-        case_tag + "_AD15.dat",]
+                                             config["lofi"]["files"]["ADbladefile"],
+                                             f"{case_tag}_AD15.dat"]
 
-    config["lofi"]["files"]["dirList"] = ["AeroData"]
+    torque, thrust, cp = [], [], []
 
-    # ================================================
-    # Definition of the ouptus. TODO: pre-allocate...
-    # ================================================
-    torque = []
-    thrust = []
-    cp = []
+    match options["fidelity"]:
+        case 'ADflow':
+            torque, thrust, cp = run_hifi(tsrlist, Vlist, pitchlist, rho, T, R, Nblade, config, options, Rlist, path_to_case / "ADflow" / output_dir, plotonly)
+        case 'OpenFAST':
+            torque, thrust, cp = run_lofi_openfast(tsrlist, Vlist, pitchlist, rho, T, R, Nblade, config, options, Rlist, path_to_case / "OpenFAST" / output_dir, plotonly)
+        case 'AeroDyn':
+            torque, thrust, cp = run_lofi_aerodyn(tsrlist, Vlist, pitchlist, rho, T, R, Nblade, config, options, Rlist, path_to_case / "AeroDyn" / output_dir, plotonly)
+        case 'turbinesFoam':
+            torque, thrust, cp = run_turbinesfoam(tsrlist, Vlist, pitchlist, R, Nblade, options, Rlist, path_to_case / "turbinesFoam", case_tag)
+        case _:
+            raise ValueError(f"Unknown fidelity option: {options['fidelity']}")
 
-    # ================================================
-    # High-Fidelity runs with ADflow
-    # ================================================
-    if 'ADflow' in options["fidelity"]:
-        outputDirectory = os.path.join(path_to_case, "ADflow", output)
-        options["outputDirectory"] = outputDirectory
-
-        if MPI.COMM_WORLD.rank == 0:
-            if not os.path.exists(outputDirectory):
-                os.makedirs(outputDirectory, exist_ok=True)
-        for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
-            tsr = tsrlist[i] * rotsign # Caution: tsr is signed!
-            Vel = Vlist[i]
-            pitch = pitchlist[i]
-            spanRef = Rlist[i]*R
-            areaRef = np.pi*spanRef**2
-            options["spanRef"] = spanRef
-            options["areaRef"] = areaRef
-            
-            name = f"{case_tag}_L{hifimesh}_V{Vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
-            options["casename"] = name
-            if not plotonly:
-                
-                if MPI.COMM_WORLD.rank == 0:
-                    print(f"Starting Hi-fi analysis at tsr={tsr}")
-                funcs, ap = HiFiAero(tsr,Vel,pitch,rho,T,options, Rscale=Rlist[i])
-
-                if funcs:
-                    trq = funcs[f"{ap.name}_mx"]
-                    thr = funcs[f"{ap.name}_fx"]
-                else:
-                    trq = np.nan
-                    thr = np.nan
-            else:
-                #Name used for plotting purposes only
-                outsname = os.path.join(outputDirectory, name + f"_000_lift.dat")
-
-                if os.path.isfile(outsname):
-                    res = parser.getLiftDistribution(outsname)
-                    Ico = 'Coordinate' + str.capitalize(spanDir)
-
-                    trq = Nblade*np.trapz(np.array(res['Lift'][:])*np.array(res[Ico][:]),np.array(res[Ico][:]))
-                    thr = Nblade*np.trapz(np.array(res['Drag'][:]),np.array(res[Ico][:]))
-                else:
-                    print(f"ERROR: could not find output file {outsname}.")
-                    trq = np.nan
-                    thr = np.nan
-                
-            # Extracting performance information
-            CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
-
-            thrust.append(thr)
-            torque.append(trq)
-            cp.append(abs(CP))
+    return torque, thrust, cp
 
 
-    # ================================================
-    # Low-Fidelity runs with OpenFAST
-    # ================================================
-    elif 'OpenFAST' in options["fidelity"]:
+def run_hifi(tsrlist, Vlist, pitchlist, rho, T, R, Nblade, config, options, Rlist, output_dir, plotonly):
+    torque, thrust, cp = [], [], []
 
-        outputDirectory = os.path.join(path_to_case, "OpenFAST", output)
-        options["outputDirectory"] = outputDirectory
-        config["lofi"]["lofi_code"] = "OpenFAST"
-        config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["OFfileList"]
-        # omlist  
-        # rpmlist ...
+    options["outputDirectory"] = output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-        if MPI.COMM_WORLD.rank == 0:
-            if not os.path.exists(outputDirectory):
-                os.makedirs(outputDirectory, exist_ok=True)
+    for i in range(len(Vlist)):
+        tsr = tsrlist[i] * options["rotsign"]
+        vel = Vlist[i]
+        pitch = pitchlist[i]
+        span_ref = Rlist[i] * R
+        area_ref = np.pi * span_ref ** 2
+        options["spanRef"], options["areaRef"] = span_ref, area_ref
 
-            for i in range(len(Vlist)):  # Looping over a range of input tip speed ratios
-                tsr = tsrlist[i]
-                Vel = Vlist[i]
-                rpm = rpmlist[i]
-                pitch = pitchlist[i]*180./np.pi
-                spanRef = Rlist[i]*R
-                areaRef = np.pi*spanRef**2
-                outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
-                options["outputFile"] = outputFile 
+        casename = f"{options['case_tag']}_L{options['hifimesh']}_V{vel:.0f}_TSR{tsrlist[i] * 100:.0f}"
+        options["casename"] = casename
 
-                #computing results
-                if not plotonly:
-                    print(f"Starting Lo-fi analysis at tsr={tsr}")
-
-                    # Running the OpenFast runscript
-                    LoFiAero(tsr,Vel,pitch,R,rho,T,config["lofi"],options,Rscale=Rlist[i])
-                else:
-                    print(f"Reading from {outputFile}")
-                
-                if os.path.isfile(outputFile):
-                    #postprocessing output files
-                    thr, trq, power, fN, fT = parser.OFparse(outputFile)
-
-                    CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
-                else:
-                    print(f"ERROR: could not find output file {outputFile}.")
-                    trq = np.nan
-                    thr = np.nan
-                    CP = np.nan
-
-                torque.append(trq)
-                thrust.append(thr)
-                cp.append(CP)
-
-
-    # ================================================
-    # Low-Fidelity runs with AeroDyn 
-    # ================================================
-
-    elif 'AeroDyn' in options["fidelity"]:
-        outputDirectory = os.path.join(path_to_case, "AeroDyn", output)
-
-        options["outputDirectory"] = outputDirectory
-
-        config["lofi"]["lofi_code"] = "AeroDyn"
-        config["lofi"]["files"]["fileList"] = config["lofi"]["files"]["ADfileList"]
-        
-        if MPI.COMM_WORLD.rank == 0:
-            if not os.path.exists(outputDirectory):
-                os.makedirs(outputDirectory, exist_ok=True)
-
-
-            for i in range(len(Vlist)):
-                tsr = tsrlist[i]
-                Vel = Vlist[i]
-                rpm = rpmlist[i]
-                pitch = pitchlist[i]*180./np.pi
-                spanRef = Rlist[i]*R
-                areaRef = np.pi*spanRef**2
-
-                outputFile = os.path.join(outputDirectory, f"{case_tag}_V{Vel:.0f}_TSR{tsr * 100:.0f}.out")
-                options["outputFile"] = outputFile 
-
-                #computing results
-                if not plotonly:
-                    print(f"Starting AeroDyn analysis at tsr={tsr}")
-                    
-                    # Running the OpenFast runscript
-                    LoFiAero(tsr,Vel,pitch,R,rho,T,config["lofi"],options,Rscale=Rlist[i])
-
-                else:
-                    print(f"Reading from {outputFile}")
-                    
-                if os.path.isfile(outputFile):
-                    #postprocessing output files
-                    thr, trq, power, fN, fT = parser.OFparse(outputFile)
-                    
-                    CP, pwr, rpm, om, tip_speed = ut.WT_performance(Vel, spanRef, areaRef, rho, tsr, trq)
-                else:
-                    print(f"ERROR: could not find output file {outputFile}.")
-                    trq = np.nan
-                    thr = np.nan
-                    CP = np.nan
-
-                torque.append(trq)
-                thrust.append(thr)
-                cp.append(CP)
-
-    elif 'turbinesFoam' in options["fidelity"]:
-        almFolder = os.path.join(path_to_case, "turbinesFoam")
-        if MPI.COMM_WORLD.rank == 0:
-            if not os.path.exists(almFolder):
-                os.mkdir(almFolder)
-
-        for i in range(len(tsrlist)):
-            #params
-            tsr = tsrlist[i]
-            Vel = Vlist[i]
-            rpm = rpmlist[i]
-            pitch = pitchlist[i]
-            spanRef = Rlist[i]*R
-            areaRef = np.pi*spanRef**2
-            yaw = 0.0
-
-            EndTime = 1.0 #TODO
-            WriteInterval = "???" #TODO
-            DynamicStall = "???" #TODO
-            EndEffectsModel = "???" #TODO
-
-            #file handling
-            caseName = "tsr" + str(i)
-            caseFolder = almFolder + os.sep + caseName
+        if not plotonly:
             if MPI.COMM_WORLD.rank == 0:
-                if not os.path.exists(almFolder):
-                    os.mkdir(almFolder)
-            
-                # shutil.copy('source', caseName) #TODO manage the copy of this
-                
-                subfolder = caseFolder + os.sep + '0' + os.sep + 'include'
-                os.makedirs(subfolder,exist_ok=True)
+                print(f"Starting Hi-fi analysis at tsr={tsr}")
 
-                fname = open(subfolder + os.sep + 'initialConditions', 'w')
-                fname.write("|*--------------------------------*- C++ -*----------------------------------*| \n")
-                fname.write("| =========                 |                                                 | \n")
-                fname.write("| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | \n")
-                fname.write("|  \\    /   O peration     | Version:  4.x                                   | \n")
-                fname.write("|   \\  /    A nd           | Web:      www.OpenFOAM.org                      | \n")
-                fname.write("|    \\/     M anipulation  |                                                 | \n")
-                fname.write("|*---------------------------------------------------------------------------*| \n")
+            funcs, ap = HiFiAero(tsr, vel, pitch, rho, T, options, Rscale=Rlist[i])
+            trq, thr = (funcs[f"{ap.name}_mx"], funcs[f"{ap.name}_fx"]) if funcs else (np.nan, np.nan)
+        else:
+            output_file = output_dir / f"{casename}_000_lift.dat"
+            trq, thr = postprocess_hifi(output_file, Nblade, options["spanDir"]) if output_file.is_file() else (np.nan, np.nan)
 
-                fname.write("WndVel \t" + str(Vel) + ';\n')
-                fname.write("TSR \t" + str(tsr) + ';\n')
-                fname.write("BldPitchAng \t" + str(pitch) + ';\n')
-                fname.write("Yaw \t" + str(yaw) + ';\n')
+        CP, pwr, rpm, om, tip_speed = ut.WT_performance(vel, span_ref, area_ref, rho, tsr, trq)
+        thrust.append(thr)
+        torque.append(trq)
+        cp.append(abs(CP))
 
-                fname.write("EndTime \t" + str(EndTime) + ';\n')
-                fname.write("WriteInterval \t" + WriteInterval + ';\n')
-                fname.write("DynamicStall \t" + DynamicStall + ';\n')
-                fname.write("EndEffectsModel \t" + EndEffectsModel + ';\n')
-                fname.write("Processors \t" + str(MPI.COMM_WORLD.Get_size())  + ';\n')
-                fname.close()   
+    return torque, thrust, cp
 
-                print(f"INFO: created input file in {subfolder + os.sep + 'initialConditions'}")
 
-            #TODO: enable this in a safer way:
-            # subprocess.run(["of4x"])
-            # subprocess.run(["mpirun -np " + self.comBox_11.currentText() + " pimpleFoam -parallel > log&" ])
-        
+def postprocess_hifi(output_file, Nblade, spanDir):
+    res = parser.getLiftDistribution(output_file)
+    Ico = f'Coordinate{spanDir.capitalize()}'
+    trq = Nblade * np.trapz(np.array(res['Lift']) * np.array(res[Ico]), np.array(res[Ico]))
+    thr = Nblade * np.trapz(np.array(res['Drag']), np.array(res[Ico]))
+    return trq, thr
+
+
+def run_lofi_openfast(tsrlist, Vlist, pitchlist, rho, T, R, Nblade, config, options, Rlist, output_dir, plotonly):
+    torque, thrust, cp = [], [], []
+    options["outputDirectory"] = output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+    config["lofi"]["lofi_code"], config["lofi"]["files"]["fileList"] = "OpenFAST", config["lofi"]["files"]["OFfileList"]
+
+    for i in range(len(Vlist)):
+        tsr, vel, rpm, pitch = tsrlist[i], Vlist[i], Rlist[i] * R, pitchlist[i] * 180 / np.pi
+        span_ref = Rlist[i] * R
+        area_ref = np.pi * span_ref ** 2
+        output_file = output_dir / f"{options['case_tag']}_V{vel:.0f}_TSR{tsr * 100:.0f}.out"
+        options["outputFile"] = output_file
+
+        if not plotonly:
+            print(f"Starting Lo-fi analysis at tsr={tsr}")
+            LoFiAero(tsr, vel, pitch, R, rho, T, config["lofi"], options, Rscale=Rlist[i])
+
+        if output_file.is_file():
+            thr, trq, _, _, _ = parser.OFparse(output_file)
+            CP, _, _, _, _ = ut.WT_performance(vel, span_ref, area_ref, rho, tsr, trq)
+        else:
+            print(f"ERROR: could not find output file {output_file}.")
+            trq, thr, CP = np.nan, np.nan, np.nan
+
+        thrust.append(thr)
+        torque.append(trq)
+        cp.append(CP)
+
+    return torque, thrust, cp
+
+
+def run_lofi_aerodyn(tsrlist, Vlist, pitchlist, rho, T, R, Nblade, config, options, Rlist, output_dir, plotonly):
+    torque, thrust, cp = [], [], []
+    options["outputDirectory"] = output_dir
+    output_dir.mkdir(parents=True, exist_ok=True)
+    config["lofi"]["lofi_code"], config["lofi"]["files"]["fileList"] = "AeroDyn", config["lofi"]["files"]["ADfileList"]
+
+    for i in range(len(Vlist)):
+        tsr, vel, rpm, pitch = tsrlist[i], Vlist[i], Rlist[i] * R, pitchlist[i] * 180 / np.pi
+        span_ref = Rlist[i] * R
+        area_ref = np.pi * span_ref ** 2
+        output_file = output_dir / f"{options['case_tag']}_V{vel:.0f}_TSR{tsr * 100:.0f}.out"
+        options["outputFile"] = output_file
+
+        if not plotonly:
+            print(f"Starting AeroDyn analysis at tsr={tsr}")
+            LoFiAero(tsr, vel, pitch, R, rho, T, config["lofi"], options, Rscale=Rlist[i])
+
+        if output_file.is_file():
+            thr, trq, _, _, _ = parser.OFparse(output_file)
+            CP, _, _, _, _ = ut.WT_performance(vel, span_ref, area_ref, rho, tsr, trq)
+        else:
+            print(f"ERROR: could not find output file {output_file}.")
+            trq, thr, CP = np.nan, np.nan, np.nan
+
+        thrust.append(thr)
+        torque.append(trq)
+        cp.append(CP)
+
+    return torque, thrust, cp
+
+
+def run_turbinesfoam(tsrlist, Vlist, pitchlist, R, Nblade, options, Rlist, alm_folder, case_tag):
+    torque, thrust, cp = [], [], []
+
+    alm_folder.mkdir(parents=True, exist_ok=True)
+    for i, tsr in enumerate(tsrlist):
+        vel, pitch = Vlist[i], pitchlist[i]
+        span_ref = Rlist[i] * R
+        area_ref = np.pi * span_ref ** 2
+        case_folder = alm_folder / f"tsr{i}"
+        subfolder = case_folder / '0/include'
+        subfolder.mkdir(parents=True, exist_ok=True)
+
+        # Define missing parameters as needed
+        yaw, end_time, write_interval, dynamic_stall, end_effects_model = 0.0, 1.0, "???", "???", "???"
+        processors = MPI.COMM_WORLD.Get_size()
+
+        with open(subfolder / 'initialConditions', 'w') as fname:
+            fname.write("|*--------------------------------*- C++ -*----------------------------------*| \n")
+            fname.write("| =========                 |                                                 | \n")
+            fname.write("| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | \n")
+            fname.write("|  \\    /   O peration     | Version:  4.x                                   | \n")
+            fname.write("|   \\  /    A nd           | Web:      www.OpenFOAM.org                      | \n")
+            fname.write("|    \\/     M anipulation  |                                                 | \n")
+            fname.write("|*---------------------------------------------------------------------------*| \n")
+            fname.write(f"WndVel \t{vel};\n")
+            fname.write(f"TSR \t{tsr};\n")
+            fname.write(f"BldPitchAng \t{pitch};\n")
+            fname.write(f"Yaw \t{yaw};\n")
+            fname.write(f"EndTime \t{end_time};\n")
+            fname.write(f"WriteInterval \t{write_interval};\n")
+            fname.write(f"DynamicStall \t{dynamic_stall};\n")
+            fname.write(f"EndEffectsModel \t{end_effects_model};\n")
+            fname.write(f"Processors \t{processors};\n")
+
         torque.append(nan)
         thrust.append(nan)
         cp.append(nan)
-    
+
     return torque, thrust, cp

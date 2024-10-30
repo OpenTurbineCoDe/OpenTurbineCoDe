@@ -17,18 +17,20 @@ else:
 """
 Definition of a decorator to be used on every function that requires the specific module
 """
+
+
 def requires_adflow(function):
-    def check_requirement(*args,**kwargs):
+    def check_requirement(*args, **kwargs):
         if not _has_adflow:
             raise ImportError("adflow is required to do this.")
-        return function (*args, **kwargs)    #Added by TG 8/12
-        #function(*args,*kwargs)    #Commented out TG 8/12
+        return function(*args, **kwargs)  # Added by TG 8/12
+        # function(*args,*kwargs)    #Commented out TG 8/12
     return check_requirement
 
 
 @requires_adflow
-def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
- 
+def HiFiAero(tsr, Vel, pitch, rho, T, options, Rscale=None):
+
     # ======================================================================
     #         Unpack options/params
     # ======================================================================
@@ -36,16 +38,16 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
     outputDirectory = options["outputDirectory"]
     case_tag = options["case_tag"]
     casename = options["casename"]
-    spanRef  = options["spanRef"]
-    spanDir  = options["spanDir"]
-    areaRef  = options["areaRef"]
-    restart  = options["restart"] if "restart" in options else None
+    spanRef = options["spanRef"]
+    spanDir = options["spanDir"]
+    areaRef = options["areaRef"]
+    restart = options["restart"] if "restart" in options else None
     hifimesh = options["hifimesh"]
 
-    if not(Rscale is  None):
+    if not (Rscale is None):
         print("WARNING: adflow does not handle R scaling like this yet.")
-    #if any(pitch) !=  0.:    #TG
-    if pitch !=  0.:    #TG 8/8 Pitch is not a list here, just a float.
+    # if any(pitch) !=  0.:    #TG
+    if pitch != 0.:  # TG 8/8 Pitch is not a list here, just a float.
         print("WARNING: adflow does not handle pitch !=0 this yet.")
 
     # ======================================================================
@@ -60,7 +62,8 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
 
     if restart is not None:
         casename = casename + "_restart"
-    ap = AeroProblem(name=casename, V=Vel, T=T, rho=rho, areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx", "fx"])
+    ap = AeroProblem(name=casename, V=Vel, T=T, rho=rho,
+                     areaRef=areaRef, chordRef=spanRef, evalFuncs=["mx", "fx"])
 
     AEROSOLVER = ADFLOW
     gridFile = f"{path_to_case}/ADflow/INPUT/{case_tag}_L{hifimesh}.cgns"
@@ -69,10 +72,11 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
     MGSTART = -1
     nCycles = 200000
 
-    #No need to go further if we can't find the mesh
+    # No need to go further if we can't find the mesh
     if not os.path.isfile(gridFile):
-        print(f"ERROR: could not find the mesh in {gridFile}. Consider copying it from models.")
-        return {},{}
+        print(f"ERROR: could not find the mesh in {
+              gridFile}. Consider copying it from models.")
+        return {}, {}
 
     aeroOptions = {
         # Common Parameters
@@ -161,7 +165,7 @@ def HiFiAero(tsr,Vel,pitch,rho,T,options,Rscale=None):
     # ======================================================================
     #         Functions:
     # ======================================================================
-    
+
     funcs = {}
     CFDSolver(ap)
     CFDSolver.evalFunctions(ap, funcs)

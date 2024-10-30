@@ -4,7 +4,10 @@ from openturbinecode.configs.pathing import PATH_TO_ROOT
 
 
 class StructuralInput:
-    """Controls the input parameters for the structural solver.
+    """Verifies and sets the input parameters depending on the structural solver.
+    There are two options for the structural solver:
+        1. BeamDyn files
+        2. Program generated files
     """
     def __init__(self, turb_data=None, models=None):
         self.turb_data = turb_data

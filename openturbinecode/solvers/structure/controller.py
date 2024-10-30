@@ -17,21 +17,21 @@ class StructureController:
         # Initialize the input component (class or function to read input data)
         self.input = StructuralInput()  # Needs to define how input is read
 
-        # Initialize the processing component (to preprocess and postprocess data)
-        self.process = StructuralProcessing()  # Needs to define the processing logic
-
         # Initialize the solver component (to solve the structural equations)
         self.solver = StructuralSolver()  # Needs to define the structural solver logic
+
+        # Initialize the processing component (to preprocess and postprocess data)
+        self.process = StructuralProcessing()  # Needs to define the processing logic
 
         # Initialize the output component (to generate results/output files)
         self.output = StructuralOutput()  # Needs to define how output is generated
 
-    def run_structure_simulation(self):
+    def run_structure_simulation(self, input_data=None):
         """
         Orchestrates the entire structure simulation process.
         """
         # Step 1: Read and validate input data using StructuralInput
-        input_data = self.input.read_input()
+        input_data = self.input.read_input(input_data)
         # NOTE: 'read_input' needs to be defined in StructuralInput class
 
         # Step 2: Pre-process the input data (e.g., scaling, normalizing)
