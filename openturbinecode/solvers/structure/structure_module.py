@@ -7,7 +7,7 @@ from openfast_toolbox.io import FASTInputFile, FASTOutputFile
 import openturbinecode.utils.io as io
 import openturbinecode.utils.utilities as ut
 
-from openturbinecode.configs.pathing import PATH_TO_ROOT
+from openturbinecode.configs.pathing import PROJECT_ROOT
 
 
 class Structural:
@@ -16,9 +16,9 @@ class Structural:
         self.models = models
         self.path_to_case = path_to_case
         self.path_to_root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        self.DTU10MWBeamDyn = PATH_TO_ROOT + "/structure/BeamDyn/DTU10MW/DTU10MW_driver.inp"
-        self.DTU10MWTACS = PATH_TO_ROOT + "/controls/tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
-        self.NREL5MWBeamDyn = PATH_TO_ROOT + "/structure/BeamDyn/NREL5MW/NREL5MW_driver.inp"
+        self.DTU10MWBeamDyn = PROJECT_ROOT + "/structure/BeamDyn/DTU10MW/DTU10MW_driver.inp"
+        self.DTU10MWTACS = PROJECT_ROOT + "/controls/tacs_setup/DTU_10MW_RWT_blade3D_rotated_Single.bdf"
+        self.NREL5MWBeamDyn = PROJECT_ROOT + "/structure/BeamDyn/NREL5MW/NREL5MW_driver.inp"
         self.workingmodel = self.DTU10MWBeamDyn
 
         self.setDefaultValues()

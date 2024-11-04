@@ -17,7 +17,7 @@ from openturbinecode.solvers.controls import control_gui as ctrl
 from openturbinecode.services.geometry import geometry_gui as geom
 from openturbinecode.main import OpenTurbineCoDe
 
-from openturbinecode.configs.pathing import PATH_TO_ROOT
+from openturbinecode.configs.pathing import PROJECT_ROOT
 
 # Load the UI file
 UIrepresentation = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "Config.ui")[0]
@@ -43,7 +43,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         #=====  DEFAULTS ===============================================
 
 
-        self.pathToMadsen = PATH_TO_ROOT / "models" / "DTU_10MW" / "Madsen2019" / "Madsen2019_10.yaml"
+        self.pathToMadsen = PROJECT_ROOT / "models" / "DTU_10MW" / "Madsen2019" / "Madsen2019_10.yaml"
         #=====  MAIN OPTIONS ===============================================
         #self.OTCD.MessageBox = self.textBrowser
         self.OTCD.QtWidgets = QtWidgets

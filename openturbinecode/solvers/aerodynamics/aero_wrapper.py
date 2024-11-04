@@ -167,11 +167,11 @@ def run_turbinesfoam(tsrlist, Vlist, pitchlist, R, Nblade, options, Rlist, alm_f
     torque, thrust, cp = [], [], []
 
     alm_folder.mkdir(parents=True, exist_ok=True)
-    for i, tsr in enumerate(tsrlist):
-        vel, pitch = Vlist[i], pitchlist[i]
-        span_ref = Rlist[i] * R
+    for idx, tsr in enumerate(tsrlist):
+        vel, pitch = Vlist[idx], pitchlist[idx]
+        span_ref = Rlist[idx] * R
         area_ref = np.pi * span_ref ** 2
-        case_folder = alm_folder / f"tsr{i}"
+        case_folder = alm_folder / f"tsr{idx}"
         subfolder = case_folder / '0/include'
         subfolder.mkdir(parents=True, exist_ok=True)
 

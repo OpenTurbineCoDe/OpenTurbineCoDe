@@ -1,6 +1,6 @@
 import os
 import openturbinecode.utils.io as io
-from openturbinecode.configs.pathing import PATH_TO_ROOT
+from openturbinecode.configs.pathing import PROJECT_ROOT
 
 
 class StructuralInput:
@@ -12,12 +12,12 @@ class StructuralInput:
     def __init__(self, turb_data=None, models=None):
         self.turb_data = turb_data
         self.models = models
-        self.path_to_root = PATH_TO_ROOT
+        self.path_to_root = PROJECT_ROOT
 
         # Preload default paths
-        self.DTU10MWBeamDyn = PATH_TO_ROOT / "structure" / "BeamDyn" / "DTU10MW" / "DTU10MW_driver.inp"
-        self.DTU10MWTACS = PATH_TO_ROOT / "controls" / "tacs_setup" / "DTU_10MW_RWT_blade3D_rotated_Single.bdf"
-        self.NREL5MWBeamDyn = PATH_TO_ROOT / "structure" / "BeamDyn" / "NREL5MW" / "NREL5MW_driver.inp"
+        self.DTU10MWBeamDyn = PROJECT_ROOT / "structure" / "BeamDyn" / "DTU10MW" / "DTU10MW_driver.inp"
+        self.DTU10MWTACS = PROJECT_ROOT / "controls" / "tacs_setup" / "DTU_10MW_RWT_blade3D_rotated_Single.bdf"
+        self.NREL5MWBeamDyn = PROJECT_ROOT / "structure" / "BeamDyn" / "NREL5MW" / "NREL5MW_driver.inp"
 
         self.workingmodel = self.DTU10MWBeamDyn
         self.set_default_values()
