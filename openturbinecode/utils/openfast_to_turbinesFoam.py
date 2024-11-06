@@ -91,12 +91,13 @@ def extract_openfast_blade_properties(filename):
     element_data_lines = []
     blade_data_found = False
 
-    with open(OPENFAST_MODEL_DIR / f"{filename}.dat", 'r') as file:
+    with open(OPENFAST_MODEL_DIR / filename, 'r') as file:
         for line in file:
             line = line.strip()
 
             # Start collecting aerodynamics data after finding the line with 'Alpha Cl Cd Cm'
-            if "Alpha" and "Cl" and "Cd" and "Cm" in line:
+            # BlSpn     BlCrvAC    BlSwpAC    BlCrvAng    BlTwist    BlChord    BlAFID
+            if "BlSpn" and "BlCrvAC" and "BlSwpAC" and "BlCrvAng" in line:
                 blade_data_found = True  # Trigger data collection
                 next(file)  # Skip the units header line
                 continue
@@ -119,21 +120,23 @@ def extract_openfast_blade_properties(filename):
 def write_turbinesFoam_elementData_file(filename, elementData_df):
     with open(TURBINESFOAM_MODEL_DIR / "elementData" / filename, 'w') as file:
         # Write header
-        file.write(f"// {filename}\n")
-        file.write("//   element   rootDist   Urel   alpha\n")
+        file.write("// Blade element data\n")
+        file.write("// axialDistance, radius, azimuth, chord, chordMount, twist\n")
 
         # Write data rows in the specified format
         for _, row in elementData_df.iterrows():
-            element = int(row["Element"])  # Convert element to integer for formatting
-            rootDist = round(row["RootDist"], 3)  # Limit RootDist to 3 decimal places
-            urel = round(row["Urel"], 3)  # Limit Urel to 3 decimal places
-            alpha = round(row["Alpha"], 3)  # Limit Alpha to 3 decimal places
-            file.write(f"    ({element:<4} {rootDist:<6} {urel:<6} {alpha})\n")
+            axial_distance = round(0, 1)
+            radius = round(row["Span"], 3)
+            azimuth = round(0, 1)
+            chord = round(row["Chord"], 3)
+            chord_mount = round(0.25, 2)
+            twist = round(row["Twist"], 3)
+            file.write(f"    ({axial_distance:<4} {radius:<6} {azimuth:<6} {chord} {chord_mount} {twist})\n")
 
     return None
 
 
-def convert_elementData_file(openfast_filename):
+def convert_elementData_file(openfast_filename, turbinesFoam_filename):
     """Converts an elementData file from OpenFAST to TurbinesFoam file format.
 
     Args:
@@ -145,7 +148,7 @@ def convert_elementData_file(openfast_filename):
     elementData_df = extract_openfast_blade_properties(openfast_filename)
 
     # Write the elementData file in TurbinesFoam format
-    write_turbinesFoam_elementData_file(openfast_filename, elementData_df)
+    write_turbinesFoam_elementData_file(turbinesFoam_filename, elementData_df)
 
     print(f"ElementData file {openfast_filename} converted successfully.")
 
@@ -161,6 +164,6 @@ if __name__ == "__main__":
 
     # Create elementData file
     if CONVERT_BLADE:
-        openfast_filename = "DTU10_10MW_ADBlade.dat"
+        openfast_filename = "DTU_10MW_ADBlade.dat"
         turbinesFoam_filename = "elementData"
         convert_elementData_file(openfast_filename, turbinesFoam_filename)

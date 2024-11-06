@@ -2,8 +2,8 @@ from pathlib import Path
 import turbinesFoam_utils as util
 import post_processing as pp
 
-BOOL_RUN_CASE = False
-BOOL_POST_PROCESS = True
+BOOL_RUN_CASE = True
+BOOL_POST_PROCESS = False
 
 
 class turbinesFoamWrapper:
