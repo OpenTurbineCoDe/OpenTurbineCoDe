@@ -1,12 +1,14 @@
-from pathlib import Path
+"""This is a wrapper for the OpenFAST solver. From the top level if openfast is prescribed as the passed
+parameter for the solver, this wrapper will be called. This wrapper will manage the case files, preprocess,
+run the simulation, and post-process the results. The main method will call all of these methods in order.
+"""
 import openturbinecode.solvers.aerodynamics.turbinesFoam.utils as util
-import post_processing as pp
 
 BOOL_RUN_CASE = True
 BOOL_POST_PROCESS = False
 
 
-class turbinesFoamWrapper:
+class OpenFASTWrapper:
     def __init__(self, turbine, options):
         self.turbine = turbine
         self.case_name = options["case_name"]
@@ -47,14 +49,7 @@ class turbinesFoamWrapper:
 
     def post_process(self):
         # Extract the simulation results
-        print("Post-processing simulation results...")
-        match self.case_class:
-            case "axialFlowTurbineAL":
-                post = pp.AxialFlowPostProcessing(self.case_name)
-                post.plot_cp()
-                post.plot_spanwise()
-            case _:
-                print("Invalid case class.")
+        pass
 
 
 # Example usage
@@ -65,5 +60,5 @@ if __name__ == "__main__":
         'case_class': "axialFlowTurbineAL"
     }
 
-    wrapper = turbinesFoamWrapper(turbine, options)
+    wrapper = OpenFASTWrapper(turbine, options)
     wrapper.main()

@@ -13,7 +13,7 @@ from pCrunch.io import load_FAST_out
 from pathlib import Path
 
 
-output_dir = Path("D:/") / "GitHub" / "Solvers" / "openfast" / "IEA15" / "IEA-15-240-RWT-Monopile"
+output_dir = Path("D:/") / "GitHub" / "Solvers" / "openfast" / "test_case"
 
 
 def valid_extension(fp):
@@ -91,11 +91,18 @@ openfast_bin = outputs[0]
 
 
 def get_and_plot_time_series(openfast_bin, channel: str):
-    df: pd.DataFrame = openfast_bin.df
-    unit = str(openfast_bin.units[np.argmax(openfast_bin.channels == channel)])
-    plot_data = df[['Time', channel]].to_numpy()
-    plot.time_series(plot_data, ylabel=f'{channel} [{unit}]', title=f'{channel} Time Series',
-                     filename=f'{output_dir / f"{channel}_Time_Series.svg"}')
+    try:
+        df: pd.DataFrame = openfast_bin.df
+        unit = str(openfast_bin.units[np.argmax(openfast_bin.channels == channel)])
+        plot_data = df[['Time', channel]].to_numpy()
+        plot.time_series(plot_data, ylabel=f'{channel} [{unit}]', title=f'{channel} Time Series',
+                         filename=f'{output_dir / f"{channel}_Time_Series.svg"}')
+    except KeyError:
+        print(f"Channel '{channel}' not found in OpenFAST output file.")
+    except Exception as e:
+        print(f"An error occurred while plotting '{channel}' time series: {e}")
+
+    return None
 
 
 # Platform Response
@@ -121,3 +128,11 @@ get_and_plot_time_series(openfast_bin, 'TipDzb1')
 get_and_plot_time_series(openfast_bin, 'RotSpeed')
 get_and_plot_time_series(openfast_bin, 'RotThrust')
 get_and_plot_time_series(openfast_bin, 'RotTorq')
+
+# Aero Responses
+get_and_plot_time_series(openfast_bin, 'RtAeroPwr')
+get_and_plot_time_series(openfast_bin, 'RtAeroCp')
+get_and_plot_time_series(openfast_bin, 'RtAeroCq')
+get_and_plot_time_series(openfast_bin, 'RtAeroCt')
+get_and_plot_time_series(openfast_bin, 'RtAeroFxh')
+get_and_plot_time_series(openfast_bin, 'RtAeroMxh')

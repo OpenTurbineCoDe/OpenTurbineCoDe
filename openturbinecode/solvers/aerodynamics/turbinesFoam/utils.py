@@ -124,4 +124,3 @@ if __name__ == "__main__":
     allrun_turbinesFoam_case("test_case")
 
     # Extract the simulation results
-    

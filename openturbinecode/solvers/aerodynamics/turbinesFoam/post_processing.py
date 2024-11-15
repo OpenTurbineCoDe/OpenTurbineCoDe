@@ -29,7 +29,7 @@ class AxialFlowPostProcessing:
         # Extract the simulation results
         self.turbine_df: pd.DataFrame = self.extract_turbine_data()
 
-        # Extract the spanwise results
+        # Extract the spanwise results, this is a dictionary of DataFrames
         self.spanwise_dict = self.extract_spanwise_data()
 
     def extract_turbine_data(self):
@@ -124,8 +124,57 @@ class AxialFlowPostProcessing:
         # Save the plot
         plt.savefig(self.case_dir / "postProcessing" / "turbines_0_spanwise.png")
 
+    def plot_element_time_series(self, element_number):
+        """Plot the time series data for a specific element.
+
+        Args:
+            element_number (int): The element number to plot.
+        """
+        def plot_time_dependent_data(df):
+            """Plot the time-dependent data from the simulation results.
+            """
+            # Time dependent data is already extracted from self.spanwise_dict
+            # Plot the time series data for the specified element
+            fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(7.5, 5))
+
+            ax: plt.Axes = ax
+            fig: plt.Figure = fig
+
+            ax[0, 0].plot(df.time, df.rel_vel_mag)
+            ax[0, 0].set_ylabel("$U_{rel}$ (m/s)")
+            ax[0, 1].plot(df.time, df.alpha_deg)
+            ax[0, 1].set_ylabel(r"$\alpha$ (degrees)")
+            ax[1, 0].plot(df.time, df.cl)
+            ax[1, 0].set_ylabel("$C_l$")
+            ax[1, 1].plot(df.time, df.end_effect_factor)
+            ax[1, 1].set_ylabel("$f$")
+            for a in ax.flatten():
+                a.set_xlabel("Time (s)")
+            fig.tight_layout()
+
+            # Save the plot
+            plt.savefig(self.case_dir / "postProcessing" / f"turbines_0_time_series_{element_number}.png")
+
+            # Close the plot
+            plt.close()
+
+            return None
+
+        # Extract the DataFrame for the specified element
+        element = self.spanwise_dict[element_number]
+
+        # Make a copy of the DataFrame
+        df: pd.DataFrame = element.df.copy()
+
+        # Plot the time series data for the specified element
+        plot_time_dependent_data(df)
+
+        return None
+
 
 if __name__ == "__main__":
     post = AxialFlowPostProcessing("test_case")
     post.plot_cp()
     post.plot_spanwise()
+    for element_number in range(1, len(post.spanwise_dict)):
+        post.plot_element_time_series(element_number)
