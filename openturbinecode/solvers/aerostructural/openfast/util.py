@@ -126,6 +126,12 @@ def preprocess_case(directory_name, model: TurbineModel = TurbineModel()):
 
 
 def run_openfast_case(directory_name, model: TurbineModel = TurbineModel()):
+    """Run an OpenFAST simulation with the given turbine model.
+
+    Args:
+        directory_name (str): Name of directory to create in OpenFAST run directory.
+        model (TurbineModel, optional): Loaded turbine model. Defaults to TurbineModel().
+    """
     # Create a new directory in the $FOAM_RUN directory
     make_openfast_run_directory(directory_name)
 

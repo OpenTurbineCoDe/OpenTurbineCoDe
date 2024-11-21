@@ -139,6 +139,7 @@ class Blade:
                                5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
                                5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
                                5, 5, 5, 5, 5, 5, 5, 5]
+        self.pitch_angle = 0  # (degrees)
 
 
 class Rotor:

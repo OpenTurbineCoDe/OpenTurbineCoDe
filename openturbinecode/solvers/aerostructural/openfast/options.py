@@ -1,6 +1,7 @@
 import yaml
 from openturbinecode.models.turbine_model import TurbineModel
 from openturbinecode.configs.pathing import PROJECT_ROOT
+from openturbinecode.utils.utilities import calculate_tsr_or_missing
 
 
 class OpenFASTConfig:
@@ -62,7 +63,7 @@ class FastConfig:
         self.model = model
 
         # Simulation Control
-        self.t_max = 20.0  # Maximum simulation time [s]
+        self.t_max = 45.0  # Maximum simulation time [s]
         self.dt = 0.001  # Time step [s]
         self.interp_order = 2  # Interpolation order for I/O time history (1=linear, 2=quadratic)
         self.num_correction = 1  # Number of correction iterations (0=explicit)
@@ -145,10 +146,15 @@ class ElastoDynConfig:
         # Initial conditions
         self.out_of_plane_deflection: float = 0.0  # Initial out-of-plane blade-tip deflection (m)
         self.in_plane_deflection: float = 0.0  # Initial in-plane blade-tip deflection (m)
-        self.blade_pitch: list[float] = [0.0, 0.0, 0.0]  # Blade initial pitch angles (degrees)
+        self.blade_pitch: list[float] = [model.blade.pitch_angle,
+                                         model.blade.pitch_angle,
+                                         model.blade.pitch_angle]  # Blade initial pitch angles (degrees)
         self.teeter_deflection: float = 0.0  # Initial or fixed teeter angle (degrees)
         self.azimuth_angle: float = 0.0  # Initial azimuth angle for blade 1 (degrees)
-        self.rotor_speed: float = 8.25  # Initial or fixed rotor speed (rpm)
+        # Initial or fixed rotor speed (rpm)
+        self.rotor_speed: float = calculate_tsr_or_missing(tsr=model.blade.tip_speed_ratio,
+                                                           freestream_velocity=model.fluid.velocity,
+                                                           radius=model.blade.radius)
         self.nacelle_yaw: float = 0.0  # Initial or fixed nacelle-yaw angle (degrees)
         self.tower_top_fore_aft_disp: float = 0.0  # Initial fore-aft tower-top displacement (m)
         self.tower_top_side_disp: float = 0.0  # Initial side-to-side tower-top displacement (m)
@@ -307,7 +313,7 @@ class InflowWindConfig:
         self.wind_vzi_list: list[float] = [12.0]  # Z coordinates for velocity points (m)
 
         # Parameters for Steady Wind Conditions
-        self.h_wind_speed: float = 11.40  # Horizontal wind speed (m/s)
+        self.h_wind_speed: float = model.fluid.velocity  # Horizontal wind speed (m/s)
         self.ref_height: float = 12.0  # Reference height for horizontal wind speed (m)
         self.power_law_exp: float = 0.0  # Power law exponent
 

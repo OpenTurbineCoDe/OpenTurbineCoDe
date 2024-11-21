@@ -74,7 +74,7 @@ False         CalcSteady      - Calculate a steady-state periodic operating poin
 False         LinOutJac       - Include full Jacobians in linearization output (for debug) (flag) [unused if Linearize=False; used only if LinInputs=LinOutputs=2]
 False         LinOutMod       - Write module-level linearization output files in addition to output for full system? (flag) [unused if Linearize=False]
 ---------------------- VISUALIZATION ------------------------------------------
-          2   WrVTK           - VTK visualization data output: (switch) (0=none; 1=initialization data only; 2=animation)
+          0   WrVTK           - VTK visualization data output: (switch) (0=none; 1=initialization data only; 2=animation)
           1   VTK_type        - Type of VTK visualization data: (switch) (1=surfaces; 2=basic meshes (lines/points); 3=all meshes (debug)) [unused if WrVTK=0]
 true         VTK_fields      - Write mesh fields to VTK data files? (flag) (true/false) [unused if WrVTK=0]
          20   VTK_fps         - Frame rate for VTK output (frames per second)(will use closest integer multiple of DT) [used only if WrVTK=2]
@@ -119,7 +119,7 @@ DTU 10MW onshore reference wind turbine v0.1 - OpenFAST v2.4
 {config.blade_pitch[2]:<15}BlPitch(3)  - Blade 3 initial pitch (degrees) [unused for 2 blades]
 {config.teeter_deflection:<15}TeetDefl    - Initial or fixed teeter angle (degrees) [unused for 3 blades]
 {config.azimuth_angle:<15}Azimuth     - Initial azimuth angle for blade 1 (degrees)
-{config.rotor_speed:<15}RotSpeed    - Initial or fixed rotor speed (rpm)
+{round(config.rotor_speed, 2):<15}RotSpeed    - Initial or fixed rotor speed (rpm)
 {config.nacelle_yaw:<15}NacYaw      - Initial or fixed nacelle-yaw angle (degrees)
 {config.tower_top_fore_aft_disp:<15}TTDspFA     - Initial fore-aft tower-top displacement (meters)
 {config.tower_top_side_disp:<15}TTDspSS     - Initial side-to-side tower-top displacement (meters)
