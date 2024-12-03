@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
+import re
 
 from fnmatch import fnmatch
 
@@ -152,7 +153,7 @@ def get_parametric_analysis_data(output_dir: Path):
 
     for case_dir in case_dirs:
         # Parse parameter values from directory names
-        # Assumes directories are named like 'velocity_8.0_tip_speed_ratio_5'
+        # Assumes directories are named like 'velocity_8.0_tip_speed_ratio_-5'
         case_name = case_dir.name
         param_values = {}
         try:
@@ -160,7 +161,8 @@ def get_parametric_analysis_data(output_dir: Path):
             components = case_name.split("_")
             param_name = []
             for comp in components:
-                if comp.replace('.', '', 1).isdigit():  # Detect numeric values
+                # Use a regex to detect valid numerical values (including negative numbers)
+                if re.fullmatch(r'-?\d+(\.\d+)?', comp):  # Matches integers and floats, including negative
                     param_value = float(comp)
                     # Join the collected parameter name and reset for the next one
                     param_values["_".join(param_name)] = param_value
@@ -201,6 +203,7 @@ def plot_parametric_response(parametric_data, response_channel, dependent, outpu
         dependent (str): The parameter to be plotted on the x-axis.
         output_dir (Path): The directory where the plot will be saved.
     """
+
     # Ensure the output directory exists
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -223,10 +226,12 @@ def plot_parametric_response(parametric_data, response_channel, dependent, outpu
 
     # Plot each group
     plt.figure(figsize=(10, 6))
+    ylim_max = 0
     for group_key, data in grouped_data.items():
         data.sort(key=lambda x: x[0])  # Sort by the dependent variable
         x_vals = [x[0] for x in data]
         y_vals = [np.mean(y) for _, y in data]  # Compute the mean of the response channel
+        ylim_max = max(ylim_max, max(y_vals))
 
         # Create a label based on the group key
         label = ", ".join([f"{k}={v}" for k, v in group_key])
@@ -238,6 +243,7 @@ def plot_parametric_response(parametric_data, response_channel, dependent, outpu
     plt.title("Parametric Response")
     plt.legend(title="Other Parameters")
     plt.grid(True)
+    plt.ylim([0, ylim_max * 1.1])
 
     # Save the plot
     plot_file = output_dir / f"parametric_response_{response_channel}_vs_{dependent}.png"

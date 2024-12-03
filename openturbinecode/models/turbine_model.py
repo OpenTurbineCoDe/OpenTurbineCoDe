@@ -18,6 +18,7 @@ class TurbineModel:
         self.environment = Environment()
         self.blade = Blade()
         self.rotor = Rotor()
+        self.nacelle = Nacelle()
         self.tower = Tower()
         self.hub = Hub()
 
@@ -74,9 +75,11 @@ class TurbineModel:
 class Environment:
     def __init__(self):
         # Environmental properties
-        self.temperature = 288.15  # (K) 15 degrees Celsius
-        self.pressure = 101325  # (Pa) Standard atmospheric pressure
-        self.gravity = 9.81  # (m/s^2) Standard gravity
+        self.temperature: float = 288.15  # (K) 15 degrees Celsius
+        self.speed_of_sound: float = 337.29  # (m/s) Speed of sound at 15 degrees Celsius
+        self.atmospheric_pressure: float = 101325  # (Pa) Standard atmospheric pressure
+        self.vapor_pressure = 1700  # (Pa) Vapor pressure at 15 degrees Celsius
+        self.gravity: float = 9.81  # (m/s^2) Standard gravity
 
     def read_from_yaml(self, filename):
         with open(filename, "r") as file:
@@ -97,8 +100,8 @@ class Fluid:
         self.turbulence_length_scale = 0.1  # (-)
 
         # Air properties
-        self.kinematic_viscosity = 1.5e-5  # (m^2/s)
         self.density = 1.225  # (kg/m^3)
+        self.kinematic_viscosity: float = 1.784e-5  # (m^2/s)
         self.dynamic_viscosity = 1.789e-5  # (kg/m/s)
         self.thermal_conductivity = 0.0257  # (W/m/K)
         self.specific_heat = 1006  # (J/kg/K)
@@ -106,6 +109,10 @@ class Fluid:
         self.prandtl_number = 0.71  # (-)
         self.sutherland_constant = 110.4  # (K)
         self.sutherland_temperature = 110.4  # (K)
+
+        # Reference height & Power law exponent
+        self.reference_height = 120.0  # (m)
+        self.power_law_exponent = 0.1429  # (Open Sea: .1-.15) (Flat Coastal: .12-.20) (Forest/Complex Terrain: .2-.4)
 
     def read_from_yaml(self, filename):
         with open(filename, "r") as file:
@@ -142,23 +149,6 @@ class Blade:
         self.pitch_angle = 0  # (degrees)
 
 
-class Rotor:
-    def __init__(self):
-        # Default rotor properties
-        self.n_blades = 3
-
-    def read_from_yaml(self, filename):
-        with open(filename, "r") as file:
-            data = yaml.safe_load(file)
-
-        field = "rotor"
-
-        if field in data:
-            self.__dict__.update(data[field])
-
-        return self
-
-
 # Tower geometry
 class Tower:
     def __init__(self):
@@ -177,10 +167,45 @@ class Tower:
         return self
 
 
+class Nacelle:
+    def __init__(self):
+        self.yaw = 0  # (degrees)
+        self.motion = 0  # Type of motion (0=rigid, 1=sinusoidal, 2=arbitrary)
+
+    def read_from_yaml(self, filename):
+        with open(filename, "r") as file:
+            data = yaml.safe_load(file)
+
+        field = "nacelle"
+
+        if field in data:
+            self.__dict__.update(data[field])
+
+        return self
+
+
+class Rotor:
+    def __init__(self):
+        # Default rotor properties
+        self.n_blades = 3
+
+    def read_from_yaml(self, filename):
+        with open(filename, "r") as file:
+            data = yaml.safe_load(file)
+
+        field = "rotor"
+
+        if field in data:
+            self.__dict__.update(data[field])
+
+        return self
+
+
 # Hub geometry
 class Hub:
     def __init__(self):
         self.radius = 4.45  # (m)
+        self.overhang = -7.10  # (m)
 
     def read_from_yaml(self, filename):
         with open(filename, "r") as file:

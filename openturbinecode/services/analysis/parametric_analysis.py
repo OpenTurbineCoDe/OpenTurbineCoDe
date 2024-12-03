@@ -3,12 +3,13 @@ from pathlib import Path
 # Turbine model class
 from openturbinecode.models.turbine_model import TurbineModel
 # Openfast specific modules
-from openturbinecode.solvers.aerostructural.openfast import util as openfast_util
-from openturbinecode.configs.pathing import OPENFAST_RUN
+from openturbinecode.solvers.aerostructural.openfast import utils as openfast_util
+from openturbinecode.solvers.aerodynamics.aerodyn import utils as aerodyn_util
+from openturbinecode.configs.pathing import OPENFAST_RUN, AERODYN_RUN
 # Openfast post-processing
 from openturbinecode.postprocessing import pp_openfast
 
-BOOL_RUN_CASE = False
+BOOL_RUN_CASE = True
 BOOL_POST_PROCESS = True
 
 
@@ -33,7 +34,7 @@ def update_turbine_model(turbine_model, param_dict):
             raise AttributeError(f"TurbineModel does not have a component '{component}'")
 
 
-def parametric_analysis(turbine_model, param_ranges, output_base_dir):
+def parametric_analysis(turbine_model, param_ranges, output_base_dir, solver):
     """
     Perform a two-level parametric analysis using OpenFAST.
 
@@ -64,13 +65,23 @@ def parametric_analysis(turbine_model, param_ranges, output_base_dir):
         case_dir = Path(output_base_dir) / case_name
 
         # Run the OpenFAST case
-        print(f"Running case: {case_name} with parameters: {param_dict}")
-        openfast_util.run_openfast_case(str(case_dir), model=turbine_model)
+        match solver:
+            case "openfast":
+                print(f"Running case: {case_name} with parameters: {param_dict}")
+                openfast_util.run_openfast_case(str(case_dir), model=turbine_model)
+            case "aerodyn":
+                print(f"Running case: {case_name} with parameters: {param_dict}")
+                aerodyn_util.run_aerodyn_case(case_dir, model=turbine_model)
 
 
 if __name__ == "__main__":
     # Output base directory
-    output_dir = OPENFAST_RUN / "parametric_analysis"
+    solver = "aerodyn"
+    if solver == "openfast":
+        output_dir = OPENFAST_RUN / "parametric_analysis"
+    elif solver == "aerodyn":
+
+        output_dir = AERODYN_RUN / "parametric_analysis"
 
     analysis_num = 1
     match analysis_num:
@@ -78,13 +89,13 @@ if __name__ == "__main__":
             # Define parameter ranges for analysis
             param_ranges = {
                 "fluid.velocity": [8.0, 11.0, 14.0],  # Horizontal windspeed (m/s)
-                "blade.tip_speed_ratio": [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]  # Tip speed ratio
+                "blade.tip_speed_ratio": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]  # Tip speed ratio
             }
         case 2:
             # Define parameter ranges for analysis
             param_ranges = {
                 "blade.pitch_angle": [-10.0, -5.0, 0.0, 5.0, 10.0],  # Blade angle (deg)
-                "blade.tip_speed_ratio": [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]  # Tip speed ratio
+                "blade.tip_speed_ratio": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]  # Tip speed ratio
             }
         case _:
             raise ValueError(f"Analysis number {analysis_num} is not supported.")
@@ -99,13 +110,16 @@ if __name__ == "__main__":
         model = TurbineModel()
 
         # Perform the analysis
-        parametric_analysis(turbine_model=model, param_ranges=param_ranges, output_base_dir=output_dir_run)
+        parametric_analysis(turbine_model=model,
+                            param_ranges=param_ranges,
+                            output_base_dir=output_dir_run,
+                            solver="aerodyn")
 
     if BOOL_POST_PROCESS:
         # Post-process the results
         parametric_data = pp_openfast.get_parametric_analysis_data(output_dir_run)
 
-        response_channel_plots = ["RtAeroCp", "RtAeroCt", "B1N9Fn"]
+        response_channel_plots = ["RtAeroCp", "RtAeroCt"]
         # Plot parametric response
         for response_channel in response_channel_plots:
             pp_openfast.plot_parametric_response(parametric_data,

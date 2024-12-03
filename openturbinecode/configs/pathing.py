@@ -8,3 +8,6 @@ AXIAL_RUN = Path("/home/caw/OpenFOAM/caw-v2406/turbinesFoam/tutorials/axialFlowT
 
 # OpenFAST case directories
 OPENFAST_RUN = Path("D:/") / "GitHub" / "Solvers" / "openfast" / "run"
+
+# AeroDyn case directories
+AERODYN_RUN = Path("D:/") / "GitHub" / "Solvers" / "aerodynamics" / "aerodyn" / "run"
