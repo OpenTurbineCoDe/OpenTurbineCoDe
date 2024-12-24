@@ -1,16 +1,17 @@
 from itertools import product
 from pathlib import Path
+import numpy as np
 # Turbine model class
 from openturbinecode.models.turbine_model import TurbineModel
 # Openfast specific modules
 from openturbinecode.solvers.aerostructural.openfast import utils as openfast_util
 from openturbinecode.solvers.aerodynamics.aerodyn import utils as aerodyn_util
-from openturbinecode.configs.pathing import OPENFAST_RUN, AERODYN_RUN
+from openturbinecode.configs.pathing import OPENFAST_RUN, AERODYN_RUN, PROJECT_ROOT
 # Openfast post-processing
 from openturbinecode.postprocessing import pp_openfast
 
 BOOL_RUN_CASE = True
-BOOL_POST_PROCESS = True
+BOOL_POST_PROCESS = False
 
 
 def update_turbine_model(turbine_model, param_dict):
@@ -87,15 +88,49 @@ if __name__ == "__main__":
     match analysis_num:
         case 1:
             # Define parameter ranges for analysis
+            model_name = "DTU_10MW"
             param_ranges = {
                 "fluid.velocity": [8.0, 11.0, 14.0],  # Horizontal windspeed (m/s)
                 "blade.tip_speed_ratio": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]  # Tip speed ratio
             }
         case 2:
             # Define parameter ranges for analysis
+            model_name = "DTU_10MW"
             param_ranges = {
                 "blade.pitch_angle": [-10.0, -5.0, 0.0, 5.0, 10.0],  # Blade angle (deg)
                 "blade.tip_speed_ratio": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]  # Tip speed ratio
+            }
+        case 202:
+            # FOCAL-1 Validation LC 1.1
+            model_name = "IEA_15MW"
+            param_ranges = {
+                "fluid.velocity": [12.83],  # Horizontal windspeed (m/s)
+                "blade.pitch_angle": [0.0],  # Blade pitch angle (deg)
+                "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
+            }
+        case 206:
+            # FOCAL-1 Validation LC 1.2
+            model_name = "IEA_15MW"
+            param_ranges = {
+                "fluid.velocity": [12.83],  # Horizontal windspeed (m/s)
+                "blade.pitch_angle": [10.0],  # Blade pitch angle (deg)
+                "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
+            }
+        case 402:
+            # FOCAL-1 Validation LC 1.2
+            model_name = "IEA_15MW"
+            param_ranges = {
+                "fluid.velocity": [18.39],  # Horizontal windspeed (m/s)
+                "blade.pitch_angle": [9.0],  # Blade pitch angle (deg)
+                "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
+            }
+        case 406:
+            # FOCAL-1 Validation LC 1.2
+            model_name = "IEA_15MW"
+            param_ranges = {
+                "fluid.velocity": [18.39],  # Horizontal windspeed (m/s)
+                "blade.pitch_angle": [15.0],  # Blade pitch angle (deg)
+                "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
             }
         case _:
             raise ValueError(f"Analysis number {analysis_num} is not supported.")
@@ -103,11 +138,12 @@ if __name__ == "__main__":
 
     # Build a string using the analysis_number with leading zeros and followed by based on param_range keys
     param_str = f"{str(analysis_num).zfill(3)}_" + "_".join([f"{param}_{len(values)}" for param, values in param_ranges.items()])  # noqa: E501
-    output_dir_run = output_dir / f"{param_str}"
+    output_dir_run = output_dir / model_name / f"{param_str}"
 
     if BOOL_RUN_CASE:
         # Example turbine model
-        model = TurbineModel()
+        model = TurbineModel(name=model_name)
+        model.read_from_yaml(PROJECT_ROOT / "models" / "defaults" / f"{model_name}.yaml")
 
         # Perform the analysis
         parametric_analysis(turbine_model=model,
@@ -119,10 +155,15 @@ if __name__ == "__main__":
         # Post-process the results
         parametric_data = pp_openfast.get_parametric_analysis_data(output_dir_run)
 
-        response_channel_plots = ["RtAeroCp", "RtAeroCt"]
+        # Possible channels: "RtAeroCp", "RtAeroCt", "RtAeroCq", "RtAeroFxh", "RtAeroFyh", "RtAeroFzh"
+
+        response_channel_plots = ['RtAeroPwr', 'RtAeroCp', 'RtAeroCq', 'RtAeroCt', 'Thrust', 'Torque',
+                                  'RtAeroFxh', 'RtAeroFyh', 'RtAeroFzh',
+                                  'RtAeroMxh', 'RtAeroMyh', 'RtAeroMzh',
+                                  'B1AeroMx', 'B1AeroMy', 'B1AeroMz']
         # Plot parametric response
         for response_channel in response_channel_plots:
             pp_openfast.plot_parametric_response(parametric_data,
                                                  response_channel=response_channel,
-                                                 dependent="tip_speed_ratio",
+                                                 dependent="rotor_speed",
                                                  output_dir=output_dir_run / "plots")

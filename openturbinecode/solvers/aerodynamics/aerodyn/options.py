@@ -77,8 +77,8 @@ class AeroDynInputConfig:
 
         # Simulation Control
         self.mhk_system: int = 0  # Flag for Marine HydroKinetic system
-        self.t_max = 60.0  # Maximum simulation time [s]
-        self.dt = 0.1  # Time step [s]
+        self.t_max = 1000.0  # Maximum simulation time [s]
+        self.dt = 0.025  # Time step [s]
         self.analysis_type = 1  # (1: multiple turbines, 2: one turbine, 3: one, combined case)
 
         # Environmental Conditions
@@ -91,7 +91,7 @@ class AeroDynInputConfig:
 
         # Inflow Data
         self.comp_inflow = 0  # Used to select inflow data (0=steady, 1=InflowWind)
-        self.inflow_wind_file = f"{"unused" if self.comp_inflow == 0 else "DTU_10MW_IW.dat"}"  # InflowWind file name
+        self.inflow_wind_file = f"{"unused" if self.comp_inflow == 0 else f"{model.name}_IW.dat"}"  # InflowWind file
         self.horizontal_wind_speed = model.fluid.velocity  # Horizontal wind speed [m/s]
         self.wind_ref_height = model.fluid.reference_height  # Reference height for horizontal wind speed [m]
         self.power_law_exp = model.fluid.power_law_exponent  # Power law exponent
@@ -103,26 +103,32 @@ class AeroDynInputConfig:
         self.basic_hawt_format = True  # Flag for basic Horizontal-Axis WT format
         self.num_blades = model.rotor.n_blades  # Number of blades
         self.hub_radius = model.hub.radius  # Distance from rotor apex to blade root [m]
-        self.hub_height = model.tower.height  # Distance from base to hub mass [m]
+        self.hub_height = model.tower.height + model.hub.radius  # Distance from base to hub mass [m]
         self.hub_overhang = model.hub.overhang  # Distance from hub mass to rotor plane [m]
 
         # Turbine Motion
         self.motion_type = model.nacelle.motion  # Type of motion (0=rigid, 1=sinusoidal, 2=arbitrary)
         self.nacelle_yaw = model.nacelle.yaw  # Nacelle yaw angle [deg]
-        self.rotor_speed: float = calculate_tsr_or_missing(tsr=model.blade.tip_speed_ratio,
-                                                           freestream_velocity=model.fluid.velocity,
-                                                           radius=model.blade.radius)
+        if model.blade.rotor_speed == 0:
+            self.rotor_speed: float = calculate_tsr_or_missing(tsr=model.blade.tip_speed_ratio,
+                                                               freestream_velocity=model.fluid.velocity,
+                                                               radius=model.blade.radius)
+        else:
+            self.rotor_speed: float = model.blade.rotor_speed
+
+        self.shaft_tilt: float = model.rotor.tilt_angle  # Shaft tilt angle [deg]
         self.blade_pitch = model.blade.pitch_angle  # Blade pitch angle [deg]
+        self.blade_precone = -1 * model.rotor.blade_precone_angle  # Blade precone angle [deg]
 
         # Time-dependent analysis
         self.timeseries_file = "ad_TimeseriesInput.csv"
         # Input files
-        self.elastodyn_file = "DTU_10MW_ED.dat"  # Elastodyn input file
-        self.beamdyn_blade_file = ["DTU_10MW_BD.dat",
-                                   "DTU_10MW_BD.dat",
-                                   "DTU_10MW_BD.dat"]
+        self.elastodyn_file = f"{model.name}_ED.dat"  # Elastodyn input file
+        self.beamdyn_blade_file = [f"{model.name}_BD.dat",
+                                   f"{model.name}_BD.dat",
+                                   f"{model.name}_BD.dat"]
 
-        self.aerodyn_file = "DTU_10MW_AD15.dat"
+        self.aerodyn_file = f"{model.name}_AD15.dat"
 
         # Output Settings
         # skip for now
@@ -136,6 +142,8 @@ class AeroDynInputConfig:
 
 class AeroDynConfig:
     def __init__(self, model: TurbineModel):
+        self.model = model
+
         # General Solver Options
         self.echo: bool = False  # Echo the input to "<rootname>.AD.ech"
         self.dt_aero: str = "default"  # Time interval for aerodynamic calculations
@@ -162,9 +170,9 @@ class AeroDynConfig:
         self.skew_factor: str = "default"  # Skew model factor
         self.tip_loss: bool = False  # Use Prandtl tip-loss model?
         self.hub_loss: bool = False  # Use Prandtl hub-loss model?
-        self.tangential_induction: bool = True  # Include tangential induction?
-        self.axial_induction_drag: bool = True  # Include drag term in axial-induction calculation?
-        self.tangential_induction_drag: bool = True  # Include drag term in tangential-induction calculation?
+        self.tangential_induction: bool = False  # Include tangential induction?
+        self.axial_induction_drag: bool = False  # Include drag term in axial-induction calculation?
+        self.tangential_induction_drag: bool = False  # Include drag term in tangential-induction calculation?
         self.induction_tolerance: str = "Default"  # Convergence tolerance for BEMT residual equation
         self.max_iterations: int = 200  # Maximum number of iterations for BEMT solve
 
@@ -186,22 +194,15 @@ class AeroDynConfig:
         self.drag_coefficient_column: int = 3  # Column in airfoil tables for drag coefficient
         self.pitching_moment_column: int = 4  # Column in airfoil tables for pitching moment
         self.cpmin_column: int = 0  # Column in airfoil tables for Cpmin (0 if not used)
-        self.num_airfoil_files: int = 6  # Number of airfoil files used
-        self.airfoil_files: list[str] = [
-            "AeroData/Cylinder.dat",
-            "AeroData/FFA_W3_600.dat",
-            "AeroData/FFA_W3_480.dat",
-            "AeroData/FFA_W3_360.dat",
-            "AeroData/FFA_W3_301.dat",
-            "AeroData/FFA_W3_241.dat",
-        ]  # Airfoil file names
+        self.airfoil_files: list[str] = model.blade.profiles  # Airfoil file names
+        self.num_airfoil_files: int = len(self.airfoil_files)  # Number of airfoil files used
 
         # Rotor/Blade Properties
         self.include_pitching_moment: bool = True  # Include aerodynamic pitching moment in calculations?
         self.blade_files: list[str] = [
-            "DTU_10MW_ADBlade.dat",
-            "DTU_10MW_ADBlade.dat",
-            "DTU_10MW_ADBlade.dat",
+            f"{model.name}_ADBlade.dat",
+            f"{model.name}_ADBlade.dat",
+            f"{model.name}_ADBlade.dat",
         ]  # Distributed aerodynamic properties for each blade
 
         # Hub Properties
@@ -236,9 +237,12 @@ class AeroDynConfig:
         ], columns=["TwrElev", "TwrDiam", "TwrCd", "TwrTI", "TwrCb"])
 
         # Output Options
-        self.blade_node_outputs: list = [3, 6, 10, 14, 20, 27, 30, 34, 37]
+        self.blade_node_outputs: list = range(2, len(model.blade.profiles), 2)
         self.tower_node_outputs: list = []
-        self.outputs: list = ['RtAeroPwr', 'RtAeroFxh', 'RtAeroMxh', 'RtAeroCp', 'RtAeroCq', 'RtAeroCt']
+        self.outputs: list = ['RtAeroPwr', 'RtAeroCp', 'RtAeroCq', 'RtAeroCt',
+                              'RtAeroFxh', 'RtAeroFyh', 'RtAeroFzh',
+                              'RtAeroMxh', 'RtAeroMyh', 'RtAeroMzh',
+                              'B1AeroMx', 'B1AeroMy', 'B1AeroMz']
 
         # Node Outputs
         self.node_outputs: list = ["VUndx", "VUndy", "VUndz", "Ft", "Fn", "Fy", "Fx", "Ct", "Cn", "Cy", "Cx", "Alpha"]
@@ -257,6 +261,8 @@ class AeroDynConfig:
 
 class InflowWindConfig:
     def __init__(self, model: TurbineModel):
+        self.model = model
+
         # General Options
         self.echo: bool = False  # Echo input data to <RootName>.ech
         self.wind_type: int = 1  # Wind file type (1=steady; 2=uniform; etc.)

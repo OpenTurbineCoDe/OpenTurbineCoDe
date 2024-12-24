@@ -191,6 +191,36 @@ def get_parametric_analysis_data(output_dir: Path):
     return parametric_data
 
 
+def calculate_torque_or_thrust(response_channel, param_dict, openfast_bin):
+    """
+    Calculate Torque or Thrust based on Ct or Cq values.
+
+    Args:
+        response_channel (str): Either "Torque" or "Thrust".
+        param_dict (dict): Dictionary of parameters for the current OpenFAST case.
+        openfast_bin: The binary output data from OpenFAST.
+
+    Returns:
+        np.ndarray: Calculated values for the response channel.
+    """
+    # Constants
+    rho = 1.225  # Air density (kg/m^3)
+    R = 121.44  # Rotor radius (m)
+    U = param_dict.get("velocity")  # Wind speed (m/s)
+    RPM = param_dict.get("rotor_speed")  # Rotor speed (RPM)
+    omega = 2 * np.pi * RPM / 60  # Angular velocity (rad/s)
+    A = np.pi * R**2  # Rotor swept area (m^2)
+
+    if response_channel == "Torque":
+        Cq = openfast_bin["RtAeroCq"]  # Get Cq from the OpenFAST binary data
+        return (Cq * 0.5 * rho * A * U**3) / omega
+    elif response_channel == "Thrust":
+        Ct = openfast_bin["RtAeroCt"]  # Get Ct from the OpenFAST binary data
+        return Ct * 0.5 * rho * A * U**2
+    else:
+        raise ValueError(f"Unsupported response_channel: {response_channel}")
+
+
 def plot_parametric_response(parametric_data, response_channel, dependent, output_dir):
     """
     Plots the parametric response of the OpenFAST case directories.
@@ -215,18 +245,31 @@ def plot_parametric_response(parametric_data, response_channel, dependent, outpu
         # Convert params to a dictionary for easy access
         param_dict = dict(params)
 
-        # Check if both dependent and response channel exist
-        if dependent not in param_dict or response_channel not in openfast_bin.channels:
-            print(f"Skipping case due to missing data: {params}")
+        # Check if dependent exists
+        if dependent not in param_dict:
+            print(f"Skipping case due to missing dependent parameter: {params}")
             continue
+
+        # Calculate response channel if needed
+        if response_channel in ["Torque", "Thrust"]:
+            if "RtAeroCt" not in openfast_bin.channels and "RtAeroCq" not in openfast_bin.channels:
+                print(f"Skipping case due to missing RtAeroCt or RtAeroCq data: {params}")
+                continue
+            response_data = calculate_torque_or_thrust(response_channel, param_dict, openfast_bin)
+        else:
+            # Default behavior: use the channel directly
+            if response_channel not in openfast_bin.channels:
+                print(f"Skipping case due to missing response channel: {params}")
+                continue
+            response_data = openfast_bin[response_channel]
 
         # Group data by parameters other than the dependent
         group_key = tuple((k, v) for k, v in params if k != dependent)
-        grouped_data[group_key].append((param_dict[dependent], openfast_bin[response_channel]))
+        grouped_data[group_key].append((param_dict[dependent], np.mean(response_data)))
 
     # Plot each group
     plt.figure(figsize=(10, 6))
-    ylim_max = 0
+    ylim_max = -1000000  # Initialize with a very low value
     for group_key, data in grouped_data.items():
         data.sort(key=lambda x: x[0])  # Sort by the dependent variable
         x_vals = [x[0] for x in data]

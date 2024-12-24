@@ -17,16 +17,16 @@ DTU 10MW onshore reference wind turbine v0.1 - OpenFAST v3.5.3
                1.225   AirDens        - Air density (kg/m^3)
            1.784E-05   KinVisc        - Kinematic air viscosity (m^2/s)
               337.29   SpdSound       - Speed of sound (m/s)
-            103500.0   Patm           - Atmospheric pressure (Pa)
+            101325.0   Patm           - Atmospheric pressure (Pa)
               1700.0   Pvap           - Vapour pressure of fluid (Pa)
 ===== Blade-Element/Momentum Theory Options ===========================================
                    1   SkewMod        - Type of skewed-wake correction model (1=uncoupled, 2=Pitt/Peters, 3=coupled)
            "default"   SkewModFactor  - Constant used in Pitt/Peters skewed wake model (15/32*pi)
-                TRUE   TipLoss        - Use the Prandtl tip-loss model
-                TRUE   HubLoss        - Use the Prandtl hub-loss model
-                TRUE   TanInd         - Include tangential induction in BEMT calculations
-                TRUE   AIDrag         - Include the drag term in the axial-induction calculation
-                TRUE   TIDrag         - Include the drag term in the tangential-induction calculation
+               FALSE   TipLoss        - Use the Prandtl tip-loss model
+               FALSE   HubLoss        - Use the Prandtl hub-loss model
+               FALSE   TanInd         - Include tangential induction in BEMT calculations
+               FALSE   AIDrag         - Include the drag term in the axial-induction calculation
+               FALSE   TIDrag         - Include the drag term in the tangential-induction calculation
            "Default"   IndToler       - Convergence tolerance for BEMT nonlinear solve residual equation
                  200   MaxIter        - Maximum number of iteration steps
 ===== Dynamic Blade-Element/Momentum Theory Options ===================================
@@ -45,23 +45,23 @@ DTU 10MW onshore reference wind turbine v0.1 - OpenFAST v3.5.3
                    4   InCol_Cm       - The column in the airfoil tables that contains the pitching-moment coefficient
                    0   InCol_Cpmin    - The column in the airfoil tables that contains the Cpmin coefficient
                    6   NumAFfiles     - Number of airfoil files used
-"AeroData/Cylinder.dat"
-"AeroData/FFA_W3_600.dat"
-"AeroData/FFA_W3_480.dat"
-"AeroData/FFA_W3_360.dat"
-"AeroData/FFA_W3_301.dat"
-"AeroData/FFA_W3_241.dat"
+"Cylinder"
+"FFA_W3_600"
+"FFA_W3_480"
+"FFA_W3_360"
+"FFA_W3_301"
+"FFA_W3_241"
 ===== Rotor/Blade Properties ==========================================================
                 TRUE   UseBlCm        - Include aerodynamic pitching moment in calculations
 "DTU_10MW_ADBlade.dat"    ADBlFile(1)        - Name of file containing distributed aerodynamic properties for Blade #1 (-)
 "DTU_10MW_ADBlade.dat"    ADBlFile(2)        - Name of file containing distributed aerodynamic properties for Blade #2 (-)
 "DTU_10MW_ADBlade.dat"    ADBlFile(3)        - Name of file containing distributed aerodynamic properties for Blade #3 (-)
 ===== Hub Properties ==================================================================
-                 7.2   VolHub         - Hub volume (m^3)
-                 0.2   HubCenBx       - Hub center of buoyancy x direction offset (m)
+                 0.0   VolHub         - Hub volume (m^3)
+                 0.0   HubCenBx       - Hub center of buoyancy x direction offset (m)
 ===== Nacelle Properties ==============================================================
-                38.6   VolNac         - Nacelle volume (m^3)
-             0.4,0,0   NacCenB        - Position of nacelle center of buoyancy from yaw bearing in nacelle coordinates (m)
+                 0.0   VolNac         - Nacelle volume (m^3)
+             0.0,0,0   NacCenB        - Position of nacelle center of buoyancy from yaw bearing in nacelle coordinates (m)
 ===== Tail fin Aerodynamics ===========================================================
                FALSE   TFinAero       - Calculate tail fin aerodynamics model (flag)
             "unused"   TFinFile       - Input file for tail fin aerodynamics [used only when TFinAero=True]
@@ -82,31 +82,22 @@ TwrElev        TwrDiam        TwrCd          TwrTI          TwrCb
 1.156E+02      5.500E+00      1.0000E+00     0.0000E+00     1.0000E+00    
 ===== Outputs =========================================================================
                False   SumPrint       - Generate a summary file listing input options and interpolated properties to <rootname>.AD.sum (flag)
-                   9   NBlOuts        - Number of blade node outputs [0 - 9] (-)
-3, 6, 10, 14, 20, 27, 30, 34, 37   BlOutNd        - Blade nodes whose values will be output (-)
+                   2   NBlOuts        - Number of blade node outputs [0 - 9] (-)
+                2, 4   BlOutNd        - Blade nodes whose values will be output (-)
                    0   NTwOuts        - Number of tower node outputs [0 - 9] (-)
                        TwOutNd        - Tower nodes whose values will be output (-)
 OutList
-RtAeroPwr
-RtAeroFxh
-RtAeroMxh
-RtAeroCp
-RtAeroCq
-RtAeroCt
-===== Node Outputs ====================================================================
-                   1   BldNd_BladesOut - Blades to output
-                  99   NumNodes       - Blade nodes on each blade (currently unused)
-OutList
-"VUndx"
-"VUndy"
-"VUndz"
-"Ft"
-"Fn"
-"Fy"
-"Fx"
-"Ct"
-"Cn"
-"Cy"
-"Cx"
-"Alpha"
+"RtAeroPwr"
+"RtAeroCp"
+"RtAeroCq"
+"RtAeroCt"
+"RtAeroFxh"
+"RtAeroFyh"
+"RtAeroFzh"
+"RtAeroMxh"
+"RtAeroMyh"
+"RtAeroMzh"
+"B1AeroMx"
+"B1AeroMy"
+"B1AeroMz"
 END of input file

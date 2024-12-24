@@ -62,9 +62,9 @@ def generate_aerodyn_standalone_config(location: Path, config: AeroDynInputConfi
     contents = add_line(contents, f"{config.hub_radius:.2f}", "HubRad(1)", "Hub radius (m)")
     contents = add_line(contents, f"{config.hub_height:.2f}", "HubHt(1)", "Hub height (m)")
     contents = add_line(contents, f"{config.hub_overhang:.2f}", "Overhang(1)", "Overhang (m)")
-    contents = add_line(contents, "0", "ShftTilt(1)", "Shaft tilt (deg)")
-    contents = add_line(contents, "5.0", "Precone(1)", "Blade precone (deg)")
-    contents = add_line(contents, "1.2", "Twr2Shft(1)", "Vertical distance from tower-top to rotor shaft (m)")
+    contents = add_line(contents, f"{config.shaft_tilt:.2f}", "ShftTilt(1)", "Shaft tilt (deg)")
+    contents = add_line(contents, f"{config.blade_precone:.2f}", "Precone(1)", "Blade precone (deg)")
+    contents = add_line(contents, f"{config.hub_radius / 2:.2f}", "Twr2Shft(1)", "Vertical distance from tower-top to rotor shaft (m)")
     # Turbine Motion
     contents = add_header(contents, "Turbine Motion")
     contents = add_line(contents, config.motion_type, "BaseMotionType(1)", "Base motion type (0: fixed, 1: sinusoidal, 2: arbitrary)")
@@ -85,6 +85,7 @@ def generate_aerodyn_standalone_config(location: Path, config: AeroDynInputConfi
     contents = add_table_entry(contents, ["(m/s)", "(-)", "(rpm)", "(deg)", "(deg)", "(s)", "(s)", "(-)", "(-)", "(Hz)"])
     # Outputs
     contents = add_header(contents, "Output Settings")
+
     contents = add_line(contents, '"ES15.8E2"', "OutFmt", "Format for text output (10 characters)")
     contents = add_line(contents, "2", "OutFileFmt", "Tabular output file format (1: text, 2: binary, 3: both)")
     contents = add_line(contents, "0", "WrVTK", "VTK visualization output (0: none, 1: animation)")
@@ -92,7 +93,7 @@ def generate_aerodyn_standalone_config(location: Path, config: AeroDynInputConfi
     contents = add_line(contents, "0", "VTKHubRad", "VTK hub radius (m)")
     contents = add_line(contents, "0,0,0,0,0,0", "VTKNacDim", "VTK nacelle dimensions (x0, y0, z0, Lx, Ly, Lz)")
 
-    with open(location / "DTU_10MW_ADdriver.inp", "w") as file:
+    with open(location / f"{config.model.name}_ADdriver.inp", "w") as file:
         file.write(contents)
 
     return None
@@ -216,7 +217,7 @@ def generate_aerodyn_config(location: Path, config: AeroDynConfig):
     # contents = add_word(contents, "END of input file")
 
     # Write the file
-    with open(location / "DTU_10MW_AD15.dat", "w") as file:
+    with open(location / f"{config.model.name}_AD15.dat", "w") as file:
         file.write(contents)
 
     return contents
@@ -298,7 +299,7 @@ DTU 10MW onshore reference wind turbine v0.1 - OpenFAST v2.4 - rated power at wi
     contents += "---------------------------------------------------------------------------------------"
 
     # Write to file
-    with open(location / "DTU_10MW_IW.dat", "w") as file:
+    with open(location / f"{config.model.name}_IW.dat", "w") as file:
         file.write(contents)
 
     return None

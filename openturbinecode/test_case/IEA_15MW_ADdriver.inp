@@ -4,21 +4,21 @@ Fixed
                False   Echo           - Echo input data to <RootName>.ech (flag)
                    0   MHK            - MHK turbine type (switch) (0: not an MHK turbine, 1: fixed MHK, 2: floating MHK)
                    1   AnalysisType   - Analysis type (1: multiple turbines, 2: one turbine, 3: one, combined case)
-               60.00   TMax           - Total run time (s)
-              0.1000   DT             - Simulation time step (s)
- "DTU_10MW_AD15.dat"   AeroFile       - Primary AeroDyn input file
+             1000.00   TMax           - Total run time (s)
+              0.0250   DT             - Simulation time step (s)
+ "IEA_15MW_AD15.dat"   AeroFile       - Primary AeroDyn input file
 ===== Environmental Conditions ========================================================
-                 1.2   FldDens        - Working fluid density (kg/m^3)
-            1.78E-05   KinVisc        - Kinematic viscosity (m^2/s)
+               1.225   FldDens        - Working fluid density (kg/m^3)
+          1.7840E-05   KinVisc        - Kinematic viscosity (m^2/s)
                337.3   SpdSound       - Speed of sound (m/s)
-            103500.0   Patm           - Atmospheric pressure (Pa)
+            101325.0   Patm           - Atmospheric pressure (Pa)
               1700.0   Pvap           - Vapor pressure (Pa)
                  0.0   WtrDpth        - Water depth (m)
 ===== Inflow Data =====================================================================
                    0   CompInflow     - Compute inflow velocities (0=Steady, 1=InflowWind)
             "unused"   InflowFile     - InflowWind input file [used only when CompInflow=1]
                11.40   HWindSpeed     - Horizontal wind speed (m/s) [used only when CompInflow=0]
-                90.0   RefHt          - Reference height for wind speed (m)
+               130.0   RefHt          - Reference height for wind speed (m)
               0.1429   PLExp          - Power law exponent
 ===== Turbine Data ====================================================================
                    1   NumTurbines    - Number of turbines
@@ -26,20 +26,20 @@ Fixed
                 True   BasicHAWTFormat(1) - Basic HAWT input format (True/False)
                0,0,0   BaseOriginInit(1) - Coordinate of tower base in base coordinates (m)
                    3   NumBlades(1)   - Number of blades
-                4.45   HubRad(1)      - Hub radius (m)
-              115.60   HubHt(1)       - Hub height (m)
-               -7.10   Overhang(1)    - Overhang (m)
-                   0   ShftTilt(1)    - Shaft tilt (deg)
-                 5.0   Precone(1)     - Blade precone (deg)
-                 1.2   Twr2Shft(1)    - Vertical distance from tower-top to rotor shaft (m)
+                5.54   HubRad(1)      - Hub radius (m)
+              135.64   HubHt(1)       - Hub height (m)
+              -10.86   Overhang(1)    - Overhang (m)
+               -6.00   ShftTilt(1)    - Shaft tilt (deg)
+                0.00   Precone(1)     - Blade precone (deg)
+                2.77   Twr2Shft(1)    - Vertical distance from tower-top to rotor shaft (m)
 ===== Turbine Motion ==================================================================
-                   1   BaseMotionType(1) - Base motion type (0: fixed, 1: sinusoidal, 2: arbitrary)
+                   0   BaseMotionType(1) - Base motion type (0: fixed, 1: sinusoidal, 2: arbitrary)
                    0   DegreeOfFreedom(1) - Degree of freedom (1=xg, 2=yg, ..., 6=theta_zg)
                    0   Amplitude(1)   - Amplitude of sinusoidal motion
                    0   Frequency(1)   - Frequency of sinusoidal motion
             "unused"   BaseMotionFileName(1) - Arbitrary base motion filename [used only when BaseMotionType=2]
                  0.0   NacYaw(1)      - Yaw angle of nacelle (deg)
-                 8.8   RotSpeed(1)    - Rotor speed (rpm)
+                 6.3   RotSpeed(1)    - Rotor speed (rpm)
                  0.0   BldPitch(1)    - Blade pitch (deg)
 ===== Time-dependent Analysis =========================================================
 "ad_TimeseriesInput.csv"   TimeAnalysisFileName - Time series filename (6 columns: Time, HWndSpeed, PLExp, RotSpd, Pitch, Yaw)

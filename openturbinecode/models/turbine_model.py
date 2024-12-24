@@ -11,8 +11,9 @@ from openturbinecode.configs.pathing import PROJECT_ROOT
 
 
 class TurbineModel:
-    def __init__(self):
+    def __init__(self, name="DTU10_MW"):
 
+        self.name = name
         # Turbine dimensions
         self.fluid = Fluid()
         self.environment = Environment()
@@ -132,6 +133,7 @@ class Blade:
         # Default blade properties
         self.radius = 86.366  # (m)
         self.tip_speed_ratio = 7  # (-)
+        self.rotor_speed = 0  # (rpm) Only used if prescribed directly, otherwise calculated from TSR
         self.profiles = ["Cylinder",
                          "FFA_W3_600",
                          "FFA_W3_480",
@@ -188,6 +190,8 @@ class Rotor:
     def __init__(self):
         # Default rotor properties
         self.n_blades = 3
+        self.tilt_angle = 5  # (degrees)
+        self.blade_precone_angle = 2.5  # (degrees)
 
     def read_from_yaml(self, filename):
         with open(filename, "r") as file:
@@ -204,7 +208,7 @@ class Rotor:
 # Hub geometry
 class Hub:
     def __init__(self):
-        self.radius = 4.45  # (m)
+        self.radius = 2.8  # (m)
         self.overhang = -7.10  # (m)
 
     def read_from_yaml(self, filename):
@@ -226,7 +230,7 @@ if __name__ == "__main__":
     model = TurbineModel()
 
     # Write the default yaml
-    model.write_to_yaml(default_path / "turbine_model.yaml")
+    model.write_to_yaml(default_path / "DTU_10MW.yaml")
 
     # Read the default yaml
-    model.read_from_yaml(default_path / "turbine_model.yaml")
+    model.read_from_yaml(default_path / "DTU_10MW.yaml")

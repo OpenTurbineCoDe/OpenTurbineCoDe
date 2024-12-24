@@ -85,7 +85,7 @@ def clear_case_directory(directory_name):
     shutil.rmtree(path_to_case)
 
 
-def copy_axial_turbine_case(directory_name):
+def copy_axial_turbine_case(directory_name, model: TurbineModel):
     """
     Copy the axial turbine case files to the output directory.
 
@@ -93,12 +93,16 @@ def copy_axial_turbine_case(directory_name):
     case_dir (Path): Path to the case directory containing the simulation files.
     """
     print("Copying axial turbine case files to new case directory...")
-
-    madsen_2019 = PROJECT_ROOT / "models" / "DTU_10MW" / "Madsen2019" / "OpenFAST"
-    path_to_case: Path = OPENFAST_RUN / directory_name
+    match model.name:
+        case "DTU_10MW":
+            model_dir = PROJECT_ROOT / "models" / "DTU_10MW" / "Madsen2019" / "OpenFAST"
+            path_to_case: Path = OPENFAST_RUN / directory_name
+        case "IEA_15MW":
+            model_dir = PROJECT_ROOT / "models" / "IEA_15MW" / "OpenFAST"
+            path_to_case: Path = OPENFAST_RUN / directory_name
 
     # We can copy these using windows commands in Powershell
-    shutil.copytree(madsen_2019, path_to_case, dirs_exist_ok=True)
+    shutil.copytree(model_dir, path_to_case, dirs_exist_ok=True)
 
 
 def preprocess_case(directory_name, model: TurbineModel = TurbineModel()):
@@ -139,7 +143,7 @@ def run_openfast_case(directory_name, model: TurbineModel = TurbineModel()):
     clear_case_directory(directory_name)
 
     # Copy the axial turbine case files to the output directory
-    copy_axial_turbine_case(directory_name)
+    copy_axial_turbine_case(directory_name, model)
 
     # Preprocess the case directory
     preprocess_case(directory_name, model)

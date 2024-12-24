@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<fmiModelDescription fmiVersion="2.0" modelName="AeroDynFMU" guid="unique-guid-for-aerodyn-fmu" description="FMU for AeroDynFMU" generationTool="Custom Python FMU Generator v1.0" variableNamingConvention="flat">
+  <ModelVariables>
+    <ScalarVariable name="P" causality="input" valueReference="0" description="Position">
+      <Real/>
+      <Dimensions>
+        <Dimension size="3"/>
+      </Dimensions>
+    </ScalarVariable>
+    <ScalarVariable name="V" causality="input" valueReference="1" description="Velocity">
+      <Real/>
+      <Dimensions>
+        <Dimension size="3"/>
+      </Dimensions>
+    </ScalarVariable>
+    <ScalarVariable name="O" causality="input" valueReference="2" description="Orientation">
+      <Real/>
+      <Dimensions>
+        <Dimension size="9"/>
+      </Dimensions>
+    </ScalarVariable>
+    <ScalarVariable name="step_size" causality="input" valueReference="3" description="Step size">
+      <Real/>
+    </ScalarVariable>
+    <ScalarVariable name="L" causality="output" valueReference="4" description="Aerodynamic Loads">
+      <Real/>
+      <Dimensions>
+        <Dimension size="3"/>
+      </Dimensions>
+    </ScalarVariable>
+  </ModelVariables>
+</fmiModelDescription>
