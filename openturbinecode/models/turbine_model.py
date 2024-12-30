@@ -71,6 +71,26 @@ class TurbineModel:
 
         return self
 
+    def update_model(self, param_dict: dict):
+        """
+        Update the TurbineModel instance with parameter values.
+
+        Args:
+            turbine_model (TurbineModel): Instance of the TurbineModel class.
+            param_dict (dict): Dictionary of parameters to update.
+                Keys should be in the format '<component>.<attribute>', e.g., 'fluid.velocity'.
+        """
+        for param, value in param_dict.items():
+            component, attribute = param.split(".", 1)
+            if hasattr(self, component):
+                sub_component = getattr(self, component)
+                if hasattr(sub_component, attribute):
+                    setattr(sub_component, attribute, value)
+                else:
+                    raise AttributeError(f"'{component}' does not have an attribute '{attribute}'")
+            else:
+                raise AttributeError(f"TurbineModel does not have a component '{component}'")
+
 
 # Default environmental properties
 class Environment:

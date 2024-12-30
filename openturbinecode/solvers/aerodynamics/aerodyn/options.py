@@ -77,7 +77,7 @@ class AeroDynInputConfig:
 
         # Simulation Control
         self.mhk_system: int = 0  # Flag for Marine HydroKinetic system
-        self.t_max = 1000.0  # Maximum simulation time [s]
+        self.t_max = 10.0  # Maximum simulation time [s]
         self.dt = 0.025  # Time step [s]
         self.analysis_type = 1  # (1: multiple turbines, 2: one turbine, 3: one, combined case)
 

@@ -11,3 +11,4 @@ OPENFAST_RUN = Path("D:/") / "Wright" / "Solvers" / "openfast" / "run"
 
 # AeroDyn case directories
 AERODYN_RUN = Path("D:/") / "Wright" / "Solvers" / "aerodynamics" / "aerodyn" / "run"
+AERODYN_FMU = Path("D:/") / "Wright" / "Solvers" / "aerodynamics" / "aerodyn" / "fmu"

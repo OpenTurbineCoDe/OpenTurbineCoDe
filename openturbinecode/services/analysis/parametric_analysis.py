@@ -14,28 +14,7 @@ BOOL_RUN_CASE = True
 BOOL_POST_PROCESS = False
 
 
-def update_turbine_model(turbine_model, param_dict):
-    """
-    Update the TurbineModel instance with parameter values.
-
-    Args:
-        turbine_model (TurbineModel): Instance of the TurbineModel class.
-        param_dict (dict): Dictionary of parameters to update.
-            Keys should be in the format '<component>.<attribute>', e.g., 'fluid.velocity'.
-    """
-    for param, value in param_dict.items():
-        component, attribute = param.split(".", 1)
-        if hasattr(turbine_model, component):
-            sub_component = getattr(turbine_model, component)
-            if hasattr(sub_component, attribute):
-                setattr(sub_component, attribute, value)
-            else:
-                raise AttributeError(f"'{component}' does not have an attribute '{attribute}'")
-        else:
-            raise AttributeError(f"TurbineModel does not have a component '{component}'")
-
-
-def parametric_analysis(turbine_model, param_ranges, output_base_dir, solver):
+def parametric_analysis(turbine_model: TurbineModel, param_ranges, output_base_dir, solver):
     """
     Perform a two-level parametric analysis using OpenFAST.
 
@@ -59,7 +38,7 @@ def parametric_analysis(turbine_model, param_ranges, output_base_dir, solver):
     for param_combination in product(*param_values):
         # Update turbine model with the current parameter values
         param_dict = dict(zip(param_names, param_combination))
-        update_turbine_model(turbine_model, param_dict)
+        turbine_model.update_model(param_dict)
 
         # Create a unique case directory name based on the parameter combination
         case_name = "_".join([f"{param.split('.')[-1]}_{value}" for param, value in param_dict.items()])
