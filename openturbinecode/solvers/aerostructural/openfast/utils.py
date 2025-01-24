@@ -4,7 +4,7 @@ from pathlib import Path
 import openturbinecode.solvers.aerostructural.openfast.options as options
 from openturbinecode.configs.pathing import OPENFAST_RUN, PROJECT_ROOT
 from openturbinecode.models.turbine_model import TurbineModel
-from openturbinecode.solvers.aerostructural.openfast import file_generator as file_gen
+from openturbinecode.solvers.aerostructural.openfast.file_gen import fast, elastodyn, aerodyn, inflow
 
 
 def make_openfast_run_directory(directory_name):
@@ -25,7 +25,7 @@ def make_openfast_run_directory(directory_name):
     return None
 
 
-def run_openfast_exe(directory_name: str):
+def run_openfast_exe(directory_name: str, model: TurbineModel):
     """
     Run the OpenFAST simulation.
 
@@ -39,7 +39,7 @@ def run_openfast_exe(directory_name: str):
 
     path_to_case = Path(OPENFAST_RUN) / directory_name
     fst_exe = Path(OPENFAST_RUN).parent / "openfast_x64.exe"
-    fst_file = path_to_case / "DTU_10MW.fst"
+    fst_file = path_to_case / f"{model.name}.fst"
 
     # Ensure the directory and input file exist
     if not path_to_case.is_dir():
@@ -121,10 +121,10 @@ def preprocess_case(directory_name, model: TurbineModel = TurbineModel()):
     inflow_config = options.InflowWindConfig(model)
 
     # Overwrite default files with those from new model parameters
-    file_gen.generate_fast_config(path_to_case, fast_config)
-    file_gen.generate_aerodyn_config(path_to_case, aero_config)
-    file_gen.generate_elastodyn_config(path_to_case, elast_config)
-    file_gen.generate_inflow_wind_config(path_to_case, inflow_config)
+    fast.generate_fast_config(path_to_case, fast_config)
+    aerodyn.generate_aerodyn_config(path_to_case, aero_config)
+    elastodyn.generate_elastodyn_config(path_to_case, elast_config)
+    inflow.generate_inflow_wind_config(path_to_case, inflow_config)
 
     return None
 
@@ -149,7 +149,7 @@ def run_openfast_case(directory_name, model: TurbineModel = TurbineModel()):
     preprocess_case(directory_name, model)
 
     # Run the openfast simulation
-    run_openfast_exe(directory_name)
+    run_openfast_exe(directory_name, model)
 
 
 if __name__ == "__main__":

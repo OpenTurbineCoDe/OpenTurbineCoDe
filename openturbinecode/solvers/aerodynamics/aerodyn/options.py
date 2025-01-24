@@ -24,7 +24,7 @@ from openturbinecode.utils.utilities import calculate_tsr_or_missing
 class AeroDynStandaloneOptions:
     def __init__(self, model: TurbineModel):
         self.model = model
-        self.aerodyn_input = AeroDynInputConfig(model)
+        self.aerodyn_input = AeroDynDriverConfig(model)
         self.aerodyn = AeroDynConfig(model)
         self.inflow_wind = InflowWindConfig(model)
 
@@ -60,7 +60,7 @@ class AeroDynStandaloneOptions:
         with open(load_location, "r") as file:
             data = yaml.safe_load(file)
 
-        self.aerodyn_input = AeroDynInputConfig(self.model)
+        self.aerodyn_input = AeroDynDriverConfig(self.model)
         self.aerodyn = AeroDynConfig(self.model)
         self.inflow_wind = InflowWindConfig(self.model)
 
@@ -71,13 +71,13 @@ class AeroDynStandaloneOptions:
         return self
 
 
-class AeroDynInputConfig:
+class AeroDynDriverConfig:
     def __init__(self, model: TurbineModel):
         self.model = model
 
         # Simulation Control
         self.mhk_system: int = 0  # Flag for Marine HydroKinetic system
-        self.t_max = 10.0  # Maximum simulation time [s]
+        self.t_max = 60.0  # Maximum simulation time [s]
         self.dt = 0.025  # Time step [s]
         self.analysis_type = 1  # (1: multiple turbines, 2: one turbine, 3: one, combined case)
 
@@ -100,11 +100,31 @@ class AeroDynInputConfig:
         self.num_turbines = 1  # May be used in multiple turbine analysis
 
         # Turbine Geometry
-        self.basic_hawt_format = True  # Flag for basic Horizontal-Axis WT format
+        self.basic_hawt_format = model.blade.use_orientations  # Flag for basic Horizontal-Axis WT format
         self.num_blades = model.rotor.n_blades  # Number of blades
         self.hub_radius = model.hub.radius  # Distance from rotor apex to blade root [m]
         self.hub_height = model.tower.height + model.hub.radius  # Distance from base to hub mass [m]
         self.hub_overhang = model.hub.overhang  # Distance from hub mass to rotor plane [m]
+
+        # Turbine Geometry for Basic HAWT = False
+        self.basic_hawt_format: bool = model.blade.use_orientations
+        # Base coordinates and orientation
+        self.base_origin: list[float] = [0.0, 0.0, 0.0]  # x, y, z coordinates
+        self.base_orientation: list[float] = [0.0, 0.0, 0.0]  # roll, tilt, yaw (deg)
+        # Tower settings
+        self.has_tower: bool = True
+        self.hawt_projection: bool = True
+        self.tower_base: list[float] = [0.0, 0.0, 0.0]  # x, y, z coordinates
+        # Nacelle settings
+        self.nacelle_origin: list[float] = [0.0, 0.0, 137.0]  # x, y, z coordinates
+        # Hub settings
+        self.hub_origin: list[float] = [-6.96, 0.0, 3.82]  # x, y, z coordinates
+        self.hub_orientation: list[float] = [0.0, 6.0, 0.0]  # roll, tilt, yaw (deg)
+        # Blade settings
+        self.num_blades: int = 3
+        self.blade_origins: list[list[float]] = model.blade.origins  # [x, y, z] for each blade
+        self.blade_orientations: list[list[float]] = model.blade.orientations
+        self.blade_hub_radii: list[float] = model.blade.hub_radii  # Radial input start points for each blade
 
         # Turbine Motion
         self.motion_type = model.nacelle.motion  # Type of motion (0=rigid, 1=sinusoidal, 2=arbitrary)
@@ -237,15 +257,17 @@ class AeroDynConfig:
         ], columns=["TwrElev", "TwrDiam", "TwrCd", "TwrTI", "TwrCb"])
 
         # Output Options
-        self.blade_node_outputs: list = range(2, len(model.blade.profiles), 2)
+        self.blade_node_outputs: list = list(range(1, 10))
         self.tower_node_outputs: list = []
+        # Outputs list for Rotor Aerodynamics
         self.outputs: list = ['RtAeroPwr', 'RtAeroCp', 'RtAeroCq', 'RtAeroCt',
                               'RtAeroFxh', 'RtAeroFyh', 'RtAeroFzh',
                               'RtAeroMxh', 'RtAeroMyh', 'RtAeroMzh',
                               'B1AeroMx', 'B1AeroMy', 'B1AeroMz']
 
         # Node Outputs
-        self.node_outputs: list = ["VUndx", "VUndy", "VUndz", "Ft", "Fn", "Fy", "Fx", "Ct", "Cn", "Cy", "Cx", "Alpha"]
+        self.node_outputs: list = generate_blade_output_channels(len(model.blade.profiles)+1,
+                                                                 self.blade_node_outputs)
 
     def validate(self):
         """Perform validation checks on the configuration."""
@@ -351,6 +373,33 @@ class InflowWindConfig:
     def to_dict(self):
         """Convert the configuration to a dictionary."""
         return self.__dict__
+
+
+def generate_blade_output_channels(num_blades: int, blade_node_outputs: list):
+    """
+    Generate AeroDyn output channels for blade nodes.
+
+    Args:
+        num_blades (int): Number of blades.
+        blade_node_outputs (list): Node indices for which outputs are required.
+
+    Returns:
+        list: List of output channels formatted for AeroDyn.
+    """
+    # Channels to output for each node
+    channels = [
+        "Cx", "Cy"     # Force coefficients (normal, tangential, etc.)
+    ]
+
+    output_list = []
+
+    # Generate outputs for each blade and each specified node
+    for blade in range(1, num_blades + 1):  # Blades numbered 1 to num_blades
+        for node in blade_node_outputs:
+            for channel in channels:
+                output_list.append(f"B{blade}N{node}{channel}")
+
+    return output_list
 
 
 if __name__ == "__main__":

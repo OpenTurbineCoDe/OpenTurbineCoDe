@@ -14,7 +14,7 @@ BOOL_RUN_CASE = True
 BOOL_POST_PROCESS = False
 
 
-def parametric_analysis(turbine_model: TurbineModel, param_ranges, output_base_dir, solver):
+def parametric_analysis(turbine_model: TurbineModel, param_ranges, output_base_dir, solver, fc_plot=None):
     """
     Perform a two-level parametric analysis using OpenFAST.
 
@@ -56,14 +56,15 @@ def parametric_analysis(turbine_model: TurbineModel, param_ranges, output_base_d
 
 if __name__ == "__main__":
     # Output base directory
-    solver = "aerodyn"
+    solver = "openfast"
     if solver == "openfast":
         output_dir = OPENFAST_RUN / "parametric_analysis"
     elif solver == "aerodyn":
 
         output_dir = AERODYN_RUN / "parametric_analysis"
 
-    analysis_num = 1
+    plot_fc_data = None
+    analysis_num = 406
     match analysis_num:
         case 1:
             # Define parameter ranges for analysis
@@ -82,6 +83,7 @@ if __name__ == "__main__":
         case 202:
             # FOCAL-1 Validation LC 1.1
             model_name = "IEA_15MW"
+            plot_fc_data = "lc11"
             param_ranges = {
                 "fluid.velocity": [12.83],  # Horizontal windspeed (m/s)
                 "blade.pitch_angle": [0.0],  # Blade pitch angle (deg)
@@ -90,22 +92,25 @@ if __name__ == "__main__":
         case 206:
             # FOCAL-1 Validation LC 1.2
             model_name = "IEA_15MW"
+            plot_fc_data = "lc12"
             param_ranges = {
                 "fluid.velocity": [12.83],  # Horizontal windspeed (m/s)
                 "blade.pitch_angle": [10.0],  # Blade pitch angle (deg)
                 "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
             }
         case 402:
-            # FOCAL-1 Validation LC 1.2
+            # FOCAL-1 Validation LC 1.3
             model_name = "IEA_15MW"
+            plot_fc_data = "lc13"
             param_ranges = {
                 "fluid.velocity": [18.39],  # Horizontal windspeed (m/s)
                 "blade.pitch_angle": [9.0],  # Blade pitch angle (deg)
                 "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
             }
         case 406:
-            # FOCAL-1 Validation LC 1.2
+            # FOCAL-1 Validation LC 1.4
             model_name = "IEA_15MW"
+            plot_fc_data = "lc14"
             param_ranges = {
                 "fluid.velocity": [18.39],  # Horizontal windspeed (m/s)
                 "blade.pitch_angle": [15.0],  # Blade pitch angle (deg)
@@ -128,7 +133,7 @@ if __name__ == "__main__":
         parametric_analysis(turbine_model=model,
                             param_ranges=param_ranges,
                             output_base_dir=output_dir_run,
-                            solver="aerodyn")
+                            solver=solver)
 
     if BOOL_POST_PROCESS:
         # Post-process the results
@@ -136,13 +141,26 @@ if __name__ == "__main__":
 
         # Possible channels: "RtAeroCp", "RtAeroCt", "RtAeroCq", "RtAeroFxh", "RtAeroFyh", "RtAeroFzh"
 
-        response_channel_plots = ['RtAeroPwr', 'RtAeroCp', 'RtAeroCq', 'RtAeroCt', 'Thrust', 'Torque',
-                                  'RtAeroFxh', 'RtAeroFyh', 'RtAeroFzh',
-                                  'RtAeroMxh', 'RtAeroMyh', 'RtAeroMzh',
-                                  'B1AeroMx', 'B1AeroMy', 'B1AeroMz']
+        # response_channel_plots = ['RtAeroPwr', 'RtAeroCp', 'RtAeroCq', 'RtAeroCt', 'Thrust', 'Torque',
+        #                           'RtAeroFxh', 'RtAeroFyh', 'RtAeroFzh',
+        #                           'RtAeroMxh', 'RtAeroMyh', 'RtAeroMzh',
+        #                           'B1AeroMx', 'B1AeroMy', 'B1AeroMz']
+
+        response_channel_plots = ['RtAeroPwer', 'RtAeroCq', 'RtAeroCt', 'Thrust', 'Torque']
+
+        # Prepare parametric data for plotting
+        df_parametric = pp_openfast.prepare_parametric_data(parametric_data,
+                                                            response_channels=response_channel_plots,
+                                                            independent="rotor_speed",
+                                                            output_dir=output_dir_run)
+
+        # Dump the parametric data to a CSV file
+        pp_openfast.dump_parametric_data(df_parametric, output_dir_run)
+
         # Plot parametric response
         for response_channel in response_channel_plots:
-            pp_openfast.plot_parametric_response(parametric_data,
+            pp_openfast.plot_parametric_response(df_parametric,
                                                  response_channel=response_channel,
-                                                 dependent="rotor_speed",
-                                                 output_dir=output_dir_run / "plots")
+                                                 independent="rotor_speed",
+                                                 output_dir=output_dir_run / "plots",
+                                                 plot_fc_data=plot_fc_data)

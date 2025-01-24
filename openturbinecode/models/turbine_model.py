@@ -151,6 +151,7 @@ class Fluid:
 class Blade:
     def __init__(self):
         # Default blade properties
+        self.use_orientations = True
         self.radius = 86.366  # (m)
         self.tip_speed_ratio = 7  # (-)
         self.rotor_speed = 0  # (rpm) Only used if prescribed directly, otherwise calculated from TSR
@@ -169,6 +170,9 @@ class Blade:
                                5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
                                5, 5, 5, 5, 5, 5, 5, 5]
         self.pitch_angle = 0  # (degrees)
+        self.origins = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        self.orientations = [[0, -4, 0], [120, -4, 0], [240, -4, 0]]
+        self.hub_radii = [3, 3, 3]
 
 
 # Tower geometry

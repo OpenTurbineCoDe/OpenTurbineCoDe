@@ -1,10 +1,12 @@
 import shutil
 import subprocess
+import pandas as pd
 from pathlib import Path
 from openturbinecode.models.turbine_model import TurbineModel  # Import the TurbineModel for loading and type hinting
 import openturbinecode.solvers.aerodynamics.aerodyn.options as options  # Import the AeroDyn options classes
 from openturbinecode.configs.pathing import AERODYN_RUN, PROJECT_ROOT  # Import necessary Path objects
-from openturbinecode.solvers.aerodynamics.aerodyn import file_generator as file_gen  # Import the AeroDyn file generator
+from openturbinecode.solvers.aerodynamics.aerodyn.file_gen import driver, aerodyn, inflow  # Import the file generation functions
+from openturbinecode.solvers.aerodynamics.aerodyn.post import get_binary_output_data  # Import the postprocessing functions
 
 
 def make_aerodyn_run_directory(path_to_case: Path):
@@ -100,13 +102,54 @@ def preprocess_case(path_to_case: Path, model: TurbineModel):
     """
     print(f"Preprocessing case: {path_to_case}")
 
-    aerodyn_standalone_config = options.AeroDynInputConfig(model)
+    aerodyn_standalone_config = options.AeroDynDriverConfig(model)
     aero_config = options.AeroDynConfig(model)
     inflow_config = options.InflowWindConfig(model)
 
-    file_gen.generate_aerodyn_standalone_config(path_to_case, aerodyn_standalone_config)
-    file_gen.generate_aerodyn_config(path_to_case, aero_config)
-    file_gen.generate_inflow_wind_config(path_to_case, inflow_config)
+    driver.generate_aerodyn_standalone_config(path_to_case, aerodyn_standalone_config)
+    aerodyn.generate_aerodyn_config(path_to_case, aero_config)
+    inflow.generate_inflow_wind_config(path_to_case, inflow_config)
+
+
+def postprocess_case(path_to_case: Path):
+    """
+    Postprocess the AeroDyn simulation results.
+
+    Args:
+        path_to_case (Path): Path to the directory for the case.
+        model (TurbineModel): Turbine model with updated parameters.
+    """
+    print(f"Postprocessing case: {path_to_case}")
+
+    # Postprocess the results
+    bin_output = get_binary_output_data(path_to_case)
+
+    df: pd.DataFrame = bin_output.df
+
+    # Get the last row of the DataFrame
+    last_row = df.iloc[-1]
+
+    # Determine the number of blades and nodes from the available channels
+    num_blades = max(int(col[1]) for col in df.columns if col.startswith("B") and col[1].isdigit())
+    num_nodes_per_blade = max(int(col[3]) for col in df.columns if col.startswith("B") and len(col) > 3 and col[3].isdigit())
+
+    # Prepare nested list for aerodynamic loads
+    outputs = [[0.0] * num_nodes_per_blade for _ in range(num_blades)]
+
+    # Extract data for each blade and node based on naming convention (e.g., B1N1Fx, B1N2Fx, ...)
+    for blade in range(1, num_blades + 1):
+        for node in range(1, num_nodes_per_blade + 1):
+            # Example channel naming convention (modify as needed to match your output channels):
+            force_key = f"B{blade}N{node}Cy"  # Replace "Fx" with actual desired channel suffix if needed
+
+            if force_key in last_row:
+                outputs[blade - 1][node - 1] = last_row[force_key]
+            else:
+                print(f"Warning: Missing channel '{force_key}' in output data.")
+
+    # Extract blade nodal loads
+
+    return outputs
 
 
 def run_aerodyn_case(path_to_case: Path, model: TurbineModel):

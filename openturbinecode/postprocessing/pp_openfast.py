@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from collections import defaultdict
 import re
 
 from fnmatch import fnmatch
@@ -221,76 +220,183 @@ def calculate_torque_or_thrust(response_channel, param_dict, openfast_bin):
         raise ValueError(f"Unsupported response_channel: {response_channel}")
 
 
-def plot_parametric_response(parametric_data, response_channel, dependent, output_dir):
+def plot_parametric_response(df_parametric, response_channel, independent, output_dir, plot_fc_data=None):
     """
-    Plots the parametric response of the OpenFAST case directories.
+    Plots the parametric response using the processed simulation DataFrame.
 
     Args:
-        parametric_data (dict): A dictionary where keys are parameter combinations and values are
-                                the binary output data from OpenFAST.
-                                Keys are tuples of (parameter_name, parameter_value).
+        df_parametric (pd.DataFrame): DataFrame containing parametric analysis results.
         response_channel (str): The channel to be plotted on the y-axis.
-        dependent (str): The parameter to be plotted on the x-axis.
+        independent (str): The parameter to be plotted on the x-axis.
         output_dir (Path): The directory where the plot will be saved.
+        plot_fc_data (str): FOCAL-1 data file identifier for additional validation data plotting.
     """
-
     # Ensure the output directory exists
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Prepare a dictionary to organize data by the remaining parameter(s)
-    grouped_data = defaultdict(list)
+    # Load the FC data if needed
+    fc_data = None
+    if plot_fc_data:
+        fc_data = load_fc_data(plot_fc_data, independent, response_channel)
 
-    for params, openfast_bin in parametric_data.items():
-        # Convert params to a dictionary for easy access
-        param_dict = dict(params)
+    # Check if the specified response channel exists in the DataFrame
+    if response_channel not in df_parametric.columns:
+        print(f"Skipping plot for {response_channel}: not found in the DataFrame.")
+        return
 
-        # Check if dependent exists
-        if dependent not in param_dict:
-            print(f"Skipping case due to missing dependent parameter: {params}")
-            continue
+    # Extract the independent and response data
+    x_vals = df_parametric[independent]
+    y_vals = df_parametric[response_channel]
 
-        # Calculate response channel if needed
-        if response_channel in ["Torque", "Thrust"]:
-            if "RtAeroCt" not in openfast_bin.channels and "RtAeroCq" not in openfast_bin.channels:
-                print(f"Skipping case due to missing RtAeroCt or RtAeroCq data: {params}")
-                continue
-            response_data = calculate_torque_or_thrust(response_channel, param_dict, openfast_bin)
-        else:
-            # Default behavior: use the channel directly
-            if response_channel not in openfast_bin.channels:
-                print(f"Skipping case due to missing response channel: {params}")
-                continue
-            response_data = openfast_bin[response_channel]
+    # Compute y-axis limits
+    y_min = y_vals.min()
+    y_max = y_vals.max()
 
-        # Group data by parameters other than the dependent
-        group_key = tuple((k, v) for k, v in params if k != dependent)
-        grouped_data[group_key].append((param_dict[dependent], np.mean(response_data)))
+    # If FOCAL-1 data is available, include its range in the y-axis limits
+    if fc_data is not None:
+        fc_y_vals = fc_data.iloc[:, 1]  # Response values from FOCAL-1 data
+        y_min = min(y_min, fc_y_vals.min())
+        y_max = max(y_max, fc_y_vals.max())
 
-    # Plot each group
+    # Adjust the limits to add some padding for better visualization
+    padding = 0.1 * (y_max - y_min)
+    y_min -= padding
+    y_max += padding
+
+    # Plot the parametric response
     plt.figure(figsize=(10, 6))
-    ylim_max = -1000000  # Initialize with a very low value
-    for group_key, data in grouped_data.items():
-        data.sort(key=lambda x: x[0])  # Sort by the dependent variable
-        x_vals = [x[0] for x in data]
-        y_vals = [np.mean(y) for _, y in data]  # Compute the mean of the response channel
-        ylim_max = max(ylim_max, max(y_vals))
+    plt.plot(x_vals, y_vals, label=f"Simulation Data ({response_channel})")
 
-        # Create a label based on the group key
-        label = ", ".join([f"{k}={v}" for k, v in group_key])
-        plt.plot(x_vals, y_vals, label=label)
+    # Add FOCAL-1 validation data if available
+    if fc_data is not None:
+        plt.scatter(
+            fc_data.iloc[:, 0],  # Independent variable
+            fc_data.iloc[:, 1],  # Response variable
+            color="red",
+            marker="x",
+            s=100,  # Marker size
+            label="FOCAL-1 Validation Data"
+        )
 
-    # Add labels, legend, and save the plot
-    plt.xlabel(f"{dependent} (Dependent Variable)")
+    # Add labels, legend, and adjust the y-axis limits
+    plt.xlabel(f"{independent} (Independent Variable)")
     plt.ylabel(f"{response_channel} (Response Channel)")
-    plt.title("Parametric Response")
-    plt.legend(title="Other Parameters")
+    plt.title(f"Parametric Response: {response_channel} vs {independent}")
+    plt.ylim([y_min, y_max])
+    plt.legend()
     plt.grid(True)
-    plt.ylim([0, ylim_max * 1.1])
 
     # Save the plot
-    plot_file = output_dir / f"parametric_response_{response_channel}_vs_{dependent}.png"
+    plot_file = output_dir / f"parametric_response_{response_channel}_vs_{independent}.png"
     plt.savefig(plot_file, dpi=300)
     plt.close()
 
     print(f"Plot saved at {plot_file}")
+
+
+def load_fc_data(fc_data_num: str, dependent, response):
+    """
+    Load the FOCAL-1 validation data for the specified load case.
+
+    Args:
+        fc_data_num (str): The load case number to load.
+
+    Returns:
+        pd.DataFrame: The FOCAL-1 validation data for the specified load case.
+    """
+    # Load the FOCAL-1 validation data for the specified load case
+    fc_data_file = Path(__file__).parent / "data" / f"focal.campaign1.expr.{fc_data_num}.csv"
+    df_fc = pd.read_csv(fc_data_file)
+    df_fc.columns = df_fc.columns.str.strip()  # Strip leading/trailing whitespace from column names
+
+    # Map OpenFAST columns to FOCAL-1 validation data columns
+    # Column names: Time (sec), Wind Speed (m/s), Blade Pitch (deg), RPM [rpm], Rotor Thrust [N], Rotor Torque [Nm], Tower Top Fx [N], Tower Top Fy [N], Tower Top Fz [N], Tower Top Mx [Nm], Tower Top My [Nm], Tower Top Mz [Nm], BRBM flap [Nm], BRBM edge [Nm]
+    column_mapping = {
+        "Time": "Time (sec)",
+        "WindVel1X": "Wind Speed (m/s)",
+        "rotor_speed": "RPM [rpm]",
+        "RtAeroPwer": "Rotor Power [W]",
+        "RtAeroCt": "Rotor Thrust Coefficient [-]",
+        "RtAeroCq": "Rotor Torque Coefficient [-]",
+        "Thrust": "Rotor Thrust [N]",
+        "Torque": "Rotor Torque [Nm]"
+    }
+
+    if column_mapping[dependent] not in df_fc.columns:
+        print("Could not find dependent channel in FOCAL-1 validation data.")
+        return None
+    if column_mapping[response] not in df_fc.columns:
+        print("Could not find response channel in FOCAL-1 validation data.")
+        return None
+
+    # Filter the data to plot only the specified dependent and response channels
+    df_fc = df_fc[[column_mapping[dependent], column_mapping[response]]]
+
+    return df_fc
+
+
+def prepare_parametric_data(parametric_data, response_channels, independent, output_dir):
+    """Prepares the parametric data for plotting, placing the parsed channel
+    data in a pandas DataFrame.
+
+    Args:
+        parametric_data (_type_): _description_
+        response_channels (_type_): _description_
+        independent (_type_): _description_
+        output_dir (_type_): _description_
+    """
+    # Ensure the output directory exists
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create a DataFrame to store the parametric data
+    df = pd.DataFrame()
+
+    # Iterate over the parametric data
+    for params, openfast_bin in parametric_data.items():
+        # Convert params to a dictionary for easy access
+        param_dict = dict(params)
+
+        # Check if independent exists
+        if independent not in param_dict:
+            print(f"Skipping case due to missing independent parameter: {params}")
+            continue
+
+        # Initialize a dictionary to store the data for this case
+        case_data = {independent: param_dict[independent]}
+
+        # Iterate over the response channels
+        for response_channel in response_channels:
+            # Calculate response channel if needed
+            if response_channel in ["Torque", "Thrust"]:
+                if "RtAeroCt" not in openfast_bin.channels and "RtAeroCq" not in openfast_bin.channels:
+                    print(f"Skipping case due to missing RtAeroCt or RtAeroCq data: {params}")
+                    continue
+                response_data = calculate_torque_or_thrust(response_channel, param_dict, openfast_bin)
+            else:
+                # Default behavior: use the channel directly
+                if response_channel not in openfast_bin.channels:
+                    print(f"Skipping case due to missing response channel: {params}")
+                    continue
+                response_data = openfast_bin[response_channel]
+
+            # Store the mean of the response channel
+            case_data[response_channel] = np.mean(response_data)
+
+        # Append the case data to the DataFrame
+        df = pd.concat([df, pd.DataFrame([case_data])], ignore_index=True)
+
+        # Sort by the independent variable
+        df = df.sort_values(by=independent)
+
+    return df
+
+
+def dump_parametric_data(df: pd.DataFrame, output_dir: Path):
+    """Dumps the parametric data to a CSV file.
+
+    Args:
+        df (_type_): _description_
+    """
+    df.to_csv(output_dir / "parametric_data.csv", index=False)

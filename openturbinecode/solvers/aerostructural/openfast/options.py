@@ -2,6 +2,7 @@ import yaml
 from openturbinecode.models.turbine_model import TurbineModel
 from openturbinecode.configs.pathing import PROJECT_ROOT
 from openturbinecode.utils.utilities import calculate_tsr_or_missing
+import pandas as pd
 
 
 class OpenFASTConfig:
@@ -66,7 +67,7 @@ class FastConfig:
         self.t_max = 45.0  # Maximum simulation time [s]
         self.dt = 0.001  # Time step [s]
         self.interp_order = 2  # Interpolation order for I/O time history (1=linear, 2=quadratic)
-        self.num_correction = 1  # Number of correction iterations (0=explicit)
+        self.num_correction = 0  # Number of correction iterations (0=explicit)
         self.dt_ujac = 99999  # Time step between calls to get Jacobians
         self.ujac_scale_factor = 1e6  # Scale factor for the Jacobian calculation
 
@@ -74,7 +75,7 @@ class FastConfig:
         self.elastic = 1  # (1=elastodyn, 2=elastodyn+beamdyn)
         self.inflow = 1  # (0=still air, 1=inflow wind, 2=external inflow)
         self.aero = 2  # (0=aerodyn, 1=aerodyn15, 2=aerodyn14)
-        self.servo = 0  # (0=none, 1=servodyn)
+        self.servo = 1  # (0=none, 1=servodyn)
         self.hydro = 0  # (0=none, 1=hydrodyn)
         self.sub = 0  # (0=none, 1=subdyn, 2=external platform)
         self.mooring = 0  # (0=none, 1=map++, 2=feamooring, 3=moordyn)
@@ -93,13 +94,13 @@ class FastConfig:
         self.water_level_offset = 0.0   # Offset between water and seal level [m]
 
         # Input files
-        self.elastodyn_file = "DTU_10MW_ED.dat"  # Elastodyn input file
-        self.beamdyn_blade_file = ["DTU_10MW_BD.dat",
-                                   "DTU_10MW_BD.dat",
-                                   "DTU_10MW_BD.dat"]
-        self.inflow_wind_file = "DTU_10MW_IW.dat"
-        self.aerodyn_file = "DTU_10MW_AD15.dat"
-        self.servodyn_file = "DTU_10MW_SD.dat"
+        self.elastodyn_file = f"{model.name}_ED.dat"  # Elastodyn input file
+        self.beamdyn_blade_file = ["unused",
+                                   "unused",
+                                   "unused"]
+        self.inflow_wind_file = f"{model.name}_IW.dat"
+        self.aerodyn_file = f"{model.name}_AD15.dat"
+        self.servodyn_file = f"{model.name}_SD.dat"
         self.hydrodyn_file = "unused"
         self.subdyn_file = "unused"
         self.mooring_file = "unused"
@@ -186,9 +187,9 @@ class ElastoDynConfig:
         # Blade properties
         self.num_blade_nodes: int = 40  # Number of blade nodes used for analysis
         self.blade_files: list[str] = [
-            "DTU_10MW_EDBlade.dat",
-            "DTU_10MW_EDBlade.dat",
-            "DTU_10MW_EDBlade.dat",
+            f"{model.name}_EDBlade.dat",
+            f"{model.name}_EDBlade.dat",
+            f"{model.name}_EDBlade.dat",
         ]  # Blade input files
 
         # Rotor-teeter
@@ -203,7 +204,23 @@ class ElastoDynConfig:
 
         # Tower
         self.num_tower_nodes: int = 20  # Number of tower nodes
-        self.tower_file: str = "DTU_10MW_EDTower.dat"  # Tower input file
+        self.tower_file: str = f"{model.name}_EDTower.dat"  # Tower input file
+
+        self.output = [
+            "Azimuth", "BldPitch1", "BldPitch2", "BldPitch3", "GenSpeed", "IPDefl1", "LSSGagMya", "LSSGagMza", "LSSTipMys",
+            "LSSTipMzs", "LSShftFys", "LSShftFzs", "NacYaw", "NcIMUTAxs", "NcIMUTAys", "NcIMUTAzs", "OoPDefl1", "PtfmHeave",
+            "PtfmPitch", "PtfmRoll", "PtfmSurge", "PtfmSway", "PtfmYaw", "RootFxb1", "RootFxb2", "RootFxb3", "RootFxc1",
+            "RootFxc2", "RootFxc3", "RootFyb1", "RootFyb2", "RootFyb3", "RootFyc1", "RootFyc2", "RootFyc3", "RootFzb1",
+            "RootFzb2", "RootFzb3", "RootFzc1", "RootFzc2", "RootFzc3", "RootMxb1", "RootMxb2", "RootMxb3", "RootMxc1",
+            "RootMxc2", "RootMxc3", "RootMyb1", "RootMyb2", "RootMyb3", "RootMyc1", "RootMyc2", "RootMyc3", "RootMzb1",
+            "RootMzb2", "RootMzb3", "RootMzc1", "RootMzc2", "RootMzc3", "RotSpeed", "RotThrust", "RotTorq", "Spn1MLxb1",
+            "Spn1MLyb1", "Spn2MLxb1", "Spn2MLyb1", "Spn3MLxb1", "Spn3MLyb1", "Spn4MLxb1", "Spn4MLyb1", "Spn5MLxb1", "Spn5MLyb1",
+            "Spn6MLxb1", "Spn6MLyb1", "Spn7MLxb1", "Spn7MLyb1", "Spn8MLxb1", "Spn8MLyb1", "Spn9MLxb1", "Spn9MLyb1", "TTDspTwst",
+            "TipDxb1", "TipDxb2", "TipDxb3", "TipDxc1", "TipDxc2", "TipDxc3", "TipDyb1", "TipDyb2", "TipDyb3", "TipDyc1",
+            "TipDyc2", "TipDyc3", "TipDzb1", "TipDzb2", "TipDzb3", "TipDzc1", "TipDzc2", "TipDzc3", "TwHt1TPxi", "TwHt1TPyi",
+            "TwrBsFxt", "TwrBsFyt", "TwrBsFzt", "TwrBsMxt", "TwrBsMyt", "TwrBsMzt", "TwstDefl1", "YawBrFxp", "YawBrFyp",
+            "YawBrFzp", "YawBrMxp", "YawBrMyp", "YawBrMzp", "YawBrTDxt", "YawBrTDyt"
+        ]
 
     def validate(self):
         """Perform validation checks on the configuration."""
@@ -219,6 +236,8 @@ class ElastoDynConfig:
 
 class AeroDynConfig:
     def __init__(self, model: TurbineModel):
+        self.model = model
+
         # General Options
         self.echo: bool = False  # Echo the input to "<rootname>.AD.ech"
         self.dt_aero: str = "default"  # Time interval for aerodynamic calculations
@@ -269,23 +288,56 @@ class AeroDynConfig:
         self.drag_coefficient_column: int = 3  # Column in airfoil tables for drag coefficient
         self.pitching_moment_column: int = 4  # Column in airfoil tables for pitching moment
         self.cpmin_column: int = 0  # Column in airfoil tables for Cpmin (0 if not used)
-        self.num_airfoil_files: int = 6  # Number of airfoil files used
-        self.airfoil_files: list[str] = [
-            "AeroData/Cylinder.dat",
-            "AeroData/FFA_W3_600.dat",
-            "AeroData/FFA_W3_480.dat",
-            "AeroData/FFA_W3_360.dat",
-            "AeroData/FFA_W3_301.dat",
-            "AeroData/FFA_W3_241.dat",
-        ]  # Airfoil file names
+        self.airfoil_files: list[str] = model.blade.profiles  # Airfoil file names
+        self.num_airfoil_files: int = len(self.airfoil_files)  # Number of airfoil files used
 
         # Rotor/Blade Properties
         self.include_pitching_moment: bool = True  # Include aerodynamic pitching moment in calculations?
         self.blade_files: list[str] = [
-            "DTU_10MW_ADBlade.dat",
-            "DTU_10MW_ADBlade.dat",
-            "DTU_10MW_ADBlade.dat",
+            f"{model.name}_ADBlade.dat",
+            f"{model.name}_ADBlade.dat",
+            f"{model.name}_ADBlade.dat",
         ]  # Distributed aerodynamic properties for each blade
+
+        # Hub Properties
+        # self.hub_volume: float = 7.2  # Hub volume (m^3)
+        # self.hub_center_of_buoyancy_x = 0.2222  # Hub center of buoyancy in x direction (m)
+        self.hub_volume: float = 0
+        self.hub_center_of_buoyancy_x = 0
+
+        # Nacelle Properties
+        # self.nacelle_volume: float = 38.6  # Nacelle volume (m^3)
+        # self.nacelle_center_of_buoyancy_b = 0.43  # Position of nac. center of buoy from yaw bearing in nacelle coords
+        self.nacelle_volume: float = 0
+        self.nacelle_center_of_buoyancy_b = 0
+
+        # Tail Fin Properties
+        self.tail_fin_aero: bool = False  # Include tail fin aerodynamics?
+        self.tail_fin_file: str = "unused"  # Tail fin aerodynamic properties file
+
+        # Tower Influence and Aerodynamics
+        self.tower_data = pd.DataFrame([
+            [0.000E+00, 8.300E+00, 1.0000E+00, 0.0, 1.0],
+            [1.150E+01, 8.022E+00, 1.0000E+00, 0.0, 1.0],
+            [2.300E+01, 7.743E+00, 1.0000E+00, 0.0, 1.0],
+            [3.450E+01, 7.465E+00, 1.0000E+00, 0.0, 1.0],
+            [4.600E+01, 7.186E+00, 1.0000E+00, 0.0, 1.0],
+            [5.750E+01, 6.908E+00, 1.0000E+00, 0.0, 1.0],
+            [6.900E+01, 6.629E+00, 1.0000E+00, 0.0, 1.0],
+            [8.050E+01, 6.351E+00, 1.0000E+00, 0.0, 1.0],
+            [9.200E+01, 6.072E+00, 1.0000E+00, 0.0, 1.0],
+            [1.035E+02, 5.794E+00, 1.0000E+00, 0.0, 1.0],
+            [1.156E+02, 5.500E+00, 1.0000E+00, 0.0, 1.0],
+        ], columns=["TwrElev", "TwrDiam", "TwrCd", "TwrTI", "TwrCb"])
+
+        # Output Options
+        self.blade_node_outputs: list = list(range(1, 10))
+        self.tower_node_outputs: list = []
+        # Outputs list for Rotor Aerodynamics
+        self.outputs: list = ['RtAeroPwr', 'RtAeroCp', 'RtAeroCq', 'RtAeroCt',
+                              'RtAeroFxh', 'RtAeroFyh', 'RtAeroFzh',
+                              'RtAeroMxh', 'RtAeroMyh', 'RtAeroMzh',
+                              'B1AeroMx', 'B1AeroMy', 'B1AeroMz']
 
     def validate(self):
         """Perform validation checks on the configuration."""
@@ -301,6 +353,7 @@ class AeroDynConfig:
 
 class InflowWindConfig:
     def __init__(self, model: TurbineModel):
+        self.model = model
         # General Options
         self.echo: bool = False  # Echo input data to <RootName>.ech
         self.wind_type: int = 1  # Wind file type (1=steady; 2=uniform; etc.)

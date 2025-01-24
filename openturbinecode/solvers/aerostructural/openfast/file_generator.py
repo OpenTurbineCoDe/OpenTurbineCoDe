@@ -80,7 +80,7 @@ true         VTK_fields      - Write mesh fields to VTK data files? (flag) (true
          20   VTK_fps         - Frame rate for VTK output (frames per second)(will use closest integer multiple of DT) [used only if WrVTK=2]
 """
 
-    with open(location / "DTU_10MW.fst", "w") as file:
+    with open(location / f"{config.model.name}.fst", "w") as file:
         file.write(contents)
 
     return None
@@ -172,9 +172,9 @@ DTU 10MW onshore reference wind turbine v0.1 - OpenFAST v2.4
           0   PtfmYIner   - Platform inertia for yaw rotation about the platform CM (kg m^2)
 ---------------------- BLADE ---------------------------------------------------
          40   BldNodes    - Number of blade nodes (per blade) used for analysis (-)
-"DTU_10MW_EDBlade.dat"             BldFile(1)  - Name of file containing properties for blade 1 (quoted string)
-"DTU_10MW_EDBlade.dat"              BldFile(2)  - Name of file containing properties for blade 2 (quoted string)
-"DTU_10MW_EDBlade.dat"              BldFile(3)  - Name of file containing properties for blade 3 (quoted string) [unused for 2 blades]
+"{config.model.name}_EDBlade.dat"             BldFile(1)  - Name of file containing properties for blade 1 (quoted string)
+"{config.model.name}_EDBlade.dat"              BldFile(2)  - Name of file containing properties for blade 2 (quoted string)
+"{config.model.name}_EDBlade.dat"              BldFile(3)  - Name of file containing properties for blade 3 (quoted string) [unused for 2 blades]
 ---------------------- ROTOR-TEETER --------------------------------------------
           0   TeetMod     - Rotor-teeter spring/damper model (0: none, 1: standard, 2: user-defined from routine UserTeet) (switch) [unused for 3 blades]
           0   TeetDmpP    - Rotor-teeter damper position (degrees) [used only for 2 blades and when TeetMod=1]
@@ -194,7 +194,7 @@ False         Furling     - Read in additional model properties for furling turb
 "unused"      FurlFile    - Name of file containing furling properties (quoted string) [unused when Furling=False]
 ---------------------- TOWER ---------------------------------------------------
          20   TwrNodes    - Number of tower nodes used for analysis (-)
-"DTU_10MW_EDTower.dat"    TwrFile     - Name of file containing tower properties (quoted string)
+"{config.model.name}_EDTower.dat"    TwrFile     - Name of file containing tower properties (quoted string)
 ---------------------- OUTPUT --------------------------------------------------
 False         SumPrint    - Print summary data to "<RootName>.sum" (flag)
           1   OutFile     - Switch to determine where output will be placed: (1: in module output file only; 2: in glue code output file only; 3: both) (currently unused)
@@ -281,7 +281,7 @@ END of input file (the word "END" must appear in the first 3 columns of this las
 "TwstDefl1"               - Blade 1 out-of-plane and in-plane deflections and tip twist
 """
     # Write the file
-    with open(location / "DTU_10MW_ED.dat", "w") as file:
+    with open(location / f"{config.model.name}_ED.dat", "w") as file:
         file.write(contents)
 
     return None
@@ -349,101 +349,43 @@ DTU 10MW onshore reference wind turbine v0.1 - OpenFAST v3.5.3
     for i, blade_file in enumerate(config.blade_files, start=1):
         contents += f'"{blade_file}"    ADBlFile({i})        - Name of file containing distributed aerodynamic properties for Blade #{i} (-)\n'
 
-    contents += f"""======  Hub Properties ============================================================================== [used only when Buoyancy=True]
-0.0   VolHub             - Hub volume (m^3)
-0.0   HubCenBx           - Hub center of buoyancy x direction offset (m)
-======  Nacelle Properties ========================================================================== [used only when Buoyancy=True]
-0.0   VolNac             - Nacelle volume (m^3)
-0,0,0 NacCenB            - Position of nacelle center of buoyancy from yaw bearing in nacelle coordinates (m)
-======  Tail fin Aerodynamics ======================================================================== 
-False         TFinAero           - Calculate tail fin aerodynamics model (flag)
-"unused"      TFinFile           - Input file for tail fin aerodynamics [used only when TFinAero=True]
-======  Tower Influence and Aerodynamics ================================================ [used only when TwrPotent/=0, TwrShadow=True, or TwrAero=True]
-        11     NumTwrNds         - Number of tower nodes used in the analysis  (-) [used only when TwrPotent/=0, TwrShadow/=0, TwrAero=True, or Buoyancy=True]
-TwrElev        TwrDiam        TwrCd             TwrTI           TwrCb
-(m)              (m)           (-)
-0.000E+00       8.300E+00     1.0000E+00        0.0000E+00      0.0000E+00
-1.150E+01	8.022E+00     1.0000E+00        0.0000E+00      0.0000E+00
-2.300E+01	7.743E+00     1.0000E+00        0.0000E+00      0.0000E+00
-3.450E+01	7.465E+00     1.0000E+00        0.0000E+00      0.0000E+00
-4.600E+01	7.186E+00     1.0000E+00        0.0000E+00      0.0000E+00
-5.750E+01	6.908E+00     1.0000E+00        0.0000E+00      0.0000E+00
-6.900E+01	6.629E+00     1.0000E+00        0.0000E+00      0.0000E+00
-8.050E+01	6.351E+00     1.0000E+00        0.0000E+00      0.0000E+00
-9.200E+01	6.072E+00     1.0000E+00        0.0000E+00      0.0000E+00
-1.035E+02	5.794E+00     1.0000E+00        0.0000E+00      0.0000E+00
-1.156E+02	5.500E+00     1.0000E+00        0.0000E+00      0.0000E+00
-======  Outputs  ====================================================================================
-False          SumPrint                         - Generate a summary file listing input options and interpolated properties to "<rootname>.AD.sum"?  (flag)
-9   NBlOuts                                     - Number of blade node outputs [0 - 9] (-)
-3, 6, 10, 14, 20, 27, 30, 34, 37    BlOutNd     - Blade nodes whose values will be output  (-)
-0   NTwOuts                                     - Number of tower node outputs [0 - 9]  (-)
-1, 2, 6         TwOutNd                         - Tower nodes whose values will be output  (-)
-OutList                                         - The next line(s) contains a list of output parameters.  See s for a listing of available output channels, (-)
-RtAeroPwr
-RtAeroFxh
-RtAeroMxh
-RtAeroCp
-RtAeroCq
-RtAeroCt
-B1N1Fn
-B1N2Fn
-B1N3Fn
-B1N4Fn
-B1N5Fn
-B1N6Fn
-B1N7Fn
-B1N8Fn
-B1N9Fn
-B1N1Ft
-B1N2Ft
-B1N3Ft
-B1N4Ft
-B1N5Ft
-B1N6Ft
-B1N7Ft
-B1N8Ft
-B1N9Ft
-B1N1Cn
-B1N2Cn
-B1N3Cn
-B1N4Cn
-B1N5Cn
-B1N6Cn
-B1N7Cn
-B1N8Cn
-B1N9Cn
-B1N1Ct
-B1N2Ct
-B1N3Ct
-B1N4Ct
-B1N5Ct
-B1N6Ct
-B1N7Ct
-B1N8Ct
-B1N9Ct
+    contents += f"""
+======  Tower Influence and Aerodynamics ============================================================= [used only when TwrPotent/=0, TwrShadow=True, or TwrAero=True]
+10                     NumTwrNds   - Number of tower nodes used in the analysis  (-) [used only when TwrPotent/=0, TwrShadow=True, or TwrAero=True]
+TwrElev        TwrDiam        TwrCd       TwrTI
+(m)              (m)           (-)         (-)
+  15.0           3.556         1.0        0.1
+  28.0           3.556         1.0        0.1
+  41.0           3.556         1.0        0.1
+  54.0           3.556         1.0        0.1
+  67.0           3.556         1.0        0.1
+  80.0           3.556         1.0        0.1
+  93.0           3.556         1.0        0.1
+ 106.0           3.556         1.0        0.1
+ 119.0           3.556         1.0        0.1
+ 130.1           3.556         1.0        0.1
+======  Tower Influence and Aerodynamics ============================================================= [used only when TwrPotent/=0, TwrShadow=True, or TwrAero=True]
+TRUE                   SumPrint    - Generate a summary file listing input options and interpolated properties to "<rootname>.AD.sum"?  (flag)
+6                      NBlOuts     - Number of blade node outputs [0 - 9] (-)
+1, 6, 11, 15, 20, 28   BlOutNd     - Blade nodes whose values will be output  (-)
+0                      NTwOuts     - Number of tower node outputs [0 - 9]  (-)
+1, 2, 3, 4, 5          TwOutNd     - Tower nodes whose values will be output  (-)
+                       OutList     - The next line(s) contains a list of output parameters.  See OutListParameters.xlsx for a listing of available output channels, (-)
+"RtAeroFxh"
+"RtAeroFyh"
+"RtAeroFzh"
+"RtAeroMxh"
+"RtAeroMyh"
+"RtAeroMzh"
+"RtVAvgxh"
+"RtAeroCp"
+"RtTSR"
 END of input file (the word "END" must appear in the first 3 columns of this last OutList line)
----------------------- NODE OUTPUTS --------------------------------------------
-          1   BldNd_BladesOut  - Blades to output
-         99   - Blade nodes on each blade (currently unused)
-                   OutList             - The next line(s) contains a list of output parameters.  See s for a listing of available output channels, (-)
-"VUndx"
-"VUndy"
-"VUndz"
-"Ft"
-"Fn"
-"Fy"
-"Fx"
-"Ct"
-"Cn"
-"Cy"
-"Cx"
-"Alpha"
-END of input file (the word "END" must appear in the first 3 columns of this last OutList line)
+---------------------------------------------------------------------------------------
 """
 
     # Write the file
-    with open(location / "DTU_10MW_AD15.dat", "w") as file:
+    with open(location / f"{config.model.name}_AD15.dat", "w") as file:
         file.write(contents)
 
     return contents
@@ -526,7 +468,7 @@ DTU 10MW onshore reference wind turbine v0.1 - OpenFAST v2.4 - rated power at wi
     contents += "---------------------------------------------------------------------------------------"
 
     # Write to file
-    with open(location / "DTU_10MW_IW.dat", "w") as file:
+    with open(location / f"{config.model.name}_IW.dat", "w") as file:
         file.write(contents)
 
     return None
