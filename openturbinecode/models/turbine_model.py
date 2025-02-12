@@ -6,7 +6,7 @@ This way YAML files are generated based on the default / superclassed turbine mo
 and can be used as input for the OpenTurbineCode solvers.
 """
 
-import yaml
+import yaml 
 from openturbinecode.configs.pathing import PROJECT_ROOT
 
 
@@ -180,6 +180,7 @@ class Tower:
     def __init__(self):
         self.height = 115.6  # (m)
         self.radius = 4.15  # (m)
+        self.data = None
 
     def read_from_yaml(self, filename):
         with open(filename, "r") as file:

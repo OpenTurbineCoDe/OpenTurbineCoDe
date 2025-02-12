@@ -266,16 +266,15 @@ def plot_parametric_response(df_parametric, response_channel, independent, outpu
 
     # Plot the parametric response
     plt.figure(figsize=(10, 6))
-    plt.plot(x_vals, y_vals, label=f"Simulation Data ({response_channel})")
+    plt.plot(x_vals, y_vals, 'o-', label=f"Simulation Data ({response_channel})")
 
     # Add FOCAL-1 validation data if available
     if fc_data is not None:
-        plt.scatter(
+        plt.plot(
             fc_data.iloc[:, 0],  # Independent variable
             fc_data.iloc[:, 1],  # Response variable
+            'o-',  # Line with circle markers
             color="red",
-            marker="x",
-            s=100,  # Marker size
             label="FOCAL-1 Validation Data"
         )
 
@@ -306,7 +305,7 @@ def load_fc_data(fc_data_num: str, dependent, response):
         pd.DataFrame: The FOCAL-1 validation data for the specified load case.
     """
     # Load the FOCAL-1 validation data for the specified load case
-    fc_data_file = Path(__file__).parent / "data" / f"focal.campaign1.expr.{fc_data_num}.csv"
+    fc_data_file = Path(__file__).parent / "data" / f"focal.campaign1.thr.{fc_data_num}.csv"
     df_fc = pd.read_csv(fc_data_file)
     df_fc.columns = df_fc.columns.str.strip()  # Strip leading/trailing whitespace from column names
 
@@ -319,10 +318,21 @@ def load_fc_data(fc_data_num: str, dependent, response):
         "RtAeroPwer": "Rotor Power [W]",
         "RtAeroCt": "Rotor Thrust Coefficient [-]",
         "RtAeroCq": "Rotor Torque Coefficient [-]",
+        "RtAeroFxh": "Rotor Thrust [N]",
+        "RtAeroMxh": "Rotor Torque [Nm]",
         "Thrust": "Rotor Thrust [N]",
-        "Torque": "Rotor Torque [Nm]"
+        "Torque": "Rotor Torque [Nm]",
+        "RotThrust": "Rotor Thrust [N]",
+        "RotTorq": "Rotor Torque [Nm]",
+        "YawBrFxp": "Tower Top Fx [N]",
+        "YawBrFyp": "Tower Top Fy [N]",
+        "YawBrFzp": "Tower Top Fz [N]",
+        "YawBrMxp": "Tower Top Mx [Nm]",
+        "YawBrMyp": "Tower Top My [Nm]",
+        "YawBrMzp": "Tower Top Mz [Nm]",
+        "RootMxb1": "BRBM flap [Nm]",
+        "RootMyb1": "BRBM edge [Nm]"
     }
-
     if column_mapping[dependent] not in df_fc.columns:
         print("Could not find dependent channel in FOCAL-1 validation data.")
         return None
@@ -381,8 +391,18 @@ def prepare_parametric_data(parametric_data, response_channels, independent, out
                     continue
                 response_data = openfast_bin[response_channel]
 
-            # Store the mean of the response channel
-            case_data[response_channel] = np.mean(response_data)
+            # response_channel_plots = ['RtAeroFxh', 'RtAeroMxh', 'YawBrFxp', 'YawBrFyp',
+            #                       'YawBrFzp', 'YawBrMxp', 'YawBrMyp', 'YawBrMzp', 'RootMxb1', 'RootMyb1']
+
+            # Factored channels
+            kN_channels = ["YawBrFxp", "YawBrFyp", "YawBrFzp", "YawBrMxp", "YawBrMyp", "YawBrMzp", "RootMxb1", "RootMyb1"]
+            if response_channel in kN_channels:
+                response_data = response_data * 1000  # Convert to N
+
+            # Get the last value (steady state)
+            print(f"Response data for {response_channel} in {params}: {response_data[-1:]}")
+            # Lets get the mean value of the last 3/4 of the data set
+            case_data[response_channel] = np.mean(response_data[-int(len(response_data)/4):])
 
         # Append the case data to the DataFrame
         df = pd.concat([df, pd.DataFrame([case_data])], ignore_index=True)

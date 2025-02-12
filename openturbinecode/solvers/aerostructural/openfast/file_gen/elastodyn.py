@@ -5,6 +5,8 @@ from pathlib import Path
 from openturbinecode.solvers.aerostructural.openfast.options import ElastoDynConfig
 from .util import add_header, add_line, add_word
 
+OPENFAST_VERSION = 300
+
 def generate_elastodyn_config(location: Path, config: ElastoDynConfig):
     """Generate the ElastoDyn input file."""
     contents = """------- ELASTODYN v1.03.* INPUT FILE -------------------------------------------
@@ -13,6 +15,7 @@ IEA 15 MW offshore reference model monopile configuration
 
     # Add all sections
     contents = write_simulation_control(contents, config)
+    contents = write_environmental_condition(contents, config)
     contents = write_degrees_of_freedom(contents, config)
     contents = write_initial_conditions(contents, config)
     contents = write_turbine_configuration(contents, config)
@@ -35,6 +38,12 @@ def write_simulation_control(contents, config: ElastoDynConfig):
     contents = add_line(contents, str(config.echo), "Echo", "Echo input data to \"<RootName>.ech\" (flag)")
     contents = add_line(contents, config.integration_method, "Method", "Integration method: {1: RK4, 2: AB4, or 3: ABM4} (-)")
     contents = add_line(contents, config.time_step, "DT", "Integration time step (s)")
+    return contents
+
+def write_environmental_condition(contents, config: ElastoDynConfig):
+    if OPENFAST_VERSION == 300:
+        contents = add_header(contents, "Environmental Conditions")
+        contents = add_line(contents, config.gravity, "Gravity", "Gravitational acceleration (m/s^2)")
     return contents
 
 def write_degrees_of_freedom(contents, config: ElastoDynConfig):
@@ -88,42 +97,42 @@ def write_turbine_configuration(contents, config: ElastoDynConfig):
     contents = add_line(contents, config.precone_angles[1], "PreCone(2)", "Blade 2 cone angle (degrees)")
     contents = add_line(contents, config.precone_angles[2], "PreCone(3)", "Blade 3 cone angle (degrees) [unused for 2 blades]")
     contents = add_line(contents, config.hub_center_mass, "HubCM", "Distance from rotor apex to hub mass [positive downwind] (meters)")
-    contents = add_line(contents, 0.0, "UndSling", "Undersling length [distance from teeter pin to the rotor apex] (meters) [unused for 3 blades]")
+    contents = add_line(contents, config.undersling_length, "UndSling", "Undersling length [distance from teeter pin to the rotor apex] (meters) [unused for 3 blades]")
     contents = add_line(contents, 0.0, "Delta3", "Delta-3 angle for teetering rotors (degrees) [unused for 3 blades]")
-    contents = add_line(contents, 0.0, "AzimB1Up", "Azimuth value to use for I/O when blade 1 points up (degrees)")
-    contents = add_line(contents, -12, "OverHang", "Distance from yaw axis to rotor apex [3 blades] or teeter pin [2 blades] (meters)")
+    contents = add_line(contents, config.azimuth_b1_up, "AzimB1Up", "Azimuth value to use for I/O when blade 1 points up (degrees)")
+    contents = add_line(contents, config.overhang, "OverHang", "Distance from yaw axis to rotor apex [3 blades] or teeter pin [2 blades] (meters)")
     contents = add_line(contents, 0.0, "ShftGagL", "Distance from rotor apex [3 blades or teeter pin [2 blades] to shaft strain gages [positive for upwind rotors] (meters)")
     contents = add_line(contents, config.shaft_tilt, "ShftTilt", "Rotor shaft tilt angle (degrees)")
     contents = add_line(contents, config.nacelle_cm[0], "NacCMxn", "Downwind distance from the tower-top to the nacelle CM (meters)")
     contents = add_line(contents, config.nacelle_cm[1], "NacCMyn", "Lateral distance from the tower-top to the nacelle CM (meters)")
     contents = add_line(contents, config.nacelle_cm[2], "NacCMzn", "Vertical distance from the tower-top to the nacelle CM (meters)")
-    contents = add_line(contents, 0.0, "NcIMUxn", "Downwind distance from the tower-top to the nacelle IMU (meters)")
-    contents = add_line(contents, 0.0, "NcIMUyn", "Lateral distance from the tower-top to the nacelle IMU (meters)")
-    contents = add_line(contents, 0.0, "NcIMUzn", "Vertical distance from the tower-top to the nacelle IMU (meters)")
+    contents = add_line(contents, config.nacelle_imu[0], "NcIMUxn", "Downwind distance from the tower-top to the nacelle IMU (meters)")
+    contents = add_line(contents, config.nacelle_imu[1], "NcIMUyn", "Lateral distance from the tower-top to the nacelle IMU (meters)")
+    contents = add_line(contents, config.nacelle_imu[2], "NcIMUzn", "Vertical distance from the tower-top to the nacelle IMU (meters)")
     contents = add_line(contents, config.tower_to_shaft, "Twr2Shft", "Vertical distance from the tower-top to the rotor shaft (meters)")
     contents = add_line(contents, config.tower_height, "TowerHt", "Height of tower above ground level (meters)")
-    contents = add_line(contents, 0.0, "TowerBsHt", "Height of tower base above ground level (meters)")
-    contents = add_line(contents, 0.0, "PtfmCMxt", "Downwind distance from the ground level to the platform CM (meters)")
-    contents = add_line(contents, 0.0, "PtfmCMyt", "Lateral distance from the ground level to the platform CM (meters)")
-    contents = add_line(contents, 0.0, "PtfmCMzt", "Vertical distance from the ground level to the platform CM (meters)")
-    contents = add_line(contents, 0.0, "PtfmRefzt", "Vertical distance from the ground level to the platform reference point (meters)")
+    contents = add_line(contents, config.base_tower_height, "TowerBsHt", "Height of tower base above ground level (meters)")
+    contents = add_line(contents, config.platform_cm[0], "PtfmCMxt", "Downwind distance from the ground level to the platform CM (meters)")
+    contents = add_line(contents, config.platform_cm[1], "PtfmCMyt", "Lateral distance from the ground level to the platform CM (meters)")
+    contents = add_line(contents, config.platform_cm[2], "PtfmCMzt", "Vertical distance from the ground level to the platform CM (meters)")
+    contents = add_line(contents, config.platform_vert_ref, "PtfmRefzt", "Vertical distance from the ground level to the platform reference point (meters)")
     return contents
 
 def write_mass_and_inertia(contents, config: ElastoDynConfig):
     contents = add_header(contents, "Mass and Inertia")
-    contents = add_line(contents, 0.0, "TipMass(1)", "Tip-brake mass, blade 1 (kg)")
-    contents = add_line(contents, 0.0, "TipMass(2)", "Tip-brake mass, blade 2 (kg)")
-    contents = add_line(contents, 0.0, "TipMass(3)", "Tip-brake mass, blade 3 (kg)")
+    contents = add_line(contents, config.tip_mass[0], "TipMass(1)", "Tip-brake mass, blade 1 (kg)")
+    contents = add_line(contents, config.tip_mass[1], "TipMass(2)", "Tip-brake mass, blade 2 (kg)")
+    contents = add_line(contents, config.tip_mass[2], "TipMass(3)", "Tip-brake mass, blade 3 (kg)")
     contents = add_line(contents, config.hub_mass, "HubMass", "Hub mass (kg)")
     contents = add_line(contents, config.hub_inertia, "HubIner", "Hub inertia about rotor axis (kg m^2)")
     contents = add_line(contents, config.generator_inertia, "GenIner", "Generator inertia about HSS (kg m^2)")
     contents = add_line(contents, config.nacelle_mass, "NacMass", "Nacelle mass (kg)")
     contents = add_line(contents, config.nacelle_yaw_inertia, "NacYIner", "Nacelle inertia about yaw axis (kg m^2)")
-    contents = add_line(contents, 0.0, "YawBrMass", "Yaw bearing mass (kg)")
-    contents = add_line(contents, 0.0, "PtfmMass", "Platform mass (kg)")
-    contents = add_line(contents, 0.0, "PtfmRIner", "Platform inertia for roll tilt rotation about the platform CM (kg m^2)")
-    contents = add_line(contents, 0.0, "PtfmPIner", "Platform inertia for pitch tilt rotation about the platform CM (kg m^2)")
-    contents = add_line(contents, 100000000.0, "PtfmYIner", "Platform inertia for yaw rotation about the platform CM (kg m^2)")
+    contents = add_line(contents, config.yaw_bearing_mass, "YawBrMass", "Yaw bearing mass (kg)")
+    contents = add_line(contents, config.platform_mass, "PtfmMass", "Platform mass (kg)")
+    contents = add_line(contents, config.platform_inertia[0], "PtfmRIner", "Platform inertia for roll tilt rotation about the platform CM (kg m^2)")
+    contents = add_line(contents, config.platform_inertia[1], "PtfmPIner", "Platform inertia for pitch tilt rotation about the platform CM (kg m^2)")
+    contents = add_line(contents, config.platform_inertia[2], "PtfmYIner", "Platform inertia for yaw rotation about the platform CM (kg m^2)")
     return contents
 
 def write_blade(contents, config: ElastoDynConfig):

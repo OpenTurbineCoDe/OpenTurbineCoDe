@@ -38,7 +38,7 @@ def run_openfast_exe(directory_name: str, model: TurbineModel):
     print(f"Starting OpenFAST simulation in {directory_name}...")
 
     path_to_case = Path(OPENFAST_RUN) / directory_name
-    fst_exe = Path(OPENFAST_RUN).parent / "openfast_x64.exe"
+    fst_exe = Path(OPENFAST_RUN).parent / "openfast_x64_v300.exe"
     fst_file = path_to_case / f"{model.name}.fst"
 
     # Ensure the directory and input file exist
@@ -99,6 +99,9 @@ def copy_axial_turbine_case(directory_name, model: TurbineModel):
             path_to_case: Path = OPENFAST_RUN / directory_name
         case "IEA_15MW":
             model_dir = PROJECT_ROOT / "models" / "IEA_15MW" / "OpenFAST"
+            path_to_case: Path = OPENFAST_RUN / directory_name
+        case "IEA_15MW_AB":
+            model_dir = PROJECT_ROOT / "models" / "IEA_15MW_AB"
             path_to_case: Path = OPENFAST_RUN / directory_name
 
     # We can copy these using windows commands in Powershell

@@ -11,7 +11,7 @@ from openturbinecode.configs.pathing import OPENFAST_RUN, AERODYN_RUN, PROJECT_R
 from openturbinecode.postprocessing import pp_openfast
 
 BOOL_RUN_CASE = True
-BOOL_POST_PROCESS = False
+BOOL_POST_PROCESS = True
 
 
 def parametric_analysis(turbine_model: TurbineModel, param_ranges, output_base_dir, solver, fc_plot=None):
@@ -82,39 +82,39 @@ if __name__ == "__main__":
             }
         case 202:
             # FOCAL-1 Validation LC 1.1
-            model_name = "IEA_15MW"
+            model_name = "IEA_15MW_AB"
             plot_fc_data = "lc11"
             param_ranges = {
                 "fluid.velocity": [12.83],  # Horizontal windspeed (m/s)
                 "blade.pitch_angle": [0.0],  # Blade pitch angle (deg)
-                "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
+                "blade.rotor_speed": np.around(np.linspace(3, 10, 8), decimals=1).tolist()  # Tip speed ratio
             }
         case 206:
             # FOCAL-1 Validation LC 1.2
-            model_name = "IEA_15MW"
+            model_name = "IEA_15MW_AB"
             plot_fc_data = "lc12"
             param_ranges = {
                 "fluid.velocity": [12.83],  # Horizontal windspeed (m/s)
                 "blade.pitch_angle": [10.0],  # Blade pitch angle (deg)
-                "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
+                "blade.rotor_speed": np.around(np.linspace(3, 10, 8), decimals=1).tolist()  # Tip speed ratio
             }
         case 402:
             # FOCAL-1 Validation LC 1.3
-            model_name = "IEA_15MW"
+            model_name = "IEA_15MW_AB"
             plot_fc_data = "lc13"
             param_ranges = {
                 "fluid.velocity": [18.39],  # Horizontal windspeed (m/s)
                 "blade.pitch_angle": [9.0],  # Blade pitch angle (deg)
-                "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
+                "blade.rotor_speed": np.around(np.linspace(3, 10, 8), decimals=1).tolist()  # Tip speed ratio
             }
         case 406:
             # FOCAL-1 Validation LC 1.4
-            model_name = "IEA_15MW"
+            model_name = "IEA_15MW_AB"
             plot_fc_data = "lc14"
             param_ranges = {
                 "fluid.velocity": [18.39],  # Horizontal windspeed (m/s)
                 "blade.pitch_angle": [15.0],  # Blade pitch angle (deg)
-                "blade.rotor_speed": np.around(np.linspace(3, 10, 15), decimals=1).tolist()  # Tip speed ratio
+                "blade.rotor_speed": np.around(np.linspace(3, 10, 8), decimals=1).tolist()  # Tip speed ratio
             }
         case _:
             raise ValueError(f"Analysis number {analysis_num} is not supported.")
@@ -146,7 +146,9 @@ if __name__ == "__main__":
         #                           'RtAeroMxh', 'RtAeroMyh', 'RtAeroMzh',
         #                           'B1AeroMx', 'B1AeroMy', 'B1AeroMz']
 
-        response_channel_plots = ['RtAeroPwer', 'RtAeroCq', 'RtAeroCt', 'Thrust', 'Torque']
+        # response_channel_plots = ['RtAeroPwer', 'RtAeroCq', 'RtAeroCt', 'Thrust', 'Torque', 'RotTorq', 'RotThrust', 'RtAeroFxh', 'RtAeroMxh']
+        response_channel_plots = ['RtAeroFxh', 'RtAeroMxh', 'YawBrFxp', 'YawBrFyp',
+                                  'YawBrFzp', 'YawBrMxp', 'YawBrMyp', 'YawBrMzp', 'RootMxb1', 'RootMyb1']
 
         # Prepare parametric data for plotting
         df_parametric = pp_openfast.prepare_parametric_data(parametric_data,

@@ -5,6 +5,8 @@ from pathlib import Path
 from openturbinecode.solvers.aerostructural.openfast.options import FastConfig
 from .util import add_header, add_line
 
+OPENFAST_VERSION = 300
+
 def generate_fast_config(location: Path, config: FastConfig):
     """Generate the OpenFAST input file."""
     contents = """------- OpenFAST INPUT FILE -------------------------------------------
@@ -48,20 +50,22 @@ def write_feature_switches(contents, config: FastConfig):
     contents = add_line(contents, config.sub, "CompSub", "Compute sub-structural dynamics (switch) {0=None; 1=SubDyn}")
     contents = add_line(contents, config.mooring, "CompMooring", "Compute mooring system (switch) {0=None; 1=MAP++; 2=FEAMooring; 3=MoorDyn; 4=OrcaFlex}")
     contents = add_line(contents, config.ice, "CompIce", "Compute ice loads (switch) {0=None; 1=IceFloe; 2=IceDyn}")
-    contents = add_line(contents, config.mhk, "MHK", "Compute marine hydrokinetic loads (switch) {0=None; 1=MHK}")
+    if OPENFAST_VERSION > 300:
+        contents = add_line(contents, config.mhk, "MHK", "Compute marine hydrokinetic loads (switch) {0=None; 1=MHK}")
     return contents
 
 def write_environmental_conditions(contents, config: FastConfig):
-    contents = add_header(contents, "Environmental Conditions")
-    contents = add_line(contents, config.gravity, "Gravity", "Gravitational acceleration (m/s^2)")
-    contents = add_line(contents, config.air_density, "AirDens", "Air density (kg/m^3)")
-    contents = add_line(contents, config.water_density, "WtrDens", "Water density (kg/m^3)")
-    contents = add_line(contents, config.kinematic_viscosity, "KinVisc", "Kinematic viscosity of air (m^2/s)")
-    contents = add_line(contents, config.speed_sound, "SpdSound", "Speed of sound (m/s)")
-    contents = add_line(contents, config.atm_pressure, "Patm", "Atmospheric pressure (Pa)")
-    contents = add_line(contents, config.vapor_pressure, "Pvap", "Vapour pressure of air (Pa)")
-    contents = add_line(contents, config.water_depth, "WtrDpth", "Water depth (m)")
-    contents = add_line(contents, config.water_level_offset, "MSL2SWL", "Offset between still-water level and mean sea level (m)")
+    if OPENFAST_VERSION > 300:
+        contents = add_header(contents, "Environmental Conditions")
+        contents = add_line(contents, config.gravity, "Gravity", "Gravitational acceleration (m/s^2)")
+        contents = add_line(contents, config.air_density, "AirDens", "Air density (kg/m^3)")
+        contents = add_line(contents, config.water_density, "WtrDens", "Water density (kg/m^3)")
+        contents = add_line(contents, config.kinematic_viscosity, "KinVisc", "Kinematic viscosity of air (m^2/s)")
+        contents = add_line(contents, config.speed_sound, "SpdSound", "Speed of sound (m/s)")
+        contents = add_line(contents, config.atm_pressure, "Patm", "Atmospheric pressure (Pa)")
+        contents = add_line(contents, config.vapor_pressure, "Pvap", "Vapour pressure of air (Pa)")
+        contents = add_line(contents, config.water_depth, "WtrDpth", "Water depth (m)")
+        contents = add_line(contents, config.water_level_offset, "MSL2SWL", "Offset between still-water level and mean sea level (m)")
     return contents
 
 def write_input_files(contents, config: FastConfig):
@@ -86,9 +90,9 @@ def write_output_settings(contents, config: FastConfig):
     contents = add_line(contents, 99999.0, "ChkptTime", "Amount of time between creating checkpoint files for potential restart (s)")
     contents = add_line(contents, "default", "DT_Out", "Time step for tabular output (s) (or \"default\")")
     contents = add_line(contents, 0.0, "TStart", "Time to begin tabular output (s)")
-    contents = add_line(contents, 1, "OutFileFmt", "Format for tabular output file (1: text, 2: binary, 3: both)")
+    contents = add_line(contents, 2, "OutFileFmt", "Format for tabular output file (1: text, 2: binary, 3: both)")
     contents = add_line(contents, "True", "TabDelim", "Use tab delimiters in text tabular output file? (flag)")
-    contents = add_line(contents, "ES13.6E2", "OutFmt", "Format used for text tabular output (quoted string)")
+    contents = add_line(contents, f"{config.output_format}", "OutFmt", "Format used for text tabular output (quoted string)")
     return contents
 
 def write_linearization(contents, config: FastConfig):

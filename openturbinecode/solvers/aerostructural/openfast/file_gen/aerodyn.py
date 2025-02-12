@@ -1,7 +1,9 @@
 # flake8: noqa: E501
 from pathlib import Path
 from openturbinecode.solvers.aerostructural.openfast.options import AeroDynConfig
-from .util import add_header, add_line
+from .util import add_header, add_line, add_table_entry
+
+OPENFAST_VERSION = 300
 
 def generate_aerodyn_config(location: Path, config: AeroDynConfig):
     """Generate the AeroDyn input file for OpenFAST."""
@@ -41,9 +43,10 @@ def write_general_options(contents, config: AeroDynConfig):
     contents = add_line(contents, str(config.tower_aero).upper(), "TwrAero", "Calculate tower aerodynamic loads")
     contents = add_line(contents, str(config.frozen_wake).upper(), "FrozenWake", "Assume frozen wake during linearization")
     contents = add_line(contents, str(config.cavitation_check).upper(), "CavitCheck", "Perform cavitation check")
-    contents = add_line(contents, str(False).upper(), "Buoyancy", "Include buoyancy effects in calculations")
-    contents = add_line(contents, str(False).upper(), "CompAA", "Compute airfoil aerodynamics")
-    contents = add_line(contents, '"unused"', "AA_InputFile", "File containing airfoil aerodynamic data")
+    if OPENFAST_VERSION > 300:
+        contents = add_line(contents, str(config.buoyancy_effects).upper(), "Buoyancy", "Include buoyancy effects in calculations")
+    contents = add_line(contents, str(config.compute_acoustics).upper(), "CompAA", "Compute airfoil aerodynamics")
+    contents = add_line(contents, f'{config.acoustics_input_file}', "AA_InputFile", "File containing airfoil aerodynamic data")
     return contents
 
 def write_environmental_conditions(contents, config: AeroDynConfig):
@@ -53,6 +56,8 @@ def write_environmental_conditions(contents, config: AeroDynConfig):
     contents = add_line(contents, f"{config.speed_of_sound:.2f}", "SpdSound", "Speed of sound (m/s)")
     contents = add_line(contents, f"{config.atmospheric_pressure:.3f}", "Patm", "Atmospheric pressure (Pa)")
     contents = add_line(contents, f"{config.vapor_pressure:.3f}", "Pvap", "Vapor pressure of air (Pa)")
+    if OPENFAST_VERSION == 300:
+        contents = add_line(contents, f"{config.fluid_depth}", "FluidDepth", "Depth of fluid (m)")
     return contents
 
 def write_bemt_options(contents, config: AeroDynConfig):
@@ -83,6 +88,8 @@ def write_beddos_leishman(contents, config: AeroDynConfig):
     contents = add_header(contents, "Beddoes-Leishman Unsteady Airfoil Aerodynamics Options")
     contents = add_line(contents, config.unsteady_aero_model, "UAMod", "Unsteady Aero Model Switch (1=Baseline model, 2=Gonzalez's variant, 3=Minemma/Pierce variant)")
     contents = add_line(contents, str(config.f_lookup).upper(), "FLookup", "Flag for f' lookup or best-fit exponential equations")
+    # contents = add_line(contents, f"{config.ua_radius[0]:.2f}", "UAStartRad", "Starting radius for dynamic stall (fraction of rotor radius) [used only when AFAeroMod=2]")
+    # contents = add_line(contents, f"{config.ua_radius[1]:.2f}", "UAEndRad", "Ending radius for dynamic stall (fraction of rotor radius) [used only when AFAeroMod=2]")
     return contents
 
 def write_airfoil_info(contents, config: AeroDynConfig):
@@ -94,8 +101,9 @@ def write_airfoil_info(contents, config: AeroDynConfig):
     contents = add_line(contents, config.pitching_moment_column, "InCol_Cm", "The column in the airfoil tables that contains the pitching-moment coefficient")
     contents = add_line(contents, config.cpmin_column, "InCol_Cpmin", "The column in the airfoil tables that contains the Cpmin coefficient")
     contents = add_line(contents, config.num_airfoil_files, "NumAFfiles", "Number of airfoil files used")
+    contents = add_line(contents, f'"{config.airfoil_files[0]}"', "AFNames", "Names of airfoil files")
 
-    for file in config.airfoil_files:
+    for file in config.airfoil_files[1:]:
         contents += f'"{file}"\n'
     return contents
 
@@ -108,35 +116,42 @@ def write_rotor_blade(contents, config: AeroDynConfig):
 
 def write_hub(contents, config: AeroDynConfig):
     # Hub Properties
-    contents = add_header(contents, "Hub Properties")
-    contents = add_line(contents, f"{config.hub_volume:.1f}", "VolHub", "Hub volume (m^3)")
-    contents = add_line(contents, f"{config.hub_center_of_buoyancy_x:.1f}", "HubCenBx", "Hub center of buoyancy x direction offset (m)")
-    
+    if OPENFAST_VERSION > 300:
+        contents = add_header(contents, "Hub Properties")
+        contents = add_line(contents, f"{config.hub_volume:.1f}", "VolHub", "Hub volume (m^3)")
+        contents = add_line(contents, f"{config.hub_center_of_buoyancy_x:.1f}", "HubCenBx", "Hub center of buoyancy x direction offset (m)")
+        
     return contents
 
 def write_nacelle(contents, config: AeroDynConfig):
     # Nacelle Properties
-    contents = add_header(contents, "Nacelle Properties")
-    contents = add_line(contents, f"{config.nacelle_volume:.1f}", "VolNac", "Nacelle volume (m^3)")
-    contents = add_line(contents, f"{config.nacelle_center_of_buoyancy_b:.1f},0,0", "NacCenB", "Position of nacelle center of buoyancy from yaw bearing in nacelle coordinates (m)")
+    if OPENFAST_VERSION > 300:
+        contents = add_header(contents, "Nacelle Properties")
+        contents = add_line(contents, f"{config.nacelle_volume:.1f}", "VolNac", "Nacelle volume (m^3)")
+        contents = add_line(contents, f"{config.nacelle_center_of_buoyancy_b:.1f},0,0", "NacCenB", "Position of nacelle center of buoyancy from yaw bearing in nacelle coordinates (m)")
 
     return contents
 
 def write_tail_fin(contents, config: AeroDynConfig):
     # Tail fin Aerodynamics
-    contents = add_header(contents, "Tail fin Aerodynamics")
-    contents = add_line(contents, str(config.tail_fin_aero).upper(), "TFinAero", "Calculate tail fin aerodynamics model (flag)")
-    contents = add_line(contents, f'"{config.tail_fin_file}"', "TFinFile", "Input file for tail fin aerodynamics [used only when TFinAero=True]")
+    if OPENFAST_VERSION > 300:
+        contents = add_header(contents, "Tail fin Aerodynamics")
+        contents = add_line(contents, str(config.tail_fin_aero).upper(), "TFinAero", "Calculate tail fin aerodynamics model (flag)")
+        contents = add_line(contents, f'"{config.tail_fin_file}"', "TFinFile", "Input file for tail fin aerodynamics [used only when TFinAero=True]")
 
     return contents
 
 def write_tower_aero(contents, config: AeroDynConfig):
+    # Tower Influence and Aerodynamics
     contents = add_header(contents, "Tower Influence and Aerodynamics")
-    contents = add_line(contents, str(len(config.tower_data)), "NumTwrNds", "Number of tower nodes used in the analysis")
-    contents += "TwrElev        TwrDiam        TwrCd       TwrTI\n"
-    contents += "(m)              (m)           (-)         (-)\n"
+    contents = add_line(contents, str(len(config.tower_data)), "NumTwrNds", "Number of tower nodes used in the analysis  (-) [used only when TwrPotent/=0, TwrShadow=True, or TwrAero=True]")
+    contents = add_table_entry(contents, ["TwrElev", "TwrDiam", "TwrCd", "TwrTI", "TwrCb"])
+    contents = add_table_entry(contents, ["(m)", "(m)", "(-)", "(-)", "(-)"])
+    # Iterate over DataFrame rows
     for _, row in config.tower_data.iterrows():
-        contents += f"{row['TwrElev']:.3f} {row['TwrDiam']:.3f} {row['TwrCd']:.3f} {row['TwrTI']:.3f}\n"
+        contents = add_table_entry(contents, [f"{row['TwrElev']:.3f}", f"{row['TwrDiam']:.3f}", f"{row['TwrCd']:.4f}", f"{row['TwrTI']:.4f}", f"{row['TwrCb']:.4f}",])
+
+    return contents
     return contents
 
 def write_outputs(contents, config: AeroDynConfig):

@@ -3,6 +3,7 @@ from openturbinecode.models.turbine_model import TurbineModel
 from openturbinecode.configs.pathing import PROJECT_ROOT
 from openturbinecode.utils.utilities import calculate_tsr_or_missing
 import pandas as pd
+import numpy as np
 
 
 class OpenFASTConfig:
@@ -64,8 +65,8 @@ class FastConfig:
         self.model = model
 
         # Simulation Control
-        self.t_max = 45.0  # Maximum simulation time [s]
-        self.dt = 0.001  # Time step [s]
+        self.t_max = 300.0  # Maximum simulation time [s]
+        self.dt = 0.025  # Time step [s]
         self.interp_order = 2  # Interpolation order for I/O time history (1=linear, 2=quadratic)
         self.num_correction = 0  # Number of correction iterations (0=explicit)
         self.dt_ujac = 99999  # Time step between calls to get Jacobians
@@ -84,36 +85,42 @@ class FastConfig:
 
         # Environmental conditions
         self.gravity = model.environment.gravity  # Acceleration due to gravity [m/s^2]
-        self.air_density = 1.225  # Air density [kg/m^3]
+        self.air_density = model.fluid.density  # Air density [kg/m^3]
         self.water_density = 0.0  # Water density [kg/m^3]
-        self.kinematic_viscosity = 1.5e-5  # Kinematic viscosity of air [m^2/s]
-        self.speed_sound = 335.0  # Speed of sound [m/s]
-        self.atm_pressure = 103500.0  # Atmospheric pressure [Pa]
-        self.vapor_pressure = 1700.0  # Vapor pressure [Pa]
-        self.water_depth = 0.0  # Water depth [m]
+        self.kinematic_viscosity = model.fluid.kinematic_viscosity  # Kinematic viscosity of air [m^2/s]
+        self.speed_sound = model.environment.speed_of_sound  # Speed of sound [m/s]
+        self.atm_pressure = model.environment.atmospheric_pressure  # Atmospheric pressure [Pa]
+        self.vapor_pressure = model.environment.vapor_pressure  # Vapor pressure [Pa]
+        self.water_depth = 0.50  # Water depth [m]
         self.water_level_offset = 0.0   # Offset between water and seal level [m]
 
         # Input files
         self.elastodyn_file = f"{model.name}_ED.dat"  # Elastodyn input file
-        self.beamdyn_blade_file = ["unused",
-                                   "unused",
-                                   "unused"]
+        # self.beamdyn_blade_file = [f"{model.name}_BD.dat",
+        #                            f"{model.name}_BD.dat",
+        #                            f"{model.name}_BD.dat"]
+        self.beamdyn_blade_file = ["unused", "unused", "unused"]
         self.inflow_wind_file = f"{model.name}_IW.dat"
         self.aerodyn_file = f"{model.name}_AD15.dat"
         self.servodyn_file = f"{model.name}_SD.dat"
+        # self.hydrodyn_file = f"{model.name}_HD.dat"
         self.hydrodyn_file = "unused"
         self.subdyn_file = "unused"
+        # self.subdyn_file = f"{model.name}_SUB.dat"
         self.mooring_file = "unused"
         self.icedyn_file = "unused"
 
         # Output files
-        # skip for now
+        self.sum_print = True  # Print summary data
+        self.output_format = "ES13.6E2"
 
         # Linearization
-        # skip for now
+        self.linearize = False  # Linearization flag. All other options are False if this is False
 
         # Visualization
-        # skip for now
+        self.wr_vtk = 0  # Write VTK files for visualization
+        self.vtk_type = 2  # Type of VTK visualization data (1=surfaces, 2=basic meshes)
+        self.vtk_fps = 15.0  # Frames per second for VTK output
 
 
 class ElastoDynConfig:
@@ -126,12 +133,12 @@ class ElastoDynConfig:
         self.time_step: str = "DEFAULT"  # Integration time step (s)
 
         # Degrees of freedom
-        self.flap_dof1: bool = True  # First flapwise blade mode DOF
-        self.flap_dof2: bool = True  # Second flapwise blade mode DOF
-        self.edge_dof: bool = True  # First edgewise blade mode DOF
+        self.flap_dof1: bool = False  # First flapwise blade mode DOF
+        self.flap_dof2: bool = False  # Second flapwise blade mode DOF
+        self.edge_dof: bool = False  # First edgewise blade mode DOF
         self.teeter_dof: bool = False  # Rotor-teeter DOF (unused for 3 blades)
-        self.drivetrain_dof: bool = True  # Drivetrain rotational-flexibility DOF
-        self.generator_dof: bool = True  # Generator DOF
+        self.drivetrain_dof: bool = False  # Drivetrain rotational-flexibility DOF
+        self.generator_dof: bool = False  # Generator DOF
         self.yaw_dof: bool = False  # Yaw DOF
         self.fore_aft_tower_dof1: bool = False  # First fore-aft tower bending-mode DOF
         self.fore_aft_tower_dof2: bool = False  # Second fore-aft tower bending-mode DOF
@@ -144,6 +151,9 @@ class ElastoDynConfig:
         self.platform_pitch_dof: bool = False  # Platform pitch tilt DOF
         self.platform_yaw_dof: bool = False  # Platform yaw DOF
 
+        # Environmental conditions for v300
+        self.gravity: float = model.environment.gravity  # Acceleration due to gravity (m/s^2)
+
         # Initial conditions
         self.out_of_plane_deflection: float = 0.0  # Initial out-of-plane blade-tip deflection (m)
         self.in_plane_deflection: float = 0.0  # Initial in-plane blade-tip deflection (m)
@@ -153,9 +163,11 @@ class ElastoDynConfig:
         self.teeter_deflection: float = 0.0  # Initial or fixed teeter angle (degrees)
         self.azimuth_angle: float = 0.0  # Initial azimuth angle for blade 1 (degrees)
         # Initial or fixed rotor speed (rpm)
-        self.rotor_speed: float = calculate_tsr_or_missing(tsr=model.blade.tip_speed_ratio,
-                                                           freestream_velocity=model.fluid.velocity,
-                                                           radius=model.blade.radius)
+        if model.blade.rotor_speed is None:
+            model.blade.rotor_speed = calculate_tsr_or_missing(tsr=model.blade.tip_speed_ratio,
+                                                               freestream_velocity=model.fluid.velocity,
+                                                               radius=model.blade.radius)
+        self.rotor_speed: float = np.round(model.blade.rotor_speed, 2)
         self.nacelle_yaw: float = 0.0  # Initial or fixed nacelle-yaw angle (degrees)
         self.tower_top_fore_aft_disp: float = 0.0  # Initial fore-aft tower-top displacement (m)
         self.tower_top_side_disp: float = 0.0  # Initial side-to-side tower-top displacement (m)
@@ -167,25 +179,36 @@ class ElastoDynConfig:
         self.platform_yaw_disp: float = 0.0  # Initial yaw rotational displacement (degrees)
 
         # Turbine configuration
-        self.num_blades: int = 3  # Number of blades
-        self.tip_radius: float = 89.167  # Distance from the rotor apex to blade tip (m)
-        self.hub_radius: float = 2.8  # Distance from the rotor apex to blade root (m)
-        self.precone_angles: list[float] = [-0.0, -0.0, -0.0]  # Blade cone angles (degrees)
-        self.hub_center_mass: float = 0.0  # Distance from rotor apex to hub mass (m)
-        self.shaft_tilt: float = -5.0  # Rotor shaft tilt angle (degrees)
-        self.nacelle_cm: list[float] = [2.697, 0.0, 2.45]  # Nacelle center of mass (m)
-        self.tower_to_shaft: float = 2.75  # Vertical distance from tower-top to rotor shaft (m)
-        self.tower_height: float = 115.63  # Height of tower above ground level (m)
+        self.num_blades: int = model.rotor.n_blades  # Number of blades
+        self.tip_radius: float = model.blade.radius  # Distance from the rotor apex to blade tip (m)
+        self.hub_radius: float = model.hub.radius  # Distance from the rotor apex to blade root (m)
+        self.precone_angles: list[float] = [model.rotor.blade_precone_angle * x for x in [1, 1, 1]]  # for blade (deg)
+        self.hub_center_mass: float = 0.15  # Distance from rotor apex to hub mass (m)
+        self.undersling_length: float = 0.0  # Distance from teeter pin to underpin axis (m)
+        self.azimuth_b1_up: float = 0.0  # Azimuth angle for blade 1 in upwind configuration (deg)
+        self.overhang: float = -10.86  # Distance from rotor apex to blade root in downwind direction (m)
+        self.shaft_tilt: float = model.rotor.tilt_angle  # Rotor shaft tilt angle (degrees)
+        self.nacelle_cm: list[float] = [4.375, 0.0, 6.285]  # Nacelle center of mass (m)
+        self.nacelle_imu: list[float] = [4.375, 0, 6.285]
+        self.tower_to_shaft: float = 7.163  # Vertical distance from tower-top to rotor shaft (m)
+        self.tower_height: float = model.tower.height  # Height of tower above ground level (m)
+        self.base_tower_height: float = 13.93  # Height of tower base above ground level (m)
+        self.platform_cm: list[float] = [0.0, 0.0, 0.0]  # Platform center of mass (m)
+        self.platform_vert_ref: float = 0.0  # Platform reference point (m)
 
         # Mass and inertia
-        self.hub_mass: float = 105520.0  # Hub mass (kg)
-        self.hub_inertia: float = 325670.9  # Hub inertia about rotor axis (kg*m^2)
-        self.generator_inertia: float = 1500.5  # Generator inertia about HSS (kg*m^2)
-        self.nacelle_mass: float = 446036.25  # Nacelle mass (kg)
-        self.nacelle_yaw_inertia: float = 7326346.5  # Nacelle inertia about yaw axis (kg*m^2)
+        self.tip_mass: list[float] = [0.0 for _ in range(3)]  # Blade tip mass (kg)
+        self.hub_mass: float = 442573.0  # Hub mass (kg)
+        self.hub_inertia: float = 7341300  # Hub inertia about rotor axis (kg*m^2)
+        self.generator_inertia: float = 0  # Generator inertia about HSS (kg*m^2)
+        self.nacelle_mass: float = 479960  # Nacelle mass (kg)
+        self.nacelle_yaw_inertia: float = 42486734  # Nacelle inertia about yaw axis (kg*m^2)
+        self.yaw_bearing_mass: float = 31899.0  # Yaw bearing mass (kg)
+        self.platform_mass: float = 0.0  # Platform mass (kg)
+        self.platform_inertia: list[float] = [0.0, 0.0, 0.0]  # Platform inertia roll-pitch-yaw (kg*m^2)
 
         # Blade properties
-        self.num_blade_nodes: int = 40  # Number of blade nodes used for analysis
+        self.num_blade_nodes: int = 100  # Number of blade nodes used for analysis
         self.blade_files: list[str] = [
             f"{model.name}_EDBlade.dat",
             f"{model.name}_EDBlade.dat",
@@ -198,32 +221,53 @@ class ElastoDynConfig:
 
         # Drivetrain
         self.gearbox_efficiency: float = 100.0  # Gearbox efficiency (%)
-        self.gear_ratio: float = 50.0  # Gearbox ratio
-        self.torsional_spring: float = 2.317025e9  # Drivetrain torsional spring (N*m/rad)
-        self.torsional_damper: float = 9240560.0  # Drivetrain torsional damper (N*m/(rad/s))
+        self.gear_ratio: float = 1.0  # Gearbox ratio
+        self.torsional_spring: float = 8.235e15  # Drivetrain torsional spring (N*m/rad)
+        self.torsional_damper: float = 6.215e15  # Drivetrain torsional damper (N*m/(rad/s))
 
         # Tower
-        self.num_tower_nodes: int = 20  # Number of tower nodes
+        self.num_tower_nodes: int = 21  # Number of tower nodes
         self.tower_file: str = f"{model.name}_EDTower.dat"  # Tower input file
 
         self.output = [
-            "Azimuth", "BldPitch1", "BldPitch2", "BldPitch3", "GenSpeed", "IPDefl1", "LSSGagMya", "LSSGagMza", "LSSTipMys",
-            "LSSTipMzs", "LSShftFys", "LSShftFzs", "NacYaw", "NcIMUTAxs", "NcIMUTAys", "NcIMUTAzs", "OoPDefl1", "PtfmHeave",
-            "PtfmPitch", "PtfmRoll", "PtfmSurge", "PtfmSway", "PtfmYaw", "RootFxb1", "RootFxb2", "RootFxb3", "RootFxc1",
-            "RootFxc2", "RootFxc3", "RootFyb1", "RootFyb2", "RootFyb3", "RootFyc1", "RootFyc2", "RootFyc3", "RootFzb1",
-            "RootFzb2", "RootFzb3", "RootFzc1", "RootFzc2", "RootFzc3", "RootMxb1", "RootMxb2", "RootMxb3", "RootMxc1",
-            "RootMxc2", "RootMxc3", "RootMyb1", "RootMyb2", "RootMyb3", "RootMyc1", "RootMyc2", "RootMyc3", "RootMzb1",
-            "RootMzb2", "RootMzb3", "RootMzc1", "RootMzc2", "RootMzc3", "RotSpeed", "RotThrust", "RotTorq", "Spn1MLxb1",
-            "Spn1MLyb1", "Spn2MLxb1", "Spn2MLyb1", "Spn3MLxb1", "Spn3MLyb1", "Spn4MLxb1", "Spn4MLyb1", "Spn5MLxb1", "Spn5MLyb1",
-            "Spn6MLxb1", "Spn6MLyb1", "Spn7MLxb1", "Spn7MLyb1", "Spn8MLxb1", "Spn8MLyb1", "Spn9MLxb1", "Spn9MLyb1", "TTDspTwst",
-            "TipDxb1", "TipDxb2", "TipDxb3", "TipDxc1", "TipDxc2", "TipDxc3", "TipDyb1", "TipDyb2", "TipDyb3", "TipDyc1",
-            "TipDyc2", "TipDyc3", "TipDzb1", "TipDzb2", "TipDzb3", "TipDzc1", "TipDzc2", "TipDzc3", "TwHt1TPxi", "TwHt1TPyi",
-            "TwrBsFxt", "TwrBsFyt", "TwrBsFzt", "TwrBsMxt", "TwrBsMyt", "TwrBsMzt", "TwstDefl1", "YawBrFxp", "YawBrFyp",
-            "YawBrFzp", "YawBrMxp", "YawBrMyp", "YawBrMzp", "YawBrTDxt", "YawBrTDyt"
+            "Azimuth",
+            "BldPitch1",
+            "GenSpeed",
+            "RotSpeed",
+            "IPDefl1",
+            "OoPDefl1",
+            "RootMxb1",
+            "RootMyb1",
+            "TipDxb1",
+            "TipDyb1",
+            "NcIMUTAxs",
+            "NcIMUTAys",
+            "NcIMUTAzs",
+            "RotTorq",
+            "RotThrust",
+            "TwrBsMxt",
+            "TwrBsMyt",
+            "TwrBsMzt",
+            "YawBrFxp",
+            "YawBrFyp",
+            "YawBrFzp",
+            "YawBrMxp",
+            "YawBrMyp",
+            "YawBrMzp",
+            "TwrBsFzt",
+            "NacYaw",
+            "PtfmSurge",
+            "PtfmSway",
+            "PtfmHeave",
+            "PtfmRoll",
+            "PtfmPitch",
+            "PtfmYaw",
+            "YawBrTDxt",
+            "YawBrTDyt"
         ]
 
     def validate(self):
-        """Perform validation checks on the configuration."""
+        """Perform validation checkson the configuration."""
         if not (1 <= self.num_blades <= 3):
             raise ValueError("Number of blades must be between 1 and 3.")
         if self.teeter_dof and self.num_blades != 2:
@@ -242,10 +286,10 @@ class AeroDynConfig:
         self.echo: bool = False  # Echo the input to "<rootname>.AD.ech"
         self.dt_aero: str = "default"  # Time interval for aerodynamic calculations
         self.wake_model: int = 1  # Type of wake/induction model {0=none, 1=BEMT, 2=DBEMT}
-        self.airfoil_aero_model: int = 1  # Type of blade airfoil aerodynamics model {1=steady, 2=unsteady}
-        self.tower_potential_flow: int = 0  # Tower influence based on potential flow {0=none, 1=baseline, 2=Bak correction}
-        self.tower_shadow: int = 0  # Tower influence based on downstream shadow {0=none, 1=included}
-        self.tower_aero: bool = False  # Calculate tower aerodynamic loads?
+        self.airfoil_aero_model: int = 1  # Type of blade airfoil aerodynamics model {1=steady, 2=unsteady (Beddoes-Leishman)}
+        self.tower_potential_flow: int = 1  # Tower influence based on potential flow {0=none, 1=baseline, 2=Bak correction}
+        self.tower_shadow: int = 1  # Tower influence based on downstream shadow {0=none, 1=included}
+        self.tower_aero: bool = True  # Calculate tower aerodynamic loads?
         self.frozen_wake: bool = False  # Assume frozen wake during linearization?
         self.cavitation_check: bool = False  # Perform cavitation check?
         self.buoyancy_effects: bool = False  # Include buoyancy effects?
@@ -254,32 +298,34 @@ class AeroDynConfig:
 
         # Environmental Conditions
         self.air_density: float = 1.225  # Air density (kg/m^3)
-        self.kinematic_viscosity: float = 1.784e-5  # Kinematic air viscosity (m^2/s)
-        self.speed_of_sound: float = 337.29  # Speed of sound (m/s)
+        self.kinematic_viscosity: float = model.fluid.kinematic_viscosity  # Kinematic air viscosity (m^2/s)
+        self.speed_of_sound: float = model.environment.speed_of_sound  # Speed of sound (m/s)
         self.atmospheric_pressure: float = 103500.0  # Atmospheric pressure (Pa)
         self.vapor_pressure: float = 1700.0  # Vapor pressure of fluid (Pa)
+        self.fluid_depth: float = 0.5  # Fluid depth (m)
 
         # Blade-Element/Momentum Theory Options
-        self.skewed_wake_model: int = 1  # Type of skewed-wake correction model
+        self.skewed_wake_model: int = 2  # ype of skewed-wake correction model (switch) {1=uncoupled, 2=Pitt/Peters, 3=coupled} [unused when WakeMod=0 or 3]
         self.skew_factor: str = "default"  # Skew model factor
         self.tip_loss: bool = True  # Use Prandtl tip-loss model?
         self.hub_loss: bool = True  # Use Prandtl hub-loss model?
         self.tangential_induction: bool = True  # Include tangential induction?
         self.axial_induction_drag: bool = True  # Include drag term in axial-induction calculation?
         self.tangential_induction_drag: bool = True  # Include drag term in tangential-induction calculation?
-        self.induction_tolerance: str = "Default"  # Convergence tolerance for BEMT residual equation
-        self.max_iterations: int = 200  # Maximum number of iterations for BEMT solve
+        self.induction_tolerance: str = "default"  # Convergence tolerance for BEMT residual equation
+        self.max_iterations: int = 500  # Maximum number of iterations for BEMT solve
 
         # Dynamic Blade-Element/Momentum Theory Options
         self.dynamic_bemt_model: int = 2  # Type of dynamic BEMT model
-        self.tau1_constant: float = 4.0  # Time constant for DBEMT
+        self.tau1_constant: float = 2  # Time constant for DBEMT
 
         # OLAF -- Convecting Lagrangian Filaments Options
         self.olaf_input_file: str = "unused"  # Input file for OLAF
 
         # Beddoes-Leishman Unsteady Airfoil Aerodynamics Options
-        self.unsteady_aero_model: int = 1  # Unsteady Aero Model Switch
+        self.unsteady_aero_model: int = 3  # Unsteady Aero Model Switch (switch) {1=Baseline model (Original), 2=Gonzalez's variant (changes in Cn,Cc,Cm), 3=Minnema/Pierce variant (changes in Cc and Cm)} [used only when AFAeroMod=2]
         self.f_lookup: bool = True  # Flag for f' lookup or best-fit exponential equations
+        self.ua_radius: list[float] = [0.25, 0.95]  # Radius for unsteady aerodynamics stall (m)
 
         # Airfoil Information
         self.airfoil_table_mode: int = 1  # Interpolation method for airfoil tables
@@ -316,28 +362,15 @@ class AeroDynConfig:
         self.tail_fin_file: str = "unused"  # Tail fin aerodynamic properties file
 
         # Tower Influence and Aerodynamics
-        self.tower_data = pd.DataFrame([
-            [0.000E+00, 8.300E+00, 1.0000E+00, 0.0, 1.0],
-            [1.150E+01, 8.022E+00, 1.0000E+00, 0.0, 1.0],
-            [2.300E+01, 7.743E+00, 1.0000E+00, 0.0, 1.0],
-            [3.450E+01, 7.465E+00, 1.0000E+00, 0.0, 1.0],
-            [4.600E+01, 7.186E+00, 1.0000E+00, 0.0, 1.0],
-            [5.750E+01, 6.908E+00, 1.0000E+00, 0.0, 1.0],
-            [6.900E+01, 6.629E+00, 1.0000E+00, 0.0, 1.0],
-            [8.050E+01, 6.351E+00, 1.0000E+00, 0.0, 1.0],
-            [9.200E+01, 6.072E+00, 1.0000E+00, 0.0, 1.0],
-            [1.035E+02, 5.794E+00, 1.0000E+00, 0.0, 1.0],
-            [1.156E+02, 5.500E+00, 1.0000E+00, 0.0, 1.0],
-        ], columns=["TwrElev", "TwrDiam", "TwrCd", "TwrTI", "TwrCb"])
+        self.tower_data = pd.DataFrame(model.tower.data, columns=["TwrElev", "TwrDiam", "TwrCd", "TwrTI", "TwrCb"])
 
         # Output Options
         self.blade_node_outputs: list = list(range(1, 10))
         self.tower_node_outputs: list = []
         # Outputs list for Rotor Aerodynamics
-        self.outputs: list = ['RtAeroPwr', 'RtAeroCp', 'RtAeroCq', 'RtAeroCt',
+        self.outputs: list = ['RtAeroPwr', 'RtAeroCp', 'RtAeroCq', 'RtAeroCt', 'RtTSR',
                               'RtAeroFxh', 'RtAeroFyh', 'RtAeroFzh',
-                              'RtAeroMxh', 'RtAeroMyh', 'RtAeroMzh',
-                              'B1AeroMx', 'B1AeroMy', 'B1AeroMz']
+                              'RtAeroMxh', 'RtAeroMyh', 'RtAeroMzh']
 
     def validate(self):
         """Perform validation checks on the configuration."""
@@ -363,36 +396,37 @@ class InflowWindConfig:
         self.num_velocity_points: int = 1  # Number of points to output the wind velocity
         self.wind_vxi_list: list[float] = [0.0]  # X coordinates for velocity points (m)
         self.wind_vyi_list: list[float] = [0.0]  # Y coordinates for velocity points (m)
-        self.wind_vzi_list: list[float] = [12.0]  # Z coordinates for velocity points (m)
+        self.wind_vzi_list: list[float] = [150.0]  # Z coordinates for velocity points (m)
 
         # Parameters for Steady Wind Conditions
         self.h_wind_speed: float = model.fluid.velocity  # Horizontal wind speed (m/s)
-        self.ref_height: float = 12.0  # Reference height for horizontal wind speed (m)
-        self.power_law_exp: float = 0.0  # Power law exponent
+        self.ref_height: float = 150.0  # Reference height for horizontal wind speed (m)
+        self.ref_length: float = 125.0  # Reference length for linear shear (m)
+        self.power_law_exp: float = 0.12  # Power law exponentS
 
         # Parameters for Uniform Wind File
-        self.uniform_filename: str = "experimentwind.hhwind"  # Uniform wind time series filename
-        self.uniform_ref_height: float = 119.0  # Reference height for uniform wind (m)
-        self.ref_length: float = 100.0  # Reference length for linear shear
+        self.uniform_filename: str = "none"  # Uniform wind time series filename
+        self.uniform_ref_height: float = 150.0  # Reference height for uniform wind (m)
+        self.ref_length: float = 240.0  # Reference length for linear shear
 
         # Parameters for Binary TurbSim Full-Field Files
-        self.turbsim_filename: str = "Wind/90m_12mps_twr.bts"  # Full field wind file name
+        self.turbsim_filename: str = "none"  # Full field wind file name
 
         # Parameters for Binary Bladed-style Full-Field Files
-        self.bladed_rootname: str = "Wind/90m_12mps_twr"  # Rootname of full-field wind file
+        self.bladed_rootname: str = "none"  # Rootname of full-field wind file
         self.tower_file: bool = False  # Does the wind file have a tower file?
 
         # Parameters for HAWC-format Binary Files
-        self.hawc_file_u: str = "wasp\\Output\\basic_5u.bin"  # U-component fluctuating wind file
-        self.hawc_file_v: str = "wasp\\Output\\basic_5v.bin"  # V-component fluctuating wind file
-        self.hawc_file_w: str = "wasp\\Output\\basic_5w.bin"  # W-component fluctuating wind file
+        self.hawc_file_u: str = "none"  # U-component fluctuating wind file
+        self.hawc_file_v: str = "none"  # V-component fluctuating wind file
+        self.hawc_file_w: str = "none"  # W-component fluctuating wind file
         self.hawc_nx: int = 64  # Number of grid points in x direction
         self.hawc_ny: int = 32  # Number of grid points in y direction
         self.hawc_nz: int = 32  # Number of grid points in z direction
         self.hawc_dx: float = 16.0  # Distance between points in x direction (m)
         self.hawc_dy: float = 3.0  # Distance between points in y direction (m)
         self.hawc_dz: float = 3.0  # Distance between points in z direction (m)
-        self.hawc_ref_height: float = 90.0  # Reference height for HAWC (m)
+        self.hawc_ref_height: float = 150.0  # Reference height for HAWC (m)
 
         # Scaling Parameters for Turbulence
         self.scale_method: int = 2  # Turbulence scaling method
@@ -404,7 +438,7 @@ class InflowWindConfig:
         self.sigma_z: float = 0.2  # Std deviation for z direction turbulence
 
         # Mean Wind Profile Parameters (HAWC files)
-        self.u_ref: float = 11.4  # Mean wind speed at reference height (m/s)
+        self.u_ref: float = model.fluid.velocity  # Mean wind speed at reference height (m/s)
         self.wind_profile_type: int = 2  # Wind profile type (0=constant; 1=logarithmic; 2=power law)
         self.power_law_exp_hawc: float = 0.2  # Power law exponent
         self.surface_roughness: float = 0.03  # Surface roughness length (m)
