@@ -1,24 +1,28 @@
 from fmpy import simulate_fmu
 import numpy as np
 
+PRECONE = 0.0
+BLADE_PITCH = 0.0
+
 
 def main():
     # Define FMU path
     fmu_path = "AeroDynSlave.fmu"
 
     # Define simulation inputs for blade geometry
+    # IEA-15 has no precone
     input_data = np.array([
-        [0.0,
-         0.0, 0.0, 0.0,
-         -4.0, 0.0, 3.0,
-         0.0,
-         0.0, 0.0, 120.0,
-         -4.0, 0.0, 3.0,
-         0.0,
-         0.0, 0.0, 240.0,
-         -4.0, 0.0, 3.0,
-         0.0]
-    ])
+        [0.0,               # time
+         0.0, 0.0, 0.0,     # blade 1 origin
+         PRECONE, 0.0, BLADE_PITCH,    # blade 1 azimuth, precone, pitch
+         0.0,               # blade 1 hub radius
+         0.0, 0.0, 120.0,   # blade 2 origin
+         PRECONE, 0.0, BLADE_PITCH,    # blade 2 azimuth, precone, pitch
+         0.0,               # blade 2 hub radius
+         0.0, 0.0, 240.0,   # blade 3 origin
+         PRECONE, 0.0, BLADE_PITCH,    # blade 3 azimuth, precone, pitch
+         0.0]               # blade 3 hub radius
+    ], dtype=np.float64)
 
     # Define the column names for the input variables
     input_variables = [
@@ -35,7 +39,7 @@ def main():
     ]
 
     # Convert to structured array for simulation
-    inputs = np.core.records.fromarrays(input_data.T, names=input_variables)
+    inputs = np.rec.fromarrays(input_data.T, names=input_variables)
 
     # Simulate the FMU
     result = simulate_fmu(
@@ -43,7 +47,8 @@ def main():
         start_time=0.0,
         stop_time=10.0,
         input=inputs,
-        output_interval=10.0
+        output_interval=10.0,
+        debug_logging=True
     )
 
     # Print the inputs for verification

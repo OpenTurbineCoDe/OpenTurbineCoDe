@@ -72,12 +72,12 @@ class AeroDynStandaloneOptions:
 
 
 class AeroDynDriverConfig:
-    def __init__(self, model: TurbineModel):
+    def __init__(self, model: TurbineModel, stop_time=None):
         self.model = model
 
         # Simulation Control
         self.mhk_system: int = 0  # Flag for Marine HydroKinetic system
-        self.t_max = 60.0  # Maximum simulation time [s]
+        self.t_max = 60.0 if not stop_time else stop_time  # Maximum simulation time [s]
         self.dt = 0.025  # Time step [s]
         self.analysis_type = 1  # (1: multiple turbines, 2: one turbine, 3: one, combined case)
 
@@ -134,7 +134,7 @@ class AeroDynDriverConfig:
                                                                freestream_velocity=model.fluid.velocity,
                                                                radius=model.blade.radius)
         else:
-            self.rotor_speed: float = model.blade.rotor_speed
+            self.rotor_speed: float = 0 if model.blade.rotor_speed == 'None' else model.blade.rotor_speed
 
         self.shaft_tilt: float = model.rotor.tilt_angle  # Shaft tilt angle [deg]
         self.blade_pitch = model.blade.pitch_angle  # Blade pitch angle [deg]

@@ -93,7 +93,7 @@ class AeroDynSlave(Fmi2Slave):
 
         # Run the AeroDyn simulation
         print("Running AeroDyn simulation with updated geometry...")
-        aerodyn_util.run_aerodyn_case(self.test_case_path, model)
+        aerodyn_util.run_aerodyn_case(self.test_case_path, model, step_size)
 
         # Post-process outputs and update FMU variables
         print("Post-processing AeroDyn outputs...")

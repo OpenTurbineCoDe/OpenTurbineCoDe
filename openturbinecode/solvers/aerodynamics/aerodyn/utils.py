@@ -92,7 +92,7 @@ def copy_axial_turbine_case(path_to_case: Path, model: TurbineModel):
     shutil.copytree(model_dir, path_to_case, dirs_exist_ok=True)
 
 
-def preprocess_case(path_to_case: Path, model: TurbineModel):
+def preprocess_case(path_to_case: Path, model: TurbineModel, stop_time: float = None):
     """
     Overwrite default AeroDyn files with new model parameters.
 
@@ -102,7 +102,7 @@ def preprocess_case(path_to_case: Path, model: TurbineModel):
     """
     print(f"Preprocessing case: {path_to_case}")
 
-    aerodyn_standalone_config = options.AeroDynDriverConfig(model)
+    aerodyn_standalone_config = options.AeroDynDriverConfig(model, stop_time)
     aero_config = options.AeroDynConfig(model)
     inflow_config = options.InflowWindConfig(model)
 
@@ -152,7 +152,7 @@ def postprocess_case(path_to_case: Path):
     return outputs
 
 
-def run_aerodyn_case(path_to_case: Path, model: TurbineModel):
+def run_aerodyn_case(path_to_case: Path, model: TurbineModel, stop_time: float = None):
     """
     Run an AeroDyn simulation with the given turbine model.
 
@@ -163,7 +163,7 @@ def run_aerodyn_case(path_to_case: Path, model: TurbineModel):
     make_aerodyn_run_directory(path_to_case)
     clear_case_directory(path_to_case)
     copy_axial_turbine_case(path_to_case, model)
-    preprocess_case(path_to_case, model)
+    preprocess_case(path_to_case, model, stop_time)
     run_aerodyn_exe(path_to_case, model)
 
 

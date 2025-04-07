@@ -273,7 +273,7 @@ def plot_parametric_response(df_parametric, response_channel, independent, outpu
         plt.plot(
             fc_data.iloc[:, 0],  # Independent variable
             fc_data.iloc[:, 1],  # Response variable
-            'o-',  # Line with circle markers
+            'o--',  # Line with circle markers
             color="red",
             label="FOCAL-1 Validation Data"
         )
@@ -330,8 +330,8 @@ def load_fc_data(fc_data_num: str, dependent, response):
         "YawBrMxp": "Tower Top Mx [Nm]",
         "YawBrMyp": "Tower Top My [Nm]",
         "YawBrMzp": "Tower Top Mz [Nm]",
-        "RootMxb1": "BRBM flap [Nm]",
-        "RootMyb1": "BRBM edge [Nm]"
+        "RootMyb1": "BRBM flap [Nm]",
+        "RootMxb1": "BRBM edge [Nm]"
     }
     if column_mapping[dependent] not in df_fc.columns:
         print("Could not find dependent channel in FOCAL-1 validation data.")
@@ -395,14 +395,25 @@ def prepare_parametric_data(parametric_data, response_channels, independent, out
             #                       'YawBrFzp', 'YawBrMxp', 'YawBrMyp', 'YawBrMzp', 'RootMxb1', 'RootMyb1']
 
             # Factored channels
-            kN_channels = ["YawBrFxp", "YawBrFyp", "YawBrFzp", "YawBrMxp", "YawBrMyp", "YawBrMzp", "RootMxb1", "RootMyb1"]
+            kN_channels = ["YawBrFxp", "YawBrFyp", "YawBrFzp", "YawBrMxp",
+                           "YawBrMyp", "YawBrMzp", "RootMxb1", "RootMyb1",
+                           "RootMxb1", "RootMyb1"]
             if response_channel in kN_channels:
                 response_data = response_data * 1000  # Convert to N
 
-            # Get the last value (steady state)
-            print(f"Response data for {response_channel} in {params}: {response_data[-1:]}")
-            # Lets get the mean value of the last 3/4 of the data set
-            case_data[response_channel] = np.mean(response_data[-int(len(response_data)/4):])
+            max_channels = []
+            ss_channels = []
+            if response_channel in max_channels:
+                case_data[response_channel] = np.max(np.abs(response_data))
+                print(f"Response data for {response_channel} in {params}: {case_data[response_channel]}")
+            elif response_channel in ss_channels:
+                # Get the last value (steady state)
+                case_data[response_channel] = response_data[-1]
+                print(f"Response data for {response_channel} in {params}: {response_data[-1:]}")
+            else:
+                # Lets get the mean value of the last 3/4 of the data set
+                case_data[response_channel] = np.mean(response_data[-int(len(response_data)/2):])
+                print(f"Response data for {response_channel} in {params}: {case_data[response_channel]}")
 
         # Append the case data to the DataFrame
         df = pd.concat([df, pd.DataFrame([case_data])], ignore_index=True)

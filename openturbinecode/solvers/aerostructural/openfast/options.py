@@ -65,7 +65,7 @@ class FastConfig:
         self.model = model
 
         # Simulation Control
-        self.t_max = 300.0  # Maximum simulation time [s]
+        self.t_max = 200.0  # Maximum simulation time [s]
         self.dt = 0.025  # Time step [s]
         self.interp_order = 2  # Interpolation order for I/O time history (1=linear, 2=quadratic)
         self.num_correction = 0  # Number of correction iterations (0=explicit)
@@ -286,8 +286,8 @@ class AeroDynConfig:
         self.echo: bool = False  # Echo the input to "<rootname>.AD.ech"
         self.dt_aero: str = "default"  # Time interval for aerodynamic calculations
         self.wake_model: int = 1  # Type of wake/induction model {0=none, 1=BEMT, 2=DBEMT}
-        self.airfoil_aero_model: int = 1  # Type of blade airfoil aerodynamics model {1=steady, 2=unsteady (Beddoes-Leishman)}
-        self.tower_potential_flow: int = 1  # Tower influence based on potential flow {0=none, 1=baseline, 2=Bak correction}
+        self.airfoil_aero_model: int = 1  # Type of blade airfoil aerodynamics model {1=steady, 2=unsteady (Beddoes-Leishman)} # noqa: E501
+        self.tower_potential_flow: int = 1  # Tower influence based on potential flow {0=none, 1=baseline, 2=Bak correction} # noqa: E501
         self.tower_shadow: int = 1  # Tower influence based on downstream shadow {0=none, 1=included}
         self.tower_aero: bool = True  # Calculate tower aerodynamic loads?
         self.frozen_wake: bool = False  # Assume frozen wake during linearization?
@@ -305,7 +305,7 @@ class AeroDynConfig:
         self.fluid_depth: float = 0.5  # Fluid depth (m)
 
         # Blade-Element/Momentum Theory Options
-        self.skewed_wake_model: int = 2  # ype of skewed-wake correction model (switch) {1=uncoupled, 2=Pitt/Peters, 3=coupled} [unused when WakeMod=0 or 3]
+        self.skewed_wake_model: int = 2  # ype of skewed-wake correction model (switch) {1=uncoupled, 2=Pitt/Peters, 3=coupled} [unused when WakeMod=0 or 3] # noqa: E501
         self.skew_factor: str = "default"  # Skew model factor
         self.tip_loss: bool = True  # Use Prandtl tip-loss model?
         self.hub_loss: bool = True  # Use Prandtl hub-loss model?
@@ -323,7 +323,7 @@ class AeroDynConfig:
         self.olaf_input_file: str = "unused"  # Input file for OLAF
 
         # Beddoes-Leishman Unsteady Airfoil Aerodynamics Options
-        self.unsteady_aero_model: int = 3  # Unsteady Aero Model Switch (switch) {1=Baseline model (Original), 2=Gonzalez's variant (changes in Cn,Cc,Cm), 3=Minnema/Pierce variant (changes in Cc and Cm)} [used only when AFAeroMod=2]
+        self.unsteady_aero_model: int = 3  # Unsteady Aero Model Switch (switch) {1=Baseline model (Original), 2=Gonzalez's variant (changes in Cn,Cc,Cm), 3=Minnema/Pierce variant (changes in Cc and Cm)} [used only when AFAeroMod=2] # noqa: E501
         self.f_lookup: bool = True  # Flag for f' lookup or best-fit exponential equations
         self.ua_radius: list[float] = [0.25, 0.95]  # Radius for unsteady aerodynamics stall (m)
 
@@ -402,7 +402,7 @@ class InflowWindConfig:
         self.h_wind_speed: float = model.fluid.velocity  # Horizontal wind speed (m/s)
         self.ref_height: float = 150.0  # Reference height for horizontal wind speed (m)
         self.ref_length: float = 125.0  # Reference length for linear shear (m)
-        self.power_law_exp: float = 0.12  # Power law exponentS
+        self.power_law_exp: float = 0.00  # Power law exponentS
 
         # Parameters for Uniform Wind File
         self.uniform_filename: str = "none"  # Uniform wind time series filename

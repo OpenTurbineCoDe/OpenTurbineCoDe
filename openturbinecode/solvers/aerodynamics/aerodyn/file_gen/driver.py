@@ -119,7 +119,7 @@ def write_turbine_motion(contents, config: AeroDynDriverConfig):
     contents = add_line(contents, "0", "Frequency(1)", "Frequency of sinusoidal motion")
     contents = add_line(contents, '"unused"', "BaseMotionFileName(1)", "Arbitrary base motion filename [used only when BaseMotionType=2]")
     contents = add_line(contents, f"{config.nacelle_yaw:.1f}", "NacYaw(1)", "Yaw angle of nacelle (deg)")
-    contents = add_line(contents, f"{config.rotor_speed:.1f}", "RotSpeed(1)", "Rotor speed (rpm)")
+    contents = add_line(contents, f'{config.rotor_speed}', "RotSpeed(1)", "Rotor speed (rpm)")
     contents = add_line(contents, f"{config.blade_pitch:.1f}", "BldPitch(1)", "Blade pitch (deg)")
 
     return contents
