@@ -28,13 +28,14 @@ blade:
   - 2
   - 2
   - 2
+  - 2
   pitch_angle: 0
   profiles:
-  - AeroData/Cylinder.dat
-  - AeroData/SD7032.dat
+  - Cylinder
+  - SD7032
   radius: 121.44
   rotor_speed: 0
-  tip_speed_ratio: 7
+  tip_speed_ratio: 9
 environment:
   atmospheric_pressure: 103525
   gravity: 9.81

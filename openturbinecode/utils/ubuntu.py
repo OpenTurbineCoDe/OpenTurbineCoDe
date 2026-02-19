@@ -15,10 +15,13 @@ def run_ubuntu_command(command):
     bool: True if the command was successful, False otherwise.
     """
     # Call openfoam sourcing to set up the environment variables for OpenFOAM run
-    command = f"source /usr/lib/openfoam/openfoam2406/etc/bashrc && {command}"
+    command = f"source /home/caw/OpenFOAM/OpenFOAM-v2406/etc/bashrc && {command}"
 
     # Run the command in WSL
-    process = subprocess.Popen(["ubuntu", "run", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    # process = subprocess.Popen(["ubuntu", "run", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    process = subprocess.Popen(
+        ["wsl", "-d", "ubuntu", "--", "bash", "-c", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
 
     # Monitor the process
     for line in process.stdout:

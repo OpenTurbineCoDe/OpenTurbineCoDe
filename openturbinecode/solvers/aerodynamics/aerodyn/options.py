@@ -266,8 +266,9 @@ class AeroDynConfig:
                               'B1AeroMx', 'B1AeroMy', 'B1AeroMz']
 
         # Node Outputs
-        self.node_outputs: list = generate_blade_output_channels(len(model.blade.profiles)+1,
-                                                                 self.blade_node_outputs)
+        # self.node_outputs: list = generate_blade_output_channels(len(model.blade.profiles)+1,
+        #                                                          self.blade_node_outputs)
+        self.node_outputs: list = None
 
     def validate(self):
         """Perform validation checks on the configuration."""

@@ -3,8 +3,8 @@ import numpy as np
 from fnmatch import fnmatch
 
 # Load the data
-from pCrunch import LoadsAnalysis, FatigueParams
-from pCrunch.io import load_FAST_out
+from pCrunch import AeroelasticOutput, FatigueParams
+from pCrunch import load_FAST_out
 
 from pathlib import Path
 
@@ -75,7 +75,7 @@ def get_binary_output_data(output_dir):
     outfiles = [str(f) for f in outfiles]
 
     # The API has changed and is in more of an object oriented framework.
-    la = LoadsAnalysis(
+    la = AeroelasticOutput(
         outfiles[:5],                           # The primary input is a list of output files
         magnitude_channels=magnitude_channels,  # All of the following inputs are optional
         fatigue_channels=fatigue_channels,      #

@@ -7,8 +7,9 @@ FOAM_RUN = Path("/home/caw/OpenFOAM/caw-v2406/run")
 AXIAL_RUN = Path("/home/caw/OpenFOAM/caw-v2406/turbinesFoam/tutorials/axialFlowTurbineAL")
 
 # OpenFAST case directories
-OPENFAST_RUN = Path("D:/") / "Wright" / "Solvers" / "openfast" / "run"
+OPENFAST_RUN = Path("E:/") / "Wright" / "Solvers" / "openfast" / "run"
 
-# AeroDyn case directories
-AERODYN_RUN = Path("D:/") / "Wright" / "Solvers" / "aerodynamics" / "aerodyn" / "run"
+# AeroDyn case directoriesC:\Users\wrigh\OneDrive\Documents\Wright\Solvers\aerodynamics\aerodyn\run
+AERODYN_RUN = Path("E:/") / "Wright" / "Solvers" / "aerodynamics" / "aerodyn" / "run"
+# AERODYN_RUN = Path("D:/") / "Wright" / "Solvers" / "aerodynamics" / "aerodyn" / "run"
 AERODYN_FMU = Path("D:/") / "Wright" / "Solvers" / "aerodynamics" / "aerodyn" / "fmu"

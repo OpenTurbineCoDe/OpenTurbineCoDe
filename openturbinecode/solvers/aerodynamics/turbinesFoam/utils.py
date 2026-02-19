@@ -44,7 +44,7 @@ def allrun_turbinesFoam_case(directory_name):
     ubuntu.run_ubuntu_command(permissions_command)
 
     # Run the Allrun script in the case directory
-    command = f"cd {ubuntu.path_to_ubuntu(case_dir)} && ./Allrun"
+    command = f"cd {ubuntu.path_to_ubuntu(case_dir)} && ./Allrun -parallel"
     print(f"Allrun execute command: {command}")
     ubuntu.run_ubuntu_command(command)
 
@@ -92,7 +92,7 @@ def copy_axial_turbine_case(directory_name):
     shutil.copytree(WSL_ROOT / AXIAL_RUN, path_to_case, dirs_exist_ok=True)
 
 
-def preprocess_case(directory_name):
+def initialize_run(directory_name):
     """Copies the 0.org directory to 0 directory to start the simulation.
 
     Args:
@@ -107,6 +107,18 @@ def preprocess_case(directory_name):
     return None
 
 
+def create_paraview_file(directory_name):
+    """
+    Create a Paraview file for the case directory.
+
+    Parameters:
+    directory_name (str): Name of the directory where the Paraview file will be created.
+    """
+    path_to_case: Path = FOAM_RUN / directory_name
+
+    ubuntu.run_ubuntu_command(f"cd {ubuntu.path_to_ubuntu(path_to_case)} && touch case.foam")
+
+
 if __name__ == "__main__":
     # Create a new directory in the $FOAM_RUN directory
     make_directory_in_foam_run("test_case")
@@ -118,7 +130,7 @@ if __name__ == "__main__":
     copy_axial_turbine_case("test_case")
 
     # Preprocess the case directory
-    preprocess_case("test_case")
+    initialize_run("test_case")
 
     # Run the turbinesFoam simulation
     allrun_turbinesFoam_case("test_case")

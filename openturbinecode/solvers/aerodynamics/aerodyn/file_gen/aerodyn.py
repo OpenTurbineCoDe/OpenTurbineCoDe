@@ -181,8 +181,8 @@ def write_outputs(contents, config: AeroDynConfig):
 
 def write_node_output(contents, config: AeroDynConfig):
     # Node Outputs
-    for output in config.node_outputs:
-        contents = add_word(contents, f'"{output}"')
+    # for output in config.node_outputs:
+    #     contents = add_word(contents, f'"{output}"')
     contents = add_word(contents, "END of input file")
  
     return contents

@@ -56,7 +56,7 @@ def parametric_analysis(turbine_model: TurbineModel, param_ranges, output_base_d
 
 if __name__ == "__main__":
     # Output base directory
-    solver = "openfast"
+    solver = "aerodyn"
     if solver == "openfast":
         output_dir = OPENFAST_RUN / "parametric_analysis"
     elif solver == "aerodyn":
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         output_dir = AERODYN_RUN / "parametric_analysis"
 
     plot_fc_data = None
-    analysis_num = 406
+    analysis_num = 202
     match analysis_num:
         case 1:
             # Define parameter ranges for analysis
@@ -79,6 +79,13 @@ if __name__ == "__main__":
             param_ranges = {
                 "blade.pitch_angle": [-10.0, -5.0, 0.0, 5.0, 10.0],  # Blade angle (deg)
                 "blade.tip_speed_ratio": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]  # Tip speed ratio
+            }
+        case 3:
+            # Define parameter ranges for analysis
+            model_name = "DTU_10MW"
+            param_ranges = {
+                "blade.pitch_angle": [0.0],  # Blade angle (deg)
+                "blade.tip_speed_ratio": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]  # Tip speed ratio
             }
         case 202:
             # FOCAL-1 Validation LC 1.1

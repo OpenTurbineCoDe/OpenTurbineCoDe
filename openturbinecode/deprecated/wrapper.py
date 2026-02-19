@@ -41,7 +41,7 @@ class OpenFASTWrapper:
 
     def preprocess(self):
         # Preprocess the case directory
-        util.preprocess_case(self.case_name)
+        util.initialize_run(self.case_name)
 
     def run_simulation(self):
         # Run the turbinesFoam simulation

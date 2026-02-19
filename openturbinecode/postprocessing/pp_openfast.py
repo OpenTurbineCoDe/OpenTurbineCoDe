@@ -8,8 +8,9 @@ from fnmatch import fnmatch
 from openturbinecode.utils import plotter as plot
 
 # Load the data
-from pCrunch import LoadsAnalysis, FatigueParams
-from pCrunch.io import load_FAST_out
+from pCrunch import FatigueParams
+from pCrunch import AeroelasticOutput
+from pCrunch.openfast_readers import load_FAST_out
 
 from pathlib import Path
 
@@ -80,15 +81,13 @@ def get_binary_output_data(output_dir):
     outfiles = [str(f) for f in outfiles]
 
     # The API has changed and is in more of an object oriented framework.
-    la = LoadsAnalysis(
+    la = AeroelasticOutput(
         outfiles[:5],                           # The primary input is a list of output files
         magnitude_channels=magnitude_channels,  # All of the following inputs are optional
-        fatigue_channels=fatigue_channels,      #
-        extreme_channels=channel_extremes,      #
-        trim_data=(0,),                         # If 'trim_data' is passed, all input files will
+        extreme_channels=channel_extremes      #
     )                                           # be trimmed to (tmin, tmax(optional))
 
-    la.process_outputs(cores=1,                 # Once LoadsAnalysis is configured, process outputs with
+    la.process_outputs(cores=1,                 # Once AeroelasticOutput is configured, process outputs with
                        return_damage=True,      # optional return of Palmgren-Miner damage and
                        goodman=True)            # optional use of goodman correction for mean load values
 

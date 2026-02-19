@@ -145,7 +145,7 @@ def write_outputs(contents, config: AeroDynDriverConfig):
     contents = add_header(contents, "Output Settings")
 
     contents = add_line(contents, '"ES15.8E2"', "OutFmt", "Format for text output (10 characters)")
-    contents = add_line(contents, "2", "OutFileFmt", "Tabular output file format (1: text, 2: binary, 3: both)")
+    contents = add_line(contents, "1", "OutFileFmt", "Tabular output file format (1: text, 2: binary, 3: both)")
     contents = add_line(contents, "0", "WrVTK", "VTK visualization output (0: none, 1: animation)")
     contents = add_line(contents, "1", "WrVTK_Type", "VTK visualization type (1: surfaces, 2: lines, 3: both)")
     contents = add_line(contents, "0", "VTKHubRad", "VTK hub radius (m)")

@@ -6,7 +6,7 @@ This way YAML files are generated based on the default / superclassed turbine mo
 and can be used as input for the OpenTurbineCode solvers.
 """
 
-import yaml 
+import yaml
 from openturbinecode.configs.pathing import PROJECT_ROOT
 
 
@@ -14,6 +14,8 @@ class TurbineModel:
     def __init__(self, name="DTU10_MW"):
 
         self.name = name
+        self.file_location = PROJECT_ROOT / "models" / "defaults" / f"{self.name}.yaml"
+
         # Turbine dimensions
         self.fluid = Fluid()
         self.environment = Environment()
@@ -23,12 +25,15 @@ class TurbineModel:
         self.tower = Tower()
         self.hub = Hub()
 
-    def write_to_yaml(self, filename):
+    def write_to_yaml(self, filename=None):
         """Write the turbine model to a YAML file.
 
         Args:
             filename (str): The name of the YAML file.
         """
+        if filename is None:
+            filename = self.file_location
+
         with open(filename, "w") as file:
             yaml.dump(self.create_dict_for_yaml(), file)
 
@@ -46,12 +51,15 @@ class TurbineModel:
                 "hub": self.hub.__dict__}
         return dict
 
-    def read_from_yaml(self, filename):
+    def read_from_yaml(self, filename=None):
         """Read the turbine model from a YAML file.
 
         Args:
             filename (str): The name of the YAML file.
         """
+        if filename is None:
+            filename = self.file_location
+
         with open(filename, "r") as file:
             data = yaml.safe_load(file)
 

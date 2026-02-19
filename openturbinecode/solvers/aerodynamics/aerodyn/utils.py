@@ -84,6 +84,7 @@ def copy_axial_turbine_case(path_to_case: Path, model: TurbineModel):
     model_dir = {
         "DTU_10MW": PROJECT_ROOT / "models" / "DTU_10MW" / "Madsen2019" / "AeroDyn",
         "IEA_15MW": PROJECT_ROOT / "models" / "IEA_15MW" / "AeroDyn",
+        "IEA_15MW_AB": PROJECT_ROOT / "models" / "IEA_15MW_AB" / "AeroDyn",
     }.get(model.name)
 
     if not model_dir:

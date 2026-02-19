@@ -93,42 +93,6 @@ RtAeroMxh
 RtAeroCp
 RtAeroCq
 RtAeroCt
-B1N1Fn
-B1N2Fn
-B1N3Fn
-B1N4Fn
-B1N5Fn
-B1N6Fn
-B1N7Fn
-B1N8Fn
-B1N9Fn
-B1N1Ft
-B1N2Ft
-B1N3Ft
-B1N4Ft
-B1N5Ft
-B1N6Ft
-B1N7Ft
-B1N8Ft
-B1N9Ft
-B1N1Cn
-B1N2Cn
-B1N3Cn
-B1N4Cn
-B1N5Cn
-B1N6Cn
-B1N7Cn
-B1N8Cn
-B1N9Cn
-B1N1Ct
-B1N2Ct
-B1N3Ct
-B1N4Ct
-B1N5Ct
-B1N6Ct
-B1N7Ct
-B1N8Ct
-B1N9Ct
 END of input file (the word "END" must appear in the first 3 columns of this last OutList line)
 ---------------------- NODE OUTPUTS --------------------------------------------
           1   BldNd_BladesOut  - Blades to output
