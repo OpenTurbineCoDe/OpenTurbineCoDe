@@ -24,7 +24,7 @@ def make_directory_in_foam_run(directory_name):
     return None
 
 
-def allrun_turbinesFoam_case(directory_name):
+def allrun_turbinesFoam_case(directory_name, num_cores):
     """
     Run the turbinesFoam simulation.
 
@@ -44,7 +44,10 @@ def allrun_turbinesFoam_case(directory_name):
     ubuntu.run_ubuntu_command(permissions_command)
 
     # Run the Allrun script in the case directory
-    command = f"cd {ubuntu.path_to_ubuntu(case_dir)} && ./Allrun -parallel"
+    if num_cores == 1:
+        command = f"cd {ubuntu.path_to_ubuntu(case_dir)} && ./Allrun"
+    else:
+        command = f"cd {ubuntu.path_to_ubuntu(case_dir)} && ./Allrun -parallel"
     print(f"Allrun execute command: {command}")
     ubuntu.run_ubuntu_command(command)
 

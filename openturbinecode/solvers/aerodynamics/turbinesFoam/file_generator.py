@@ -103,7 +103,7 @@ deltaT          {self.control.delta_t:0.3f};
 
 writeControl    runTime;
 
-writeInterval   2;
+writeInterval   0.125;
 
 writeFormat     binary;
 
@@ -425,6 +425,7 @@ FoamFile
     """
 
         def write_blades():
+            azimuth_offset = 270
             blade_str = "    blades\n        {\n"
             for idx in range(1, self.fv_options.num_blades + 1):
                 blade_str += f"""            blade{idx}
@@ -439,8 +440,8 @@ FoamFile
                     blade_str += f"                    {profile}\n"
                 blade_str += "                );\n"
                 # Azimuthal offset for additional blade
-                if idx > 1:
-                    blade_str += f"                azimuthalOffset {(idx - 1) * 120.0};\n"
+                if idx > 0:
+                    blade_str += f"                azimuthalOffset {(idx - 1) * 120.0 + azimuth_offset};\n"
                 # Always write reference to elementData file
                 blade_str += """                elementData
                 (

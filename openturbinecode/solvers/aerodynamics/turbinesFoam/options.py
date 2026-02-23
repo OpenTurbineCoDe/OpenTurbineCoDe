@@ -240,7 +240,7 @@ class fvOptions:
         # Header for axialFlowTurbineAlSourceCoeffs
         self.origin = [0, 0, 0]
         self.axis = [
-            -1 * float(np.cos(np.radians(run_options.tilt_angle))),
+            float(np.cos(np.radians(run_options.tilt_angle))),
             0,
             float(np.sin(np.radians(run_options.tilt_angle))),
         ]
@@ -455,45 +455,54 @@ class HexMeshDict:
         # == 3. REFINEMENT REGIONS (Using Dataclasses) ==
         # ===================================================================
 
+        HIGH_RES = False
+
+        CORE_REFINEMENT_LEVEL = 4 if HIGH_RES else 3  # Default 4
+        UPSTREAM_REFINEMENT_LEVEL = 2 if HIGH_RES else 1  # Default 2
+        CLOSE_WAKE_REFINEMENT_LEVEL = 3 if HIGH_RES else 1  # Default 3
+        MIDFIELD_REFINEMENT_LEVEL = 2 if HIGH_RES else 1  # Default 2
+        FAR_WAKE_REFINEMENT_LEVEL = 1  # Default 1
+        FARFIELD_REFINMENT_LEVEL = 1  # Default 1
+
         self.refinement_regions: List[RefinementRegion] = [
             # 1. CORE L4/L3: Distance mode on the thin disc (highest priority)
             RefinementRegion(
                 name="core_disc",
                 mode="distance",
                 levels=[
-                    (0.05 * D, max_refinement_level),  # L4 up to 1.8m
-                    (0.10 * D, max_refinement_level - 1),  # L3 up to 3.6m
+                    (0.05 * D, CORE_REFINEMENT_LEVEL),  # L4 up to 1.8m
+                    (0.10 * D, CORE_REFINEMENT_LEVEL - 1),  # L3 up to 3.6m
                 ],
             ),
             # 2. UPSTREAM SEGMENT (-3D to -1D) - L2 Uniform
             RefinementRegion(
                 name="upstream_seg",
                 mode="inside",
-                levels=[(1.0, max_refinement_level - 2)],  # L2
+                levels=[(1.0, UPSTREAM_REFINEMENT_LEVEL)],  # L2
             ),
             # 3. CLOSE WAKE SEGMENT (0D to 3D) - L3 Uniform
             RefinementRegion(
                 name="close_wake_seg",
                 mode="inside",
-                levels=[(1.0, max_refinement_level - 1)],  # L3
+                levels=[(1.0, CLOSE_WAKE_REFINEMENT_LEVEL)],  # L3
             ),
             # 4. MIDFIELD SEGMENT (3D to 6D) - L2 Uniform
             RefinementRegion(
                 name="midfield_seg",
                 mode="inside",
-                levels=[(1.0, max_refinement_level - 2)],  # L2
+                levels=[(1.0, MIDFIELD_REFINEMENT_LEVEL)],  # L2
             ),
             # 4. FAR WAKE SEGMENT (6D to 10D) - L1 Uniform
             RefinementRegion(
                 name="far_wake_seg",
                 mode="inside",
-                levels=[(1.0, max_refinement_level - 3)],  # L1
+                levels=[(1.0, FAR_WAKE_REFINEMENT_LEVEL)],  # L1
             ),
             # 5. FARFIELD BOX (Lateral/Domain Buffer) - L1 Uniform
             RefinementRegion(
                 name="farfield_box",
                 mode="inside",
-                levels=[(1.0, max_refinement_level - 3)],  # L1
+                levels=[(1.0, FARFIELD_REFINMENT_LEVEL)],  # L1
             ),
         ]
 

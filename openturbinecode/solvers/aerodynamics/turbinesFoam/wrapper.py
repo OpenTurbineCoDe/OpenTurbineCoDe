@@ -7,7 +7,7 @@ import post_processing as pp
 import pandas as pd
 from dataclasses import dataclass
 
-BOOL_RUN_CASE = False
+BOOL_RUN_CASE = True
 BOOL_POST_PROCESS = True
 
 GEN_FILES = True
@@ -23,7 +23,7 @@ FOAM_FILE = "foam.case"
 class RunOptions:
     case_name: str = "test_case"
     case_class: str = "axialFlowTurbineAL"
-    num_revolutions: int = 3
+    num_revolutions: int = 5
     time_step: float = 0.25  # degrees per time step
     model_tower: bool = False
     model_hub: bool = False
@@ -31,7 +31,7 @@ class RunOptions:
     wind_speed: float = 12.8  # m/s
     twist_offset: float = 0.0
     tilt_angle: float = -6.0  # degrees
-    num_parallel_cores: int = 4
+    num_parallel_cores: int = 1
     mesh_density: int = 8
 
 
@@ -112,7 +112,7 @@ class turbinesFoamWrapper:
         util.initialize_run(self.case_name)
 
         # Run the turbinesFoam simulation
-        util.allrun_turbinesFoam_case(self.case_name)
+        util.allrun_turbinesFoam_case(self.case_name, self.run_options.num_parallel_cores)
 
     def post_process(self, post_options: PostOptions):
         # Extract the simulation results
