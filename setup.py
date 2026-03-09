@@ -22,7 +22,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires = ["numpy", "jsonschema", "matplotlib", "scp"],
+    install_requires=["numpy", "jsonschema", "matplotlib", "scp"],
     extras_require={
         "high-fidelity": [
             "adflow",
@@ -33,14 +33,16 @@ setuptools.setup(
         ],
         "gui": ["PyQt5", "pyqtgraph"],
         "meshing": ["PGL"],
-        "controls": ["pandas","ROSCO_toolbox","openmdao","pCrunch"], # TODO: this stuff is pretty heavyweight, we should find a way to selectively install and use only te packages that we need at installation time, or have some "fake" placeholder modules
+        # This stuff is pretty heavyweight, we should find a way to selectively install and use only the
+        # packages that we need at installation time, or have some "fake" placeholder modules
+        "controls": ["pandas", "ROSCO_toolbox", "openmdao", "pCrunch"],
         "low-fidelity": [],
     },
-    package_data = {"openturbinecode": ["*.json"],
-    "openturbinecode.master_GUI": ["Config.ui"],
-    "openturbinecode.aerostructural": ["Config.ui"],
-    "openturbinecode.controls": ["ConfigControl_v3.ui"],
-    "openturbinecode.aerodynamics": ["Config.ui"]},
+    package_data={"openturbinecode": ["*.json"],
+                  "openturbinecode.master_GUI": ["Config.ui"],
+                  "openturbinecode.aerostructural": ["Config.ui"],
+                  "openturbinecode.solvers.controls": ["ConfigControl_v3.ui"],
+                  "openturbinecode.aerodynamics": ["Config.ui"]},
     packages=pkg,
     python_requires=">=3.6",
 )

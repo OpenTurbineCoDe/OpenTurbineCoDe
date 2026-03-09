@@ -1,0 +1,9 @@
+    hub:
+        diameter: 5.6
+        cone_angle: 0.0
+
+    nacelle:
+        outer_shape_bem:
+            uptilt_angle: 0.0
+            # distance_tt_hub: 2.0 #??
+            overhang: 7.1

@@ -1,0 +1,1 @@
+This directory holds the actual models used by OpenFAST and AeroDyn. These can be updated based on the models in the parent directory.

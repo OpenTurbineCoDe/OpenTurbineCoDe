@@ -1,0 +1,34 @@
+Microsoft (R) COFF/PE Dumper Version 14.42.34433.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file AeroDyn.dll
+
+File Type: DLL
+
+  Section contains the following exports for AeroDyn_Inflow_c_binding_x64.dll
+
+    00000000 characteristics
+           0 time date stamp
+        0.00 version
+           1 ordinal base
+           4 number of functions
+           4 number of names
+
+    ordinal hint RVA      name
+
+          1    0 0065E090 AeroDyn_Inflow_C_CalcOutput
+          2    1 006609E0 AeroDyn_Inflow_C_End
+          3    2 00657380 AeroDyn_Inflow_C_Init
+          4    3 0065F270 AeroDyn_Inflow_C_UpdateStates
+
+  Summary
+
+      28A000 .data
+        3000 .gxfg
+       1B000 .pdata
+      184000 .rdata
+        C000 .reloc
+     17F2000 .text
+        A000 .trace
+        2000 _RDATA

@@ -1,0 +1,43 @@
+NREL S809
+Made by Adam Cardoza from UAE data s809_1000k.dat
+   1        Number of airfoil tables in this file
+   0.0      Table ID parameter
+  16.2      Stall angle (deg)
+   0.0      No longer used, enter zero
+   0.0      No longer used, enter zero
+   0.0      No longer used, enter zero
+  -13.1      Zero Cn angle of attack (deg)
+  -0.0018      Cn slope for zero lift (dimensionless)
+  -0.0430      Cn extrapolated to value at positive stall angle of attack
+   0.0244      Cn at stall value for negative angle of attack
+   0.0      Angle of attack for minimum CD (deg)
+   0.35     Minimum CD value
+-20.100 -0.550  0.298  0.059
+-18.200 -0.650  0.296  0.080
+-16.200 -0.800  0.183  0.024
+-14.100 -0.790  0.079  0.006
+-12.100 -0.700  0.055 -0.004
+-10.200 -0.630  0.115 -0.004
+-8.200  -0.580  0.027 -0.003
+-6.200  -0.610  0.038  0.009
+-4.100  -0.400  0.013 -0.025
+-2.100  -0.160  0.010 -0.031
+0.000   0.070   0.011 -0.036
+2.100   0.300   0.013 -0.039
+4.100   0.550   0.014 -0.046
+6.100   0.790   0.015 -0.050
+8.200   0.900   0.026 -0.036
+10.100  0.940   0.072 -0.040
+11.200  0.930   0.024 -0.028
+12.200  0.970   0.037 -0.031
+13.300  1.000   0.055 -0.036
+14.200  1.020   0.062 -0.037
+15.200  1.030   0.071 -0.038
+16.200  1.010   0.088 -0.043
+17.200  0.950   0.104 -0.046
+18.100  0.900   0.133 -0.058
+19.200  0.780   0.347 -0.146
+20.000  0.670   0.321 -0.117
+22.100  0.700   0.370 -0.125
+24.000  0.770   0.435 -0.143
+26.100  0.910   0.536 -0.178

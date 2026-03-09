@@ -1,0 +1,9 @@
+assembly:
+    turbine_class: I
+    turbulence_class: B
+    drivetrain: direct_drive
+    rotor_orientation: Upwind
+    number_of_blades: 3
+    hub_height: 119.
+    rotor_diameter: 178.3
+    rated_power: 10.e+6

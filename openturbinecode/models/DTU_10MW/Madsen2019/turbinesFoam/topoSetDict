@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+actions
+(
+    // Turbine rotor cell set
+    {
+        name 	turbine;
+        type	cellSet;
+        action	new;
+        source	cylinderToCell;
+        sourceInfo
+        {
+            type    cylinder; 
+            p1      (0 0 -89.167); // Starting at the blade root along Z-axis
+            p2      (0 0 0);       // End at rotor apex
+            radius  86.5;          // Approximate rotor radius
+        }
+    }
+
+    // Tower cell set
+    {
+        name 	turbine;
+        type	cellSet;
+        action	add;
+        source	cylinderToCell;
+        sourceInfo
+        {
+            type    cylinder; 
+            p1      (0 0 -115.6);  // Tower base
+            p2      (0 0 0);       // Tower top
+            radius  4.15;          // Approximate tower radius
+        }
+    }
+
+    // Convert cellSet to cellZone for fvOptions
+    {
+        name    turbine;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        sourceInfo
+        {
+            set turbine;
+        }
+    }
+);
+
+
+// ************************************************************************* //

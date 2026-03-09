@@ -3,30 +3,24 @@
 import sys
 import os
 import matplotlib.pyplot as plt
-# import shutil, tempfile, math, string
-# import numpy as np
-# import subprocess
+from pathlib import Path
 import ast
 
-#conditional imports
-try:
-    from PyQt5 import QtCore, QtGui, uic, QtWidgets
-    from PyQt5.QtWidgets import QFileDialog
-except ImportError as err:
-    pass
 
-from openturbinecode.aerodynamics import aerodynamics_gui as aero
-from openturbinecode.structure import structure_gui as struc
-from openturbinecode.aerostructural import aerostructural_gui as aerostruct
-from openturbinecode.controls import control_gui as ctrl
-from openturbinecode.geometry import geometry_gui as geom
+from PyQt5 import QtCore, QtGui, uic, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 
+from openturbinecode.solvers.aerodynamics import aerodynamics_gui as aero
+from openturbinecode.solvers.structure import structure_gui as struc
+from openturbinecode.solvers.aerostructural import aerostructural_gui as aerostruct
+from openturbinecode.solvers.controls import control_gui as ctrl
+from openturbinecode.services.geometry import geometry_gui as geom
+from openturbinecode.main import OpenTurbineCoDe
 
-#NOTE : for now, we dynamically load the UI file so that it's easier for everybody to work in parallel.
-#       Later, we should replace this by a static load when everybody is done editing the GUI.
-#       See also https://realpython.com/qt-designer-python/
-UIrepresentation = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "Config.ui")[0]  # Load the UI
+from openturbinecode.configs.pathing import PROJECT_ROOT
 
+# Load the UI file
+UIrepresentation = uic.loadUiType(os.path.dirname( os.path.realpath(__file__) ) + os.sep + "Config.ui")[0]
 
 class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
@@ -34,7 +28,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
     #def call_Geo_loadGeom(self):
     #    self.OTCD.loadGeom(self.fName)
     
-    def __init__(self,  OTCD_, parent=None):
+    def __init__(self,  OTCD_: OpenTurbineCoDe, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
@@ -48,8 +42,8 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         
         #=====  DEFAULTS ===============================================
 
-        self.pathToMadsen = self.OTCD.path_to_root + os.sep + "models" + os.sep + "DTU_10MW" + os.sep + "Madsen2019" + os.sep + "Madsen2019_10.yaml"
 
+        self.pathToMadsen = PROJECT_ROOT / "models" / "DTU_10MW" / "Madsen2019" / "Madsen2019_10.yaml"
         #=====  MAIN OPTIONS ===============================================
         #self.OTCD.MessageBox = self.textBrowser
         self.OTCD.QtWidgets = QtWidgets
@@ -66,7 +60,7 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
         self.Main_DLC_genButton.clicked.connect(self.caller_generateDLC)
 
         #=====  GEOMETRY ===============================================
-        self.geometry_ui = geom.Mapper(self.OTCD.myGeom,parent=self,withMasterGUI=True)
+        self.geometry_ui = geom.Mapper(self.OTCD.geometry_module,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.geometry_ui,"Geometry")
         #=====  MESHING ===============================================
         
@@ -74,45 +68,33 @@ class OTCD_GUI(QtWidgets.QMainWindow, UIrepresentation):
 
         #=====  AERODYNAMICS ===============================================
         
-        self.aero_ui = aero.Mapper(self.OTCD.myAero,parent=self,withMasterGUI=True)
+        self.aero_ui = aero.Mapper(self.OTCD.aero_module,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.aero_ui,"Aerodynamics")
 
         #=====  STRUCTURE ===============================================
         
-        self.struc_ui = struc.Mapper(self.OTCD.myStruc,parent=self,withMasterGUI=True)
+        self.struc_ui = struc.Mapper(self.OTCD.struct_module,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.struc_ui,"Structure")
 
         #=====  AERO-STRUCTURE ===============================================
         
         # aerostructGUI_ui = asGui.Mapper(OTCD=self.OTCD,parent=self)
         # self.SampleModule.addTab(aerostructGUI_ui,"Aerostructural")
-        self.aerostructGUI_ui = aerostruct.Mapper(self.OTCD.myAeroStruct,parent=self, withMasterGUI=True)
+        self.aerostructGUI_ui = aerostruct.Mapper(self.OTCD.aero_struct_module,parent=self, withMasterGUI=True)
         self.Master_tabs.addTab(self.aerostructGUI_ui,"AeroStructure")
 
         #=====  CCD ===============================================
         
-        self.control_ui = ctrl.Mapper(self.OTCD.myCtrl,parent=self,withMasterGUI=True)
+        self.control_ui = ctrl.Mapper(self.OTCD.control_module,parent=self,withMasterGUI=True)
         self.Master_tabs.addTab(self.control_ui,"CCD")
 
-        # ===================================
-        # FILL THE GUI WITH PRELOADED DATA:
-        # ===================================
+        # Fill the GUI with the data from the OpenTurbineCoDe object
         self.disp_case()
 
-
-
-    #*******************************************************************
-    #************** CALLER FUNCTIONS               *********************
-    #*******************************************************************
-
-
-    #=====  GENERAL FUNCTIONS, USED FOR THE ENTIRE GUI ===============================================
-
-    # unpack all options and fill the UI
     def disp_case(self):
 
         #display path to case
-        self.Main_set_PathToCase.setText(self.OTCD.path_to_case)
+        self.Main_set_PathToCase.setText(str(self.OTCD.path_to_case))
 
         #update parameters with the current texts in the fields
         if "DLC" in self.OTCD.modeling_options["OpenTurbineCoDe"] and "DLC_list" in self.OTCD.modeling_options["OpenTurbineCoDe"]["DLC"]: 

@@ -1,0 +1,99 @@
+===== AeroDyn v15 Input File ==========================================================
+DTU 10MW onshore reference wind turbine v0.1 - OpenFAST v3.5.3
+===== General Options =================================================================
+               FALSE   Echo           - Echo the input to <RootName>.AD.ech (flag)
+           "default"   DTAero         - Time interval for aerodynamic calculations (s)
+                   1   WakeMod        - Type of wake/induction model (0=none, 1=BEMT, 2=DBEMT)
+                   1   AFAeroMod      - Type of blade airfoil aerodynamics model (1=steady model, 2=Beddoes-Leishman unsteady model)
+                   0   TwrPotent      - Type tower influence on wind based on potential flow around the tower (0=none, 1=baseline potential flow, 2=potential flow with Bak correction)
+                   0   TwrShadow      - Calculate tower influence on wind based on downstream tower shadow (flag)
+               FALSE   TwrAero        - Calculate tower aerodynamic loads (flag)
+               FALSE   FrozenWake     - Assume frozen wake during linearization (flag)
+               FALSE   CavitCheck     - Perform cavitation check (flag)
+               FALSE   Buoyancy       - Include buoyancy effects (flag)
+               FALSE   CompAA         - Flag to compute AeroAcoustics calculation
+            "unused"   AA_InputFile   - Aeroacoustics input file
+===== Environmental Conditions ========================================================
+               1.225   AirDens        - Air density (kg/m^3)
+           1.784E-05   KinVisc        - Kinematic air viscosity (m^2/s)
+              337.29   SpdSound       - Speed of sound (m/s)
+            101325.0   Patm           - Atmospheric pressure (Pa)
+              1700.0   Pvap           - Vapour pressure of fluid (Pa)
+===== Blade-Element/Momentum Theory Options ===========================================
+                   1   SkewMod        - Type of skewed-wake correction model (1=uncoupled, 2=Pitt/Peters, 3=coupled)
+           "default"   SkewModFactor  - Constant used in Pitt/Peters skewed wake model (15/32*pi)
+               FALSE   TipLoss        - Use the Prandtl tip-loss model
+               FALSE   HubLoss        - Use the Prandtl hub-loss model
+               FALSE   TanInd         - Include tangential induction in BEMT calculations
+               FALSE   AIDrag         - Include the drag term in the axial-induction calculation
+               FALSE   TIDrag         - Include the drag term in the tangential-induction calculation
+           "Default"   IndToler       - Convergence tolerance for BEMT nonlinear solve residual equation
+                 200   MaxIter        - Maximum number of iteration steps
+===== Dynamic Blade-Element/Momentum Theory Options ===================================
+                   2   DBEMT_Mod      - Type of dynamic BEMT (DBEMT) model (1=constant tau1, 2=time-dependent tau1)
+                 4.0   tau1_const     - Time constant for DBEMT (s)
+===== OLAF -- cOnvecting LAgrangian Filaments (Free Vortex Wake) Theory Options =======
+            "unused"   OLAFInputFileName - Input file for OLAF
+===== Beddoes-Leishman Unsteady Airfoil Aerodynamics Options ==========================
+                   1   UAMod          - Unsteady Aero Model Switch (1=Baseline model (Original), 2=Gonzalez's variant, 3=Minemma/Pierce variant)
+                TRUE   FLookup        - Flag for f' lookup or best-fit exponential equations
+===== Airfoil Information =============================================================
+                   1   AFTabMod       - Interpolation method for multiple airfoil tables
+                   1   InCol_Alfa     - The column in the airfoil tables that contains the angle of attack
+                   2   InCol_Cl       - The column in the airfoil tables that contains the lift coefficient
+                   3   InCol_Cd       - The column in the airfoil tables that contains the drag coefficient
+                   4   InCol_Cm       - The column in the airfoil tables that contains the pitching-moment coefficient
+                   0   InCol_Cpmin    - The column in the airfoil tables that contains the Cpmin coefficient
+                   2   NumAFfiles     - Number of airfoil files used
+"AeroData/Cylinder.dat"
+"AeroData/SD7032.dat"
+===== Rotor/Blade Properties ==========================================================
+                TRUE   UseBlCm        - Include aerodynamic pitching moment in calculations
+"IEA_15MW_ADBlade.dat"    ADBlFile(1)        - Name of file containing distributed aerodynamic properties for Blade #1 (-)
+"IEA_15MW_ADBlade.dat"    ADBlFile(2)        - Name of file containing distributed aerodynamic properties for Blade #2 (-)
+"IEA_15MW_ADBlade.dat"    ADBlFile(3)        - Name of file containing distributed aerodynamic properties for Blade #3 (-)
+===== Hub Properties ==================================================================
+                 0.0   VolHub         - Hub volume (m^3)
+                 0.0   HubCenBx       - Hub center of buoyancy x direction offset (m)
+===== Nacelle Properties ==============================================================
+                 0.0   VolNac         - Nacelle volume (m^3)
+             0.0,0,0   NacCenB        - Position of nacelle center of buoyancy from yaw bearing in nacelle coordinates (m)
+===== Tail fin Aerodynamics ===========================================================
+               FALSE   TFinAero       - Calculate tail fin aerodynamics model (flag)
+            "unused"   TFinFile       - Input file for tail fin aerodynamics [used only when TFinAero=True]
+===== Tower Influence and Aerodynamics ================================================
+                  11   NumTwrNds      - Number of tower nodes used in the analysis  (-) [used only when TwrPotent/=0, TwrShadow=True, or TwrAero=True]
+TwrElev        TwrDiam        TwrCd          TwrTI          TwrCb         
+(m)            (m)            (-)            (-)            (-)           
+0.000E+00      8.300E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+1.150E+01      8.022E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+2.300E+01      7.743E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+3.450E+01      7.465E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+4.600E+01      7.186E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+5.750E+01      6.908E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+6.900E+01      6.629E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+8.050E+01      6.351E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+9.200E+01      6.072E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+1.035E+02      5.794E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+1.156E+02      5.500E+00      1.0000E+00     0.0000E+00     1.0000E+00    
+===== Outputs =========================================================================
+               False   SumPrint       - Generate a summary file listing input options and interpolated properties to <rootname>.AD.sum (flag)
+                   0   NBlOuts        - Number of blade node outputs [0 - 9] (-)
+                       BlOutNd        - Blade nodes whose values will be output (-)
+                   0   NTwOuts        - Number of tower node outputs [0 - 9] (-)
+                       TwOutNd        - Tower nodes whose values will be output (-)
+OutList
+"RtAeroPwr"
+"RtAeroCp"
+"RtAeroCq"
+"RtAeroCt"
+"RtAeroFxh"
+"RtAeroFyh"
+"RtAeroFzh"
+"RtAeroMxh"
+"RtAeroMyh"
+"RtAeroMzh"
+"B1AeroMx"
+"B1AeroMy"
+"B1AeroMz"
+END of input file
